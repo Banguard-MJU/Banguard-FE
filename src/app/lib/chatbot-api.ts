@@ -1,0 +1,100 @@
+import { apiRequest, buildApiUrl, getAccessToken } from "./api";
+
+export interface ChatbotSession {
+  session_id: string;
+  result_id?: string | null;
+  title?: string | null;
+  created_at: string;
+}
+
+export interface ChatbotSource {
+  title: string;
+  page: number;
+  date?: string;
+}
+
+export type ChatbotStreamEvent =
+  | { type: "token"; content: string }
+  | { type: "sources"; content: ChatbotSource[]; is_grounded?: boolean }
+  | { type: "error"; content: string };
+
+export async function createChatbotSession() {
+  return apiRequest<ChatbotSession>("/chatbot/sessions", {
+    method: "POST",
+    auth: true,
+  });
+}
+
+export async function streamChatbotMessage(
+  sessionId: string,
+  question: string,
+  onEvent: (event: ChatbotStreamEvent) => void,
+  signal?: AbortSignal,
+) {
+  const token = getAccessToken();
+  if (!token) {
+    throw new Error("로그인이 필요합니다.");
+  }
+
+  const response = await fetch(buildApiUrl(`/chatbot/sessions/${sessionId}/messages`), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ question }),
+    signal,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    try {
+      const data = JSON.parse(text);
+      throw new Error(data.detail || data.message || "챗봇 응답 생성에 실패했습니다.");
+    } catch {
+      throw new Error(text || "챗봇 응답 생성에 실패했습니다.");
+    }
+  }
+
+  if (!response.body) {
+    throw new Error("스트리밍 응답을 읽을 수 없습니다.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    const chunks = buffer.split("\n\n");
+    buffer = chunks.pop() || "";
+
+    for (const chunk of chunks) {
+      const dataLine = chunk
+        .split("\n")
+        .find((line) => line.startsWith("data:"));
+
+      if (!dataLine) {
+        continue;
+      }
+
+      const data = dataLine.replace(/^data:\s*/, "");
+      if (!data.trim()) {
+        continue;
+      }
+
+      onEvent(JSON.parse(data) as ChatbotStreamEvent);
+    }
+  }
+
+  const remaining = buffer.trim();
+  if (remaining.startsWith("data:")) {
+    onEvent(JSON.parse(remaining.replace(/^data:\s*/, "")) as ChatbotStreamEvent);
+  }
+}
