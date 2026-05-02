@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Banguard">
+  <defs>
+    <linearGradient id="bg" x1="96" y1="64" x2="416" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M256 104 376 154v92c0 82-48 135-120 162-72-27-120-80-120-162v-92l120-50Z" fill="white" opacity=".96"/>
+  <path d="M256 144 336 178v68c0 56-30 93-80 116-50-23-80-60-80-116v-68l80-34Z" fill="#2563eb"/>
+  <path d="M222 256h68c18 0 30 12 30 29 0 20-15 31-39 31h-91V196h86c23 0 38 12 38 31 0 15-9 25-24 29 18 4 30 15 30 32" fill="none" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

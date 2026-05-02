@@ -87,25 +87,25 @@ export function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       {/* Hero Section */}
-      <section className="py-24">
+      <section className="py-10 sm:py-16 lg:py-24">
         <div className="app-shell text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-5 py-2.5 rounded-full mb-8 backdrop-blur-sm">
+            <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-blue-200 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-4 py-2 text-blue-700 backdrop-blur-sm dark:border-blue-800 dark:text-blue-300 sm:mb-8 sm:px-5 sm:py-2.5">
               <Shield className="w-4 h-4" />
               <span className="text-sm font-medium">AI 기반 부동산 안전 플랫폼</span>
             </div>
             
-            <h1 className="text-6xl sm:text-7xl font-bold mb-8 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 bg-clip-text text-transparent leading-tight">
+            <h1 className="mb-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-[2.55rem] font-bold leading-[1.12] text-transparent dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 sm:mb-8 sm:text-6xl lg:text-7xl">
               방가드로 안전하게
               <br />
               주거를 시작하세요
             </h1>
             
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="mx-auto mb-8 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-400 sm:mb-10 sm:text-xl sm:leading-relaxed">
               부동산 지식이 부족한 대학생과 1인 가구를 위한 AI 기반 계약서 분석 및 전세 사기 예방 플랫폼
             </p>
 
@@ -126,17 +126,17 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/contract-analysis")}
-                      className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden group border-2 border-transparent hover:border-blue-400 dark:hover:border-blue-600 h-[400px] flex flex-col select-none"
+                      className="flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-blue-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-blue-600 sm:h-[400px] sm:rounded-3xl"
                     >
-                      <div className="h-52 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center relative overflow-hidden">
+                      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 sm:h-52">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <FileText className="w-24 h-24 text-white group-hover:scale-110 transition-transform duration-300 relative z-10" />
+                        <FileText className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
                       </div>
-                      <div className="p-8 flex-1 flex flex-col">
-                        <div className="min-h-[4rem]">
-                          <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">AI 계약서 분석</h3>
+                      <div className="flex flex-1 flex-col p-5 sm:p-8">
+                        <div className="sm:min-h-[4rem]">
+                          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:mb-3 sm:text-2xl">AI 계약서 분석</h3>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 mb-5 leading-relaxed min-h-[6.5rem]">
+                        <p className="mb-4 min-h-0 text-sm leading-6 text-gray-600 dark:text-gray-400 sm:mb-5 sm:min-h-[6.5rem] sm:text-base sm:leading-relaxed">
                           OCR과 LLM 기술로 계약서의 위험 요소를 자동으로 탐지하고 분석합니다. 복잡한 권리관계를 신호등 색상으로 직관적으로 표시합니다.
                         </p>
                         <div className="mt-auto flex min-h-[1.75rem] items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
@@ -153,17 +153,17 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/chatbot")}
-                      className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden group border-2 border-transparent hover:border-indigo-400 dark:hover:border-indigo-600 h-[400px] flex flex-col select-none"
+                      className="flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-indigo-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-indigo-600 sm:h-[400px] sm:rounded-3xl"
                     >
-                      <div className="h-52 bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center relative overflow-hidden">
+                      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 sm:h-52">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <MessageSquare className="w-24 h-24 text-white group-hover:scale-110 transition-transform duration-300 relative z-10" />
+                        <MessageSquare className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
                       </div>
-                      <div className="p-8 flex-1 flex flex-col">
-                        <div className="min-h-[4rem]">
-                          <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">AI 상담 챗봇</h3>
+                      <div className="flex flex-1 flex-col p-5 sm:p-8">
+                        <div className="sm:min-h-[4rem]">
+                          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:mb-3 sm:text-2xl">AI 상담 챗봇</h3>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 mb-5 leading-relaxed min-h-[6.5rem]">
+                        <p className="mb-4 min-h-0 text-sm leading-6 text-gray-600 dark:text-gray-400 sm:mb-5 sm:min-h-[6.5rem] sm:text-base sm:leading-relaxed">
                           부동산 관련 궁금한 점을 AI 챗봇에게 물어보고 실시간 답변을 받으세요. RAG 기술로 정확하고 신뢰할 수 있는 정보를 제공합니다.
                         </p>
                         <div className="mt-auto flex min-h-[1.75rem] items-center text-indigo-600 dark:text-indigo-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
@@ -180,17 +180,17 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/community")}
-                      className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden group border-2 border-transparent hover:border-purple-400 dark:hover:border-purple-600 h-[400px] flex flex-col select-none"
+                      className="flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-purple-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-purple-600 sm:h-[400px] sm:rounded-3xl"
                     >
-                      <div className="h-52 bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center relative overflow-hidden">
+                      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 sm:h-52">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <Users className="w-24 h-24 text-white group-hover:scale-110 transition-transform duration-300 relative z-10" />
+                        <Users className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
                       </div>
-                      <div className="p-8 flex-1 flex flex-col">
-                        <div className="min-h-[4rem]">
-                          <h3 className="text-2xl font-bold mb-3 text-gray-900 dark:text-gray-100">커뮤니티</h3>
+                      <div className="flex flex-1 flex-col p-5 sm:p-8">
+                        <div className="sm:min-h-[4rem]">
+                          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:mb-3 sm:text-2xl">커뮤니티</h3>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 mb-5 leading-relaxed min-h-[6.5rem]">
+                        <p className="mb-4 min-h-0 text-sm leading-6 text-gray-600 dark:text-gray-400 sm:mb-5 sm:min-h-[6.5rem] sm:text-base sm:leading-relaxed">
                           같은 고민을 가진 사용자들과 경험을 공유하고 서로 도와주세요. 부동산 관련 팁과 주의사항을 나눌 수 있습니다.
                         </p>
                         <div className="mt-auto flex min-h-[1.75rem] items-center text-purple-600 dark:text-purple-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
@@ -224,9 +224,9 @@ export function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16">
+      <section className="py-8 sm:py-12 lg:py-16">
         <div className="app-shell">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -236,10 +236,10 @@ export function Home() {
               >
                 <Card className="text-center border-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 hover:shadow-xl transition-all duration-300 rounded-2xl">
                   <CardContent className="pt-8 pb-6">
-                    <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                      <stat.icon className="w-7 h-7 text-white" />
+                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 sm:mb-4 sm:h-14 sm:w-14">
+                      <stat.icon className="h-5 w-5 text-white sm:h-7 sm:w-7" />
                     </div>
-                    <div className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{stat.value}</div>
+                    <div className="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:mb-2 sm:text-4xl">{stat.value}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{stat.label}</div>
                   </CardContent>
                 </Card>
@@ -250,11 +250,11 @@ export function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24">
+      <section className="py-10 sm:py-16 lg:py-24">
         <div className="app-shell">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">주요 기능</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+          <div className="mb-8 text-center sm:mb-16">
+            <h2 className="mb-3 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-transparent dark:from-gray-100 dark:to-gray-300 sm:mb-6 sm:text-5xl">주요 기능</h2>
+            <p className="text-base text-gray-600 dark:text-gray-400 sm:text-xl">
               AI 기술로 안전한 주거 환경을 만들어갑니다
             </p>
           </div>
@@ -269,10 +269,10 @@ export function Home() {
               >
                 <Card className="h-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl overflow-hidden group">
                   <CardHeader className="pb-4">
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                      <feature.icon className="w-8 h-8 text-white" />
+                    <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.color} transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-16 sm:w-16`}>
+                      <feature.icon className="h-6 w-6 text-white sm:h-8 sm:w-8" />
                     </div>
-                    <CardTitle className="text-2xl">{feature.title}</CardTitle>
+                    <CardTitle className="text-xl sm:text-2xl">{feature.title}</CardTitle>
                     <CardDescription className="text-base leading-relaxed">
                       {feature.description}
                     </CardDescription>
@@ -294,13 +294,13 @@ export function Home() {
             className="mt-10"
           >
             <Card className="overflow-hidden rounded-3xl border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
-              <CardContent className="grid gap-6 px-8 py-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+              <CardContent className="grid gap-5 px-5 py-6 sm:gap-6 sm:px-8 sm:py-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
                 <div>
                   <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/70 px-4 py-2 text-sm font-medium text-blue-700 dark:border-indigo-900/60 dark:bg-indigo-950/30 dark:text-blue-300">
                     <Landmark className="h-4 w-4" />
                     정책 · 공공정보 둘러보기
                   </div>
-                  <h3 className="mb-3 text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  <h3 className="mb-3 text-2xl font-bold leading-tight text-gray-900 dark:text-gray-100 sm:text-3xl">
                     보증, 지원 제도, 계약 체크리스트를 한 곳에서 확인하세요
                   </h3>
                   <p className="max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-400">
@@ -329,7 +329,7 @@ export function Home() {
                   </div>
                 </div>
 
-                <div className="lg:col-span-2 flex flex-wrap justify-start gap-3">
+                <div className="flex flex-col justify-start gap-3 sm:flex-row sm:flex-wrap lg:col-span-2">
                   <Button asChild className="rounded-2xl px-6">
                     <Link to="/policy">
                       정책/공공정보 보러가기
@@ -350,12 +350,12 @@ export function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 relative overflow-hidden">
+      <section className="relative overflow-hidden py-10 sm:py-16 lg:py-24">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 via-indigo-100/30 to-purple-100/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 -z-10"></div>
         <div className="app-shell">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">사용 방법</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
+          <div className="mb-8 text-center sm:mb-16">
+            <h2 className="mb-3 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-transparent dark:from-gray-100 dark:to-gray-300 sm:mb-6 sm:text-5xl">사용 방법</h2>
+            <p className="text-base text-gray-600 dark:text-gray-400 sm:text-xl">
               3단계로 간편하게 계약서를 분석하세요
             </p>
           </div>
@@ -385,9 +385,9 @@ export function Home() {
                 transition={{ duration: 0.5, delay: index * 0.2 }}
                 className="relative"
               >
-                <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-blue-100 dark:border-blue-900">
-                  <div className="text-6xl font-bold bg-gradient-to-br from-blue-200 to-indigo-200 dark:from-blue-600 dark:to-indigo-600 bg-clip-text text-transparent mb-6">{step.step}</div>
-                  <h3 className="text-2xl font-bold mb-3 dark:text-gray-100">{step.title}</h3>
+                <div className="rounded-2xl border border-blue-100 bg-white/70 p-5 shadow-xl backdrop-blur-sm transition-all duration-300 hover:shadow-2xl dark:border-blue-900 dark:bg-gray-800/70 sm:rounded-3xl sm:p-8">
+                  <div className="mb-4 bg-gradient-to-br from-blue-200 to-indigo-200 bg-clip-text text-4xl font-bold text-transparent dark:from-blue-600 dark:to-indigo-600 sm:mb-6 sm:text-6xl">{step.step}</div>
+                  <h3 className="mb-3 text-xl font-bold dark:text-gray-100 sm:text-2xl">{step.title}</h3>
                   <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{step.description}</p>
                 </div>
                 {index < 2 && (
@@ -400,7 +400,7 @@ export function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24">
+      <section className="py-10 sm:py-16 lg:py-24">
         <div className="app-shell text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -409,17 +409,17 @@ export function Home() {
           >
             <Card className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 border-0 text-white rounded-3xl shadow-2xl shadow-blue-500/25 overflow-hidden relative">
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
-              <CardContent className="pt-16 pb-16 relative">
-                <div className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <Shield className="w-10 h-10" />
+              <CardContent className="relative px-5 py-10 sm:px-8 sm:py-16">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/20 backdrop-blur-sm sm:mb-8 sm:h-20 sm:w-20">
+                  <Shield className="h-8 w-8 sm:h-10 sm:w-10" />
                 </div>
-                <h2 className="text-4xl font-bold mb-6">
+                <h2 className="mb-4 text-2xl font-bold leading-tight sm:mb-6 sm:text-4xl">
                   지금 바로 계약서를 분석해보세요
                 </h2>
-                <p className="text-blue-100 mb-10 text-xl leading-relaxed max-w-2xl mx-auto">
+                <p className="mx-auto mb-8 max-w-2xl text-base leading-7 text-blue-100 sm:mb-10 sm:text-xl sm:leading-relaxed">
                   무료로 AI 기반 계약서 분석을 경험하고 전세 사기로부터 안전하게 보호받으세요
                 </p>
-                <Button asChild size="lg" variant="secondary" className="text-lg h-14 px-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105">
+                <Button asChild size="lg" variant="secondary" className="h-12 rounded-2xl px-8 text-base shadow-xl transition-all hover:scale-105 hover:shadow-2xl sm:h-14 sm:px-10 sm:text-lg">
                   <Link to="/contract-analysis">
                     무료로 시작하기
                   </Link>

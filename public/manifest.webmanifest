@@ -1,0 +1,19 @@
+{
+  "name": "방가드",
+  "short_name": "방가드",
+  "description": "AI 기반 부동산 안전 플랫폼",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eff6ff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/banguard-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

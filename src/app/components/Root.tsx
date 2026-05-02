@@ -33,7 +33,7 @@ export function Root() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <Navigation />
-      <main>
+      <main className="app-bottom-safe">
         <Outlet />
       </main>
     </div>

@@ -122,10 +122,38 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    min-width: 0;
   }
 
   body {
     @apply bg-background text-foreground;
+    min-width: 320px;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  p,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  label,
+  button,
+  a,
+  span {
+    overflow-wrap: anywhere;
+    word-break: keep-all;
   }
 
   /**
@@ -185,14 +213,16 @@
     width: 100%;
     max-width: 1440px;
     margin-inline: auto;
-    padding-inline: 1rem;
+    padding-inline: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   .app-shell-wide {
     width: 100%;
     max-width: 1560px;
     margin-inline: auto;
-    padding-inline: 1rem;
+    padding-inline: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
   @media (min-width: 640px) {
@@ -213,6 +243,44 @@
     .app-shell,
     .app-shell-wide {
       padding-inline: 2rem;
+    }
+  }
+
+  .app-bottom-safe {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 768px) {
+    .app-bottom-safe {
+      padding-bottom: 0;
+    }
+  }
+
+  @media (max-width: 639px) {
+    [data-slot="card"] {
+      gap: 1rem;
+      border-radius: 1rem;
+    }
+
+    [data-slot="card-header"] {
+      padding-inline: 1rem;
+      padding-top: 1rem;
+    }
+
+    [data-slot="card-content"] {
+      padding-inline: 1rem;
+    }
+
+    [data-slot="button"] {
+      min-height: 2.75rem;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    [role="dialog"] {
+      max-width: calc(100vw - 1.5rem) !important;
+      border-radius: 1rem !important;
     }
   }
 }

@@ -54,19 +54,19 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 p-4 py-8 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30 sm:py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        <Card className="border-0 shadow-2xl rounded-3xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader className="text-center space-y-4 pt-8">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Shield className="w-8 h-8 text-white" />
+        <Card className="rounded-2xl border-0 bg-white/80 shadow-2xl backdrop-blur-sm dark:bg-gray-800/80 sm:rounded-3xl">
+          <CardHeader className="space-y-3 pt-6 text-center sm:space-y-4 sm:pt-8">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/25 sm:h-16 sm:w-16">
+              <Shield className="h-7 w-7 text-white sm:h-8 sm:w-8" />
             </div>
-            <CardTitle className="text-3xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+            <CardTitle className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-2xl text-transparent dark:from-blue-400 dark:to-indigo-400 sm:text-3xl">
               방가드 로그인
             </CardTitle>
             <CardDescription className="text-base">

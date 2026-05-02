@@ -183,15 +183,15 @@ export function Signup() {
   const allAgreed = agreedToTerms && agreedToPrivacy && agreedToMarketing;
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 px-4 py-8 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30 sm:py-12">
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Shield className="w-7 h-7 text-white" />
+        <div className="mb-6 text-center sm:mb-8">
+          <div className="mb-3 inline-flex items-center gap-3 sm:mb-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/25 sm:h-14 sm:w-14">
+              <Shield className="h-6 w-6 text-white sm:h-7 sm:w-7" />
             </div>
-            <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent dark:from-blue-400 dark:to-indigo-400 sm:text-3xl">
               방가드
             </span>
           </div>
@@ -200,8 +200,8 @@ export function Signup() {
           </p>
         </div>
 
-        <Card className="border-0 shadow-2xl rounded-3xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader className="text-center pb-6">
+        <Card className="rounded-2xl border-0 bg-white/80 shadow-2xl backdrop-blur-sm dark:bg-gray-800/80 sm:rounded-3xl">
+          <CardHeader className="pb-4 text-center sm:pb-6">
             <CardTitle className="text-2xl">회원가입</CardTitle>
             <CardDescription>
               간단한 정보를 입력하고 시작하세요
@@ -234,7 +234,7 @@ export function Signup() {
 
               <div className="space-y-2">
                 <Label htmlFor="nickname" className="text-sm font-medium">닉네임</Label>
-                <div className="flex gap-2">
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
                   <div className="relative flex-1">
                     <UserCircle className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
                     <Input
@@ -267,7 +267,7 @@ export function Signup() {
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">이메일</Label>
-                <div className="flex gap-2">
+                <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
                   <div className="relative flex-1">
                     <Mail className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
                     <Input

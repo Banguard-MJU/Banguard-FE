@@ -80,7 +80,7 @@ export function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30 flex flex-col">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
         <div className="app-shell-wide h-16 flex items-center justify-between">
@@ -99,20 +99,20 @@ export function Onboarding() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center pt-16 pb-24 px-6">
+      <div className="flex flex-1 items-center justify-center px-4 pb-28 pt-20 sm:px-6">
         <div className="max-w-md w-full text-center">
           {/* Icon */}
-          <div className={`inline-flex items-center justify-center w-32 h-32 rounded-3xl bg-gradient-to-br ${steps[currentStep].color} text-white mb-8 shadow-2xl`}>
+          <div className={`mb-6 inline-flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br ${steps[currentStep].color} text-white shadow-2xl sm:mb-8 sm:h-32 sm:w-32 [&_svg]:h-14 [&_svg]:w-14 sm:[&_svg]:h-20 sm:[&_svg]:w-20`}>
             {steps[currentStep].icon}
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="mb-3 text-3xl font-bold leading-tight text-gray-900 dark:text-gray-100 sm:mb-4 sm:text-4xl">
             {steps[currentStep].title}
           </h1>
 
           {/* Description */}
-          <p className="text-lg text-gray-600 leading-relaxed whitespace-pre-line mb-12">
+          <p className="mb-9 whitespace-pre-line text-base leading-7 text-gray-600 dark:text-gray-400 sm:mb-12 sm:text-lg sm:leading-relaxed">
             {steps[currentStep].description}
           </p>
 
@@ -135,7 +135,7 @@ export function Onboarding() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 dark:bg-gray-900 dark:border-gray-700 px-6 py-6">
+      <div className="fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 dark:border-gray-700 dark:bg-gray-900 sm:px-6 sm:py-6">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           <Button 
             onClick={handleBack}

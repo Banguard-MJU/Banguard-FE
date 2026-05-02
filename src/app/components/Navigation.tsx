@@ -56,10 +56,19 @@ export function Navigation() {
     setIsOpen(false);
   };
 
+  const mobileNavItems = [
+    { path: "/", label: "홈", icon: Shield },
+    { path: "/contract-analysis", label: "분석", icon: FileText },
+    { path: "/chatbot", label: "상담", icon: MessageSquare },
+    { path: "/listings", label: "매물", icon: Building2 },
+    { path: "/community", label: "커뮤니티", icon: Users },
+  ];
+
   return (
-    <nav className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 shadow-sm">
-      <div className="app-shell-wide">
-        <div className="flex justify-between items-center h-14">
+    <>
+      <nav className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50 shadow-sm">
+        <div className="app-shell-wide">
+          <div className="flex justify-between items-center h-14">
           <div className="flex items-center gap-3">
             {/* Hamburger Menu */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -170,9 +179,9 @@ export function Navigation() {
 
             <Link to="/" className="flex items-center gap-2 group">
               <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-2 rounded-xl group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all">
-                <Shield className="w-6 h-6 text-white" />
+                <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+              <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
                 방가드
               </span>
             </Link>
@@ -195,11 +204,11 @@ export function Navigation() {
               )}
             </Button>
 
-            <div className="ml-2 pl-2 border-l border-gray-300 dark:border-gray-600">
+            <div className="ml-1 pl-1 sm:ml-2 sm:pl-2 border-l border-gray-300 dark:border-gray-600">
               {isAuthenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2 rounded-xl border-2 hover:border-blue-300 hover:bg-blue-50 transition-all">
+                    <Button variant="outline" size="sm" className="gap-2 rounded-xl border-2 px-2 hover:border-blue-300 hover:bg-blue-50 transition-all sm:px-3">
                       <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                         <UserCircle className="w-4 h-4 text-white" />
                       </div>
@@ -259,8 +268,37 @@ export function Navigation() {
               )}
             </div>
           </div>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      <nav
+        aria-label="모바일 주요 메뉴"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/70 bg-white/92 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-gray-800/70 dark:bg-gray-950/92 md:hidden"
+      >
+        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+          {mobileNavItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+
+            return (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => navigate(item.path)}
+                className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition ${
+                  active
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                    : "text-gray-500 hover:bg-blue-50 hover:text-blue-700 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-blue-300"
+                }`}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="max-w-full truncate">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }

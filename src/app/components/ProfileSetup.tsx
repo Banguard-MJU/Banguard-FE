@@ -65,14 +65,14 @@ export function ProfileSetup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4 py-8 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30 sm:py-12">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <UserCircle className="w-8 h-8 text-white" />
+        <div className="mb-6 text-center sm:mb-8">
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/25 sm:mb-4 sm:h-16 sm:w-16">
+            <UserCircle className="h-7 w-7 text-white sm:h-8 sm:w-8" />
           </div>
-          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">
+          <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-2xl font-bold text-transparent dark:from-blue-400 dark:to-indigo-400 sm:text-3xl">
             프로필 설정
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
@@ -80,7 +80,7 @@ export function ProfileSetup() {
           </p>
         </div>
 
-        <Card className="border-0 shadow-2xl rounded-3xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+        <Card className="rounded-2xl border-0 bg-white/80 shadow-2xl backdrop-blur-sm dark:bg-gray-800/80 sm:rounded-3xl">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
@@ -202,26 +202,25 @@ export function ProfileSetup() {
               </div>
 
               {/* Info Box */}
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/30">
                 <p className="text-sm text-blue-700">
                   💡 이 정보는 계약서 분석 시 더 정확한 위험도 판단과 맞춤형 조언을 제공하는 데 사용됩니다.
                 </p>
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-3 pt-2">
+              <div className="grid gap-3 pt-2 sm:grid-cols-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleSkip}
-                  className="flex-1"
                   disabled={isLoading}
                 >
                   나중에 하기
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 gap-2"
+                  className="gap-2"
                   disabled={isLoading}
                 >
                   완료
