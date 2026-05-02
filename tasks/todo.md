@@ -26,8 +26,8 @@ Added `scripts/capture-mobile-ui.mjs` so the same screenshot set can be regenera
 - [x] Run production build verification.
 - [x] Stage all current frontend changes, including ignored task notes.
 - [x] Commit with a detailed Korean message.
-- [ ] Push `demo2` to `origin`.
+- [x] Push `demo2` to `origin`.
 
 ## Review
 
-`npm run build` passed before staging. Created commit `778bcef` with a detailed Korean message.
+`npm run build` passed before staging. Created commit `22b454c` with a detailed Korean message and pushed `demo2` to `origin`.
