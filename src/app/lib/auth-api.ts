@@ -1,9 +1,4 @@
-import { apiRequest, clearAuthTokens, setAuthTokens, type AuthTokens } from "./api";
-
-export interface AvailabilityResponse {
-  available: boolean;
-  message?: string;
-}
+import { apiRequest, clearAuthTokens, getAccessToken, setAuthTokens, type AuthTokens } from "./api";
 
 export interface SignupPayload {
   email: string;
@@ -25,12 +20,21 @@ interface BackendUserResponse {
   user_id: number;
   email: string;
   nickname: string;
-  role?: string;
+  profile_img?: string | null;
   created_at?: string;
+  role?: string;
 }
 
 interface TokenResponse extends AuthTokens {
   access_token: string;
+  refresh_token: string;
+}
+
+interface UpdateMeResponse {
+  user_id: number;
+  nickname: string;
+  profile_img?: string | null;
+  updated_at: string;
 }
 
 export interface AuthApiResponse {
@@ -48,20 +52,6 @@ function normalizeBackendUser(user: BackendUserResponse, nameFallback?: string):
     isAdmin: user.role === "ADMIN",
     createdAt: user.created_at || new Date().toISOString(),
   };
-}
-
-export async function checkEmailAvailability(email: string) {
-  return apiRequest<AvailabilityResponse>("/auth/check-email", {
-    method: "POST",
-    body: JSON.stringify({ email }),
-  });
-}
-
-export async function checkNicknameAvailability(nickname: string) {
-  return apiRequest<AvailabilityResponse>("/auth/check-nickname", {
-    method: "POST",
-    body: JSON.stringify({ nickname }),
-  });
 }
 
 export async function getCurrentUserFromBackend() {
@@ -104,4 +94,38 @@ export async function signupWithBackend(payload: SignupPayload): Promise<AuthApi
       name: payload.name,
     },
   };
+}
+
+export async function updateMeWithBackend(payload: {
+  nickname?: string;
+  password?: string;
+  profileImg?: string | null;
+}): Promise<UpdateMeResponse> {
+  return apiRequest<UpdateMeResponse>("/auth/me", {
+    method: "PATCH",
+    auth: true,
+    body: JSON.stringify({
+      nickname: payload.nickname,
+      password: payload.password,
+      profile_img: payload.profileImg,
+    }),
+  });
+}
+
+export async function logoutFromBackend() {
+  if (!getAccessToken()) {
+    return;
+  }
+
+  await apiRequest<null>("/auth/logout", {
+    method: "POST",
+    auth: true,
+  });
+}
+
+export async function deleteMeFromBackend() {
+  await apiRequest<null>("/auth/me", {
+    method: "DELETE",
+    auth: true,
+  });
 }

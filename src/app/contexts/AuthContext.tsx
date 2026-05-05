@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { getCurrentUserFromBackend, loginWithBackend, signupWithBackend } from "../lib/auth-api";
+import {
+  deleteMeFromBackend,
+  getCurrentUserFromBackend,
+  loginWithBackend,
+  logoutFromBackend,
+  signupWithBackend,
+  updateMeWithBackend,
+} from "../lib/auth-api";
 import { clearAuthTokens, getAccessToken } from "../lib/api";
 import type { UserProfile } from "../data/profile";
 
@@ -24,6 +31,8 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, name: string, nickname: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
+  deleteAccount: () => Promise<void>;
+  changePassword: (password: string) => Promise<void>;
   updateProfile: (profile: {
     nickname?: string;
     age: number;
@@ -254,8 +263,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Password validation
-    if (password.length < 6) {
-      return { success: false, error: "비밀번호는 6자 이상이어야 합니다" };
+    if (password.length < 8) {
+      return { success: false, error: "비밀번호는 8자 이상이어야 합니다" };
     }
 
     // Name validation
@@ -307,9 +316,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    logoutFromBackend().catch(() => {
+      // Client logout should still complete if the backend session is already gone.
+    });
     clearAuthTokens();
     setUser(null);
     persistSession(null);
+  };
+
+  const deleteAccount = async () => {
+    try {
+      if (getAccessToken()) {
+        await deleteMeFromBackend();
+      }
+    } finally {
+      clearAuthTokens();
+      setUser(null);
+      persistSession(null);
+    }
+  };
+
+  const changePassword = async (password: string) => {
+    await updateMeWithBackend({ password });
   };
 
   const updateProfile = async (profile: {
@@ -320,13 +348,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     district?: string;
     university?: string;
   }) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-
     if (!user) {
       throw new Error("No user logged in");
     }
 
     const nextNickname = profile.nickname?.trim() || user.nickname;
+
+    if (getAccessToken() && nextNickname && nextNickname !== user.nickname) {
+      await updateMeWithBackend({ nickname: nextNickname });
+    }
+
     const updatedUser = {
       ...user,
       nickname: nextNickname,
@@ -365,6 +396,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loginWithGoogle,
     signup,
     logout,
+    deleteAccount,
+    changePassword,
     updateProfile,
     isLoading
   };

@@ -33,6 +33,7 @@ import {
   type ListingBudgetRange,
   type ListingType,
 } from "../data/listings";
+import { getProperties } from "../lib/community-api";
 import {
   getDistrictLabel,
   getDistrictOptions,
@@ -90,6 +91,7 @@ export function ListingsExplorer() {
   const [activeDistrict, setActiveDistrict] = useState(initialDistrict || user?.profile?.district || "");
   const [activeUniversity, setActiveUniversity] = useState(initialUniversity || user?.profile?.university || "");
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+  const [backendListings, setBackendListings] = useState<Listing[]>([]);
 
   const districtOptions = getDistrictOptions(activeRegion === "all" ? undefined : activeRegion);
   const universityOptions = getUniversityOptions(activeDistrict);
@@ -114,6 +116,26 @@ export function ListingsExplorer() {
     }
   }, [initialUniversity]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    getProperties()
+      .then((listings) => {
+        if (isMounted) {
+          setBackendListings(listings);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setBackendListings([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const personalizedFeaturedListings = getFeaturedListings().filter((listing) => {
     if (user?.profile?.university) {
       return listing.nearbyUniversities.includes(user.profile.university);
@@ -129,20 +151,45 @@ export function ListingsExplorer() {
 
     return true;
   });
-  const featuredListings = personalizedFeaturedListings.length > 0 ? personalizedFeaturedListings : getFeaturedListings();
+  const featuredListings = backendListings.length > 0
+    ? backendListings.slice(0, 2)
+    : personalizedFeaturedListings.length > 0
+      ? personalizedFeaturedListings
+      : getFeaturedListings();
   const filteredListings = useMemo(
-    () =>
-      filterListings({
+    () => {
+      const localListings = filterListings({
         query,
         region: activeRegion,
         district: activeDistrict,
         university: activeUniversity,
         type: activeType,
         budget: activeBudget,
-      }),
-    [activeBudget, activeDistrict, activeRegion, activeType, activeUniversity, query]
+      });
+
+      const normalizedQuery = query.trim().toLowerCase();
+      const matchingBackendListings = backendListings.filter((listing) => {
+        const matchesType = activeType === "all" || listing.type === activeType;
+        const matchesBudget =
+          activeBudget === "all" ||
+          (activeBudget === "under-100m" && listing.priceValue < 100000000) ||
+          (activeBudget === "100m-300m" && listing.priceValue >= 100000000 && listing.priceValue < 300000000) ||
+          (activeBudget === "300m-plus" && listing.priceValue >= 300000000);
+        const matchesQuery =
+          normalizedQuery === "" ||
+          [listing.title, listing.address, listing.neighborhood, listing.depositText, listing.monthlyRentText]
+            .some((field) => field.toLowerCase().includes(normalizedQuery));
+
+        return matchesType && matchesBudget && matchesQuery;
+      });
+
+      return [...matchingBackendListings, ...localListings];
+    },
+    [activeBudget, activeDistrict, activeRegion, activeType, activeUniversity, backendListings, query]
   );
-  const selectedListing = selectedListingId ? getListingById(selectedListingId) : null;
+  const selectedListing = selectedListingId
+    ? backendListings.find((listing) => listing.id === selectedListingId) ?? getListingById(selectedListingId)
+    : null;
 
   const handleOpenListing = (listing: Listing) => {
     setSelectedListingId(listing.id);

@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ScrollArea } from "./ui/scroll-area";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
-import { checkEmailAvailability, checkNicknameAvailability } from "../lib/auth-api";
 
 type CheckStatus = "idle" | "checking" | "available" | "unavailable";
 
@@ -25,8 +24,6 @@ export function Signup() {
   const [nicknameCheckStatus, setNicknameCheckStatus] = useState<CheckStatus>("idle");
   const [emailCheckMessage, setEmailCheckMessage] = useState("");
   const [nicknameCheckMessage, setNicknameCheckMessage] = useState("");
-  const [lastCheckedEmail, setLastCheckedEmail] = useState("");
-  const [lastCheckedNickname, setLastCheckedNickname] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [agreedToMarketing, setAgreedToMarketing] = useState(false);
@@ -47,14 +44,12 @@ export function Signup() {
     setEmail(value);
     setEmailCheckStatus("idle");
     setEmailCheckMessage("");
-    setLastCheckedEmail("");
   };
 
   const resetNicknameCheck = (value: string) => {
     setNickname(value);
     setNicknameCheckStatus("idle");
     setNicknameCheckMessage("");
-    setLastCheckedNickname("");
   };
 
   const handleCheckEmail = async () => {
@@ -64,21 +59,8 @@ export function Signup() {
       return;
     }
 
-    setEmailCheckStatus("checking");
-    setEmailCheckMessage("");
-
-    try {
-      const result = await checkEmailAvailability(email);
-      setEmailCheckStatus(result.available ? "available" : "unavailable");
-      setEmailCheckMessage(
-        result.message || (result.available ? "사용 가능한 이메일입니다" : "이미 사용 중인 이메일입니다")
-      );
-      setLastCheckedEmail(result.available ? email : "");
-    } catch (error) {
-      setEmailCheckStatus("unavailable");
-      setEmailCheckMessage(error instanceof Error ? error.message : "이메일 중복확인에 실패했습니다");
-      setLastCheckedEmail("");
-    }
+    setEmailCheckStatus("available");
+    setEmailCheckMessage("이메일 형식이 확인되었습니다. 중복 여부는 가입 시 서버에서 검증됩니다.");
   };
 
   const handleCheckNickname = async () => {
@@ -88,21 +70,8 @@ export function Signup() {
       return;
     }
 
-    setNicknameCheckStatus("checking");
-    setNicknameCheckMessage("");
-
-    try {
-      const result = await checkNicknameAvailability(nickname);
-      setNicknameCheckStatus(result.available ? "available" : "unavailable");
-      setNicknameCheckMessage(
-        result.message || (result.available ? "사용 가능한 닉네임입니다" : "이미 사용 중인 닉네임입니다")
-      );
-      setLastCheckedNickname(result.available ? nickname : "");
-    } catch (error) {
-      setNicknameCheckStatus("unavailable");
-      setNicknameCheckMessage(error instanceof Error ? error.message : "닉네임 중복확인에 실패했습니다");
-      setLastCheckedNickname("");
-    }
+    setNicknameCheckStatus("available");
+    setNicknameCheckMessage("닉네임 형식이 확인되었습니다. 중복 여부는 가입 시 서버에서 검증됩니다.");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,20 +97,14 @@ export function Signup() {
       return;
     }
 
-    if (lastCheckedEmail !== email || emailCheckStatus !== "available") {
-      setError("이메일 중복확인을 완료해주세요");
-      setIsLoading(false);
-      return;
-    }
-
-    if (lastCheckedNickname !== nickname || nicknameCheckStatus !== "available") {
-      setError("닉네임 중복확인을 완료해주세요");
-      setIsLoading(false);
-      return;
-    }
-
     if (password !== confirmPassword) {
       setError("비밀번호가 일치하지 않습니다");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("비밀번호는 8자 이상이어야 합니다");
       setIsLoading(false);
       return;
     }
@@ -305,13 +268,13 @@ export function Signup() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="6자 이상"
+                    placeholder="8자 이상"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-11 h-12 rounded-xl border-2 focus:border-blue-300 transition-all"
                     required
                     disabled={isLoading}
-                    minLength={6}
+                    minLength={8}
                   />
                 </div>
               </div>

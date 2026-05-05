@@ -40,6 +40,7 @@ import {
   type ResidenceReview,
   type ResidenceSatisfaction,
 } from "../data/reviews";
+import { getResidenceReviews } from "../lib/community-api";
 
 function SatisfactionBadge({ value }: { value: ResidenceSatisfaction }) {
   return (
@@ -64,6 +65,7 @@ export function ResidenceReviews() {
   const [activeHousingType, setActiveHousingType] = useState<ResidenceHousingType | "all">("all");
   const [activeSatisfaction, setActiveSatisfaction] = useState<ResidenceSatisfaction | "all">("all");
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+  const [backendReviews, setBackendReviews] = useState<ResidenceReview[]>([]);
 
   const districtOptions = getDistrictOptions(activeRegion === "all" ? undefined : activeRegion);
   const universityOptions = getUniversityOptions(activeDistrict);
@@ -72,17 +74,52 @@ export function ResidenceReviews() {
     setActiveRegion(initialRegion);
   }, [initialRegion]);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    getResidenceReviews()
+      .then((reviews) => {
+        if (isMounted) {
+          setBackendReviews(reviews);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setBackendReviews([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const filteredReviews = useMemo(
-    () =>
-      filterResidenceReviews({
+    () => {
+      const localReviews = filterResidenceReviews({
         query,
         region: activeRegion,
         district: activeDistrict,
         university: activeUniversity,
         housingType: activeHousingType,
         satisfaction: activeSatisfaction,
-      }),
-    [activeDistrict, activeHousingType, activeRegion, activeSatisfaction, activeUniversity, query]
+      });
+
+      const normalizedQuery = query.trim().toLowerCase();
+      const matchingBackendReviews = backendReviews.filter((review) => {
+        const matchesHousingType = activeHousingType === "all" || review.housingType === activeHousingType;
+        const matchesSatisfaction = activeSatisfaction === "all" || review.satisfaction === activeSatisfaction;
+        const matchesQuery =
+          normalizedQuery === "" ||
+          [review.title, review.neighborhood, review.summary, ...review.tags]
+            .some((field) => field.toLowerCase().includes(normalizedQuery));
+
+        return matchesHousingType && matchesSatisfaction && matchesQuery;
+      });
+
+      return [...matchingBackendReviews, ...localReviews];
+    },
+    [activeDistrict, activeHousingType, activeRegion, activeSatisfaction, activeUniversity, backendReviews, query]
   );
 
   const featuredReviews = useMemo(() => {
@@ -100,10 +137,12 @@ export function ResidenceReviews() {
       }
     }
 
-    return RESIDENCE_REVIEWS.slice(0, 2);
-  }, [user?.profile?.district, user?.profile?.university]);
+    return backendReviews.length > 0 ? backendReviews.slice(0, 2) : RESIDENCE_REVIEWS.slice(0, 2);
+  }, [backendReviews, user?.profile?.district, user?.profile?.university]);
 
-  const selectedReview = selectedReviewId ? RESIDENCE_REVIEWS.find((review) => review.id === selectedReviewId) ?? null : null;
+  const selectedReview = selectedReviewId
+    ? [...backendReviews, ...RESIDENCE_REVIEWS].find((review) => review.id === selectedReviewId) ?? null
+    : null;
 
   const handleOpenReview = (review: ResidenceReview) => {
     setSelectedReviewId(review.id);

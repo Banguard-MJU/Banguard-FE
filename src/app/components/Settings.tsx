@@ -206,7 +206,7 @@ function ActivityList({
 
 export function Settings() {
   const navigate = useNavigate();
-  const { user, logout, updateProfile } = useAuth();
+  const { user, updateProfile, changePassword, deleteAccount } = useAuth();
 
   const [activeSection, setActiveSection] = useState<SettingsSection>("profile");
   const [nickname, setNickname] = useState(user?.nickname || "");
@@ -375,13 +375,17 @@ export function Settings() {
 
     setPasswordLoading(true);
 
-    setTimeout(() => {
+    try {
+      await changePassword(newPassword);
       toast.success("비밀번호가 성공적으로 변경되었습니다");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "비밀번호 변경에 실패했습니다");
+    } finally {
       setPasswordLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSendEmailCode = () => {
@@ -471,11 +475,13 @@ export function Settings() {
       return;
     }
 
-    setTimeout(() => {
+    try {
+      await deleteAccount();
       toast.success("계정이 성공적으로 탈퇴되었습니다");
-      logout();
       navigate("/");
-    }, 1000);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "계정 탈퇴에 실패했습니다");
+    }
   };
 
   const renderProfileSection = () => (

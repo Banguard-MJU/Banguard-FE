@@ -47,6 +47,20 @@ import {
   type CommunityPost as Post,
   type CommunityReportReasonId,
 } from "../data/community";
+import {
+  bookmarkPost,
+  createCommunityPost,
+  createPostComment,
+  deletePostComment,
+  getCommunityPost,
+  getCommunityPosts,
+  getPostComments as getPostCommentsFromBackend,
+  likeComment,
+  likePost,
+  unbookmarkPost,
+  unlikeComment,
+  unlikePost,
+} from "../lib/community-api";
 
 const CATEGORY_CONFIG = {
   all: { label: "전체", icon: Users, color: "from-gray-500 to-gray-600" },
@@ -76,6 +90,7 @@ export function Community() {
   const { user, isAuthenticated } = useAuth();
   const [posts, setPosts] = useState<Post[]>(() => applyCommunityInteractionFlags(MOCK_POSTS));
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
+  const [usesBackendPosts, setUsesBackendPosts] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "popular">("latest");
@@ -105,6 +120,29 @@ export function Community() {
   const selectedPost = selectedPostId ? posts.find((post) => post.id === selectedPostId) ?? null : null;
   const reportTargetPost = reportTargetPostId ? posts.find((post) => post.id === reportTargetPostId) ?? null : null;
   const activeReport = reportTargetPostId ? submittedReports[reportTargetPostId] : undefined;
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getCommunityPosts({ size: 50 })
+      .then((backendPosts) => {
+        if (!isMounted || backendPosts.length === 0) {
+          return;
+        }
+
+        setPosts(applyCommunityInteractionFlags(backendPosts, user?.id));
+        setUsesBackendPosts(true);
+      })
+      .catch(() => {
+        if (isMounted) {
+          setUsesBackendPosts(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.id]);
 
   const filteredPosts = useMemo(
     () =>
@@ -164,6 +202,33 @@ export function Community() {
 
     setSelectedPostId(postId);
     setIsDetailDialogOpen(true);
+
+    if (usesBackendPosts && targetPost.content === "") {
+      getCommunityPost(postId)
+        .then((backendPost) => {
+          setPosts((currentPosts) =>
+            currentPosts.map((currentPost) =>
+              currentPost.id === postId
+                ? {
+                    ...currentPost,
+                    ...backendPost,
+                    tags: currentPost.tags,
+                  }
+                : currentPost
+            )
+          );
+        })
+        .catch(() => undefined);
+
+      getPostCommentsFromBackend(postId)
+        .then((backendComments) => {
+          setComments((currentComments) => [
+            ...currentComments.filter((comment) => comment.postId !== postId),
+            ...backendComments,
+          ]);
+        })
+        .catch(() => undefined);
+    }
   }, [navigate, postId, posts]);
 
   useEffect(() => {
@@ -186,7 +251,7 @@ export function Community() {
     });
   };
 
-  const handleLike = (postId: string) => {
+  const handleLike = async (postId: string) => {
     if (!isAuthenticated || !user?.id) {
       toast.error("좋아요 기록을 남기려면 로그인이 필요합니다");
       return;
@@ -197,24 +262,48 @@ export function Community() {
       return;
     }
 
-    const nextIsLiked = toggleCommunityActivity(user.id, targetPost, "likedPosts");
+    const nextIsLiked = !targetPost.isLiked;
+
+    if (usesBackendPosts) {
+      try {
+        const result = nextIsLiked ? await likePost(postId) : await unlikePost(postId);
+        setPosts((currentPosts) =>
+          currentPosts.map((post) =>
+            post.id === postId
+              ? {
+                  ...post,
+                  likes: result.like_count,
+                  isLiked: nextIsLiked,
+                }
+              : post
+          )
+        );
+        toast.success(nextIsLiked ? "좋아요가 저장되었습니다!" : "좋아요를 취소했습니다");
+        return;
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "좋아요 처리에 실패했습니다");
+        return;
+      }
+    }
+
+    const localNextIsLiked = toggleCommunityActivity(user.id, targetPost, "likedPosts");
 
     setPosts((currentPosts) =>
       currentPosts.map((post) =>
         post.id === postId
           ? {
               ...post,
-              likes: nextIsLiked ? post.likes + 1 : Math.max(0, post.likes - 1),
-              isLiked: nextIsLiked,
+              likes: localNextIsLiked ? post.likes + 1 : Math.max(0, post.likes - 1),
+              isLiked: localNextIsLiked,
             }
           : post
       )
     );
 
-    toast.success(nextIsLiked ? "좋아요가 저장되었습니다!" : "좋아요를 취소했습니다");
+    toast.success(localNextIsLiked ? "좋아요가 저장되었습니다!" : "좋아요를 취소했습니다");
   };
 
-  const handleBookmark = (postId: string) => {
+  const handleBookmark = async (postId: string) => {
     if (!isAuthenticated || !user?.id) {
       toast.error("저장 목록에 담으려면 로그인이 필요합니다");
       return;
@@ -225,23 +314,51 @@ export function Community() {
       return;
     }
 
-    const nextIsBookmarked = toggleCommunityActivity(user.id, targetPost, "bookmarkedPosts");
+    const nextIsBookmarked = !targetPost.isBookmarked;
+
+    if (usesBackendPosts) {
+      try {
+        if (nextIsBookmarked) {
+          await bookmarkPost(postId);
+        } else {
+          await unbookmarkPost(postId);
+        }
+
+        setPosts((currentPosts) =>
+          currentPosts.map((post) =>
+            post.id === postId
+              ? {
+                  ...post,
+                  isBookmarked: nextIsBookmarked,
+                }
+              : post
+          )
+        );
+        toast.success(nextIsBookmarked ? "저장됨에 추가되었습니다!" : "저장됨에서 제거되었습니다");
+        return;
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "저장 처리에 실패했습니다");
+        return;
+      }
+    }
+
+    const localNextIsBookmarked = toggleCommunityActivity(user.id, targetPost, "bookmarkedPosts");
 
     setPosts((currentPosts) =>
       currentPosts.map((post) =>
         post.id === postId
           ? {
               ...post,
-              isBookmarked: nextIsBookmarked,
+              isBookmarked: localNextIsBookmarked,
             }
           : post
       )
     );
 
-    toast.success(nextIsBookmarked ? "저장됨에 추가되었습니다!" : "저장됨에서 제거되었습니다");
+    toast.success(localNextIsBookmarked ? "저장됨에 추가되었습니다!" : "저장됨에서 제거되었습니다");
   };
 
-  const handleSubmitPost = () => {
+  const handleSubmitPost = async () => {
     if (!isAuthenticated) {
       toast.error("게시글을 작성하려면 로그인이 필요합니다");
       return;
@@ -252,18 +369,32 @@ export function Community() {
       return;
     }
 
-    const post: Post = {
-      id: Date.now().toString(),
-      title: newPost.title,
-      content: newPost.content,
-      author: communityDisplayName,
-      category: newPost.category,
-      likes: 0,
-      comments: 0,
-      views: 0,
-      timestamp: new Date(),
-      tags: newPost.tags.split(",").map((tag) => tag.trim()).filter(Boolean)
-    };
+    let post: Post;
+    if (usesBackendPosts) {
+      try {
+        post = await createCommunityPost({
+          title: newPost.title,
+          content: newPost.content,
+          category: newPost.category,
+        });
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "게시글 작성에 실패했습니다");
+        return;
+      }
+    } else {
+      post = {
+        id: Date.now().toString(),
+        title: newPost.title,
+        content: newPost.content,
+        author: communityDisplayName,
+        category: newPost.category,
+        likes: 0,
+        comments: 0,
+        views: 0,
+        timestamp: new Date(),
+        tags: newPost.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+      };
+    }
 
     setPosts((currentPosts) => [post, ...currentPosts]);
     setIsWriteDialogOpen(false);
@@ -282,7 +413,7 @@ export function Community() {
     }
   };
 
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async () => {
     if (!isAuthenticated) {
       toast.error("댓글을 작성하려면 로그인이 필요합니다");
       return;
@@ -293,14 +424,24 @@ export function Community() {
       return;
     }
 
-    const comment: Comment = {
-      id: Date.now().toString(),
-      postId: selectedPost.id,
-      author: communityDisplayName,
-      content: newCommentContent,
-      timestamp: new Date(),
-      likes: 0
-    };
+    let comment: Comment;
+    if (usesBackendPosts) {
+      try {
+        comment = await createPostComment(selectedPost.id, newCommentContent);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "댓글 작성에 실패했습니다");
+        return;
+      }
+    } else {
+      comment = {
+        id: Date.now().toString(),
+        postId: selectedPost.id,
+        author: communityDisplayName,
+        content: newCommentContent,
+        timestamp: new Date(),
+        likes: 0,
+      };
+    }
 
     setComments((currentComments) => [...currentComments, comment]);
     setPosts((currentPosts) =>
@@ -312,7 +453,28 @@ export function Community() {
     toast.success("댓글이 작성되었습니다!");
   };
 
-  const handleCommentLike = (commentId: string) => {
+  const handleCommentLike = async (commentId: string) => {
+    const targetComment = comments.find((comment) => comment.id === commentId);
+    if (!targetComment) {
+      return;
+    }
+
+    if (usesBackendPosts) {
+      try {
+        const result = targetComment.isLiked ? await unlikeComment(commentId) : await likeComment(commentId);
+        setComments((currentComments) =>
+          currentComments.map((comment) =>
+            comment.id === commentId
+              ? { ...comment, likes: result.like_count, isLiked: !comment.isLiked }
+              : comment
+          )
+        );
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "댓글 좋아요 처리에 실패했습니다");
+      }
+      return;
+    }
+
     setComments((currentComments) =>
       currentComments.map((comment) => {
         if (comment.id === commentId) {
@@ -327,8 +489,18 @@ export function Community() {
     );
   };
 
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     const deletedComment = comments.find((comment) => comment.id === commentId);
+
+    if (usesBackendPosts) {
+      try {
+        await deletePostComment(commentId);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "댓글 삭제에 실패했습니다");
+        return;
+      }
+    }
+
     setComments((currentComments) => currentComments.filter((comment) => comment.id !== commentId));
 
     if (deletedComment) {

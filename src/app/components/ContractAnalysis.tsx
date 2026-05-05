@@ -15,8 +15,8 @@ import { useNavigate } from "react-router";
 import {
   type AnalysisResult,
   getSampleAnalysisResult,
-  uploadedFileMockResult,
 } from "../data/contractAnalysis";
+import { analyzeContractFile } from "../lib/analysis-api";
 import {
   Dialog,
   DialogContent,
@@ -74,28 +74,26 @@ export function ContractAnalysis() {
   const analyzeContract = async () => {
     if (!file) return;
 
+    if (!user) {
+      toast.error("계약서 분석은 로그인 후 사용할 수 있습니다");
+      navigate("/login");
+      return;
+    }
+
     setAnalyzing(true);
     setProgress(0);
 
-    // Simulate OCR processing
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setProgress(25);
-
-    // Simulate text extraction
-    await new Promise(resolve => setTimeout(resolve, 800));
-    setProgress(50);
-
-    // Simulate LLM analysis
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setProgress(75);
-
-    // Simulate final processing
-    await new Promise(resolve => setTimeout(resolve, 700));
-    setProgress(100);
-
-    setResult(uploadedFileMockResult);
-    setAnalyzing(false);
-    toast.success("계약서 분석이 완료되었습니다");
+    try {
+      setProgress(25);
+      const analysisResult = await analyzeContractFile(file);
+      setProgress(100);
+      setResult(analysisResult);
+      toast.success("계약서 분석이 완료되었습니다");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "계약서 분석에 실패했습니다");
+    } finally {
+      setAnalyzing(false);
+    }
   };
 
   const getRiskColor = (level: string) => {
