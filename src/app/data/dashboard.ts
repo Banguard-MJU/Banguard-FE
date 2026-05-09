@@ -1,8 +1,12 @@
+export type DashboardRiskLevel = "low" | "medium" | "high";
+export type DashboardRiskLevelInput = DashboardRiskLevel | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | string;
+export type DashboardDateInput = Date | string | number;
+
 export interface AnalysisHistory {
   id: string;
   fileName: string;
-  date: Date;
-  riskLevel: "low" | "medium" | "high";
+  date: DashboardDateInput;
+  riskLevel: DashboardRiskLevelInput;
   riskScore: number;
   address: string;
   contractType: string;
@@ -12,7 +16,7 @@ export interface RecentChatActivity {
   id: string;
   title: string;
   summary: string;
-  timestamp: Date;
+  timestamp: DashboardDateInput;
 }
 
 export interface RecentCommunityActivity {
@@ -20,7 +24,7 @@ export interface RecentCommunityActivity {
   title: string;
   category: "experience" | "qa" | "region" | "warning";
   summary: string;
-  timestamp: Date;
+  timestamp: DashboardDateInput;
   engagement: string;
 }
 
@@ -32,45 +36,6 @@ export interface RecommendedAction {
   href: string;
   tone: "primary" | "warning" | "secondary";
 }
-
-export const MOCK_HISTORY: AnalysisHistory[] = [
-  {
-    id: "1",
-    fileName: "전세계약서_신림동.pdf",
-    date: new Date("2024-03-20"),
-    riskLevel: "medium",
-    riskScore: 68,
-    address: "서울시 관악구 신림동 123-45",
-    contractType: "전세"
-  },
-  {
-    id: "2",
-    fileName: "월세계약서_노량진.pdf",
-    date: new Date("2024-03-15"),
-    riskLevel: "low",
-    riskScore: 32,
-    address: "서울시 동작구 노량진동 67-89",
-    contractType: "월세"
-  },
-  {
-    id: "3",
-    fileName: "전세계약서_상도동.pdf",
-    date: new Date("2024-03-10"),
-    riskLevel: "high",
-    riskScore: 85,
-    address: "서울시 동작구 상도동 234-56",
-    contractType: "전세"
-  },
-  {
-    id: "4",
-    fileName: "원룸계약서_서울대입구.pdf",
-    date: new Date("2024-03-05"),
-    riskLevel: "low",
-    riskScore: 28,
-    address: "서울시 관악구 봉천동 345-67",
-    contractType: "월세"
-  }
-];
 
 export const MOCK_RECENT_CHAT_ACTIVITY: RecentChatActivity[] = [
   {
@@ -106,8 +71,35 @@ export const MOCK_RECENT_COMMUNITY_ACTIVITY: RecentCommunityActivity[] = [
   },
 ];
 
-export function getRiskBadgeClass(level: AnalysisHistory["riskLevel"]) {
-  switch (level) {
+export function normalizeRiskLevel(level: DashboardRiskLevelInput): DashboardRiskLevel {
+  switch (String(level).toLowerCase()) {
+    case "low":
+      return "low";
+    case "medium":
+      return "medium";
+    case "high":
+    case "critical":
+      return "high";
+    default:
+      return "medium";
+  }
+}
+
+export function toDashboardDate(date: DashboardDateInput): Date {
+  if (date instanceof Date) {
+    return Number.isNaN(date.getTime()) ? new Date(0) : date;
+  }
+
+  const parsedDate = new Date(date);
+  return Number.isNaN(parsedDate.getTime()) ? new Date(0) : parsedDate;
+}
+
+export function formatDashboardDate(date: DashboardDateInput) {
+  return toDashboardDate(date).toLocaleDateString("ko-KR");
+}
+
+export function getRiskBadgeClass(level: DashboardRiskLevelInput) {
+  switch (normalizeRiskLevel(level)) {
     case "low":
       return "bg-green-100 text-green-700 border-green-200";
     case "medium":
@@ -119,8 +111,8 @@ export function getRiskBadgeClass(level: AnalysisHistory["riskLevel"]) {
   }
 }
 
-export function getRiskLabel(level: AnalysisHistory["riskLevel"]) {
-  switch (level) {
+export function getRiskLabel(level: DashboardRiskLevelInput) {
+  switch (normalizeRiskLevel(level)) {
     case "low":
       return "낮음";
     case "medium":
@@ -133,6 +125,13 @@ export function getRiskLabel(level: AnalysisHistory["riskLevel"]) {
 }
 
 export function buildDashboardStats(history: AnalysisHistory[]) {
+  const validScores = history
+    .map((item) => Number(item.riskScore))
+    .filter((score) => Number.isFinite(score));
+  const averageRisk = validScores.length
+    ? Math.round(validScores.reduce((acc, score) => acc + score, 0) / validScores.length)
+    : 0;
+
   return [
     {
       label: "총 분석 건수",
@@ -142,38 +141,38 @@ export function buildDashboardStats(history: AnalysisHistory[]) {
     },
     {
       label: "평균 위험도",
-      value: Math.round(history.reduce((acc, item) => acc + item.riskScore, 0) / history.length),
+      value: averageRisk,
       color: "text-indigo-600",
       bgColor: "bg-indigo-50",
       suffix: "/100"
     },
     {
       label: "고위험 계약",
-      value: history.filter((item) => item.riskLevel === "high").length,
+      value: history.filter((item) => normalizeRiskLevel(item.riskLevel) === "high").length,
       color: "text-red-600",
       bgColor: "bg-red-50"
     },
     {
       label: "안전한 계약",
-      value: history.filter((item) => item.riskLevel === "low").length,
+      value: history.filter((item) => normalizeRiskLevel(item.riskLevel) === "low").length,
       color: "text-green-600",
       bgColor: "bg-green-50"
     }
   ];
 }
 
-export function formatTimeAgo(date: Date) {
-  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+export function formatTimeAgo(date: DashboardDateInput) {
+  const seconds = Math.floor((Date.now() - toDashboardDate(date).getTime()) / 1000);
 
   if (seconds < 60) return "방금 전";
   if (seconds < 3600) return `${Math.floor(seconds / 60)}분 전`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}시간 전`;
   if (seconds < 2592000) return `${Math.floor(seconds / 86400)}일 전`;
-  return date.toLocaleDateString("ko-KR");
+  return formatDashboardDate(date);
 }
 
 export function buildRecommendedActions(history: AnalysisHistory[]): RecommendedAction[] {
-  const latestHighRisk = history.find((item) => item.riskLevel === "high");
+  const latestHighRisk = history.find((item) => normalizeRiskLevel(item.riskLevel) === "high");
 
   const actions: RecommendedAction[] = [
     {

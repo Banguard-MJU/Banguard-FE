@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BarChart3, FileText, TrendingUp, Clock, AlertTriangle, CheckCircle, Calendar, MessageSquare, Users, ChevronRight, Landmark } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
@@ -12,18 +12,38 @@ import {
   type AnalysisHistory,
   buildRecommendedActions,
   buildDashboardStats,
+  formatDashboardDate,
   formatTimeAgo,
   getRiskBadgeClass,
   getRiskLabel,
-  MOCK_HISTORY,
   MOCK_RECENT_CHAT_ACTIVITY,
   MOCK_RECENT_COMMUNITY_ACTIVITY,
+  normalizeRiskLevel,
 } from "../data/dashboard";
+import { getAnalysisHistory } from "../lib/analysis-api";
+import { getDisplayErrorMessage } from "../lib/error-message";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [selectedHistory, setSelectedHistory] = useState<AnalysisHistory | null>(null);
-  const stats = buildDashboardStats(MOCK_HISTORY).map((stat) => ({
+  const [history, setHistory] = useState<AnalysisHistory[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const highRiskHistory = useMemo(
+    () => history.filter((item) => normalizeRiskLevel(item.riskLevel) === "high"),
+    [history],
+  );
+  const mediumRiskHistory = useMemo(
+    () => history.filter((item) => normalizeRiskLevel(item.riskLevel) === "medium"),
+    [history],
+  );
+  const lowRiskHistory = useMemo(
+    () => history.filter((item) => normalizeRiskLevel(item.riskLevel) === "low"),
+    [history],
+  );
+  const stats = buildDashboardStats(history).map((stat) => ({
     ...stat,
     icon:
       stat.label === "총 분석 건수"
@@ -34,7 +54,46 @@ export function Dashboard() {
             ? AlertTriangle
             : CheckCircle,
   }));
-  const recommendedActions = buildRecommendedActions(MOCK_HISTORY);
+  const recommendedActions = buildRecommendedActions(history);
+
+  useEffect(() => {
+    if (authLoading) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setHistory([]);
+      setHistoryError(null);
+      setHistoryLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    setHistoryLoading(true);
+    setHistoryError(null);
+
+    getAnalysisHistory()
+      .then((items) => {
+        if (isMounted) {
+          setHistory(items);
+        }
+      })
+      .catch((error) => {
+        if (isMounted) {
+          setHistory([]);
+          setHistoryError(getDisplayErrorMessage(error, "분석 이력을 불러오지 못했습니다"));
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setHistoryLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authLoading, isAuthenticated]);
 
   return (
     <div className="min-h-screen py-12">
@@ -216,7 +275,22 @@ export function Dashboard() {
                 </TabsList>
 
                 <TabsContent value="all" className="space-y-4">
-                  {MOCK_HISTORY.map((item, index) => (
+                  {historyLoading && (
+                    <div className="rounded-2xl bg-slate-50 px-4 py-8 text-center text-sm text-gray-500 dark:bg-gray-900/60 dark:text-gray-400">
+                      분석 이력을 불러오는 중입니다
+                    </div>
+                  )}
+                  {!historyLoading && historyError && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-8 text-center text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/20 dark:text-red-300">
+                      {historyError}
+                    </div>
+                  )}
+                  {!historyLoading && !historyError && history.length === 0 && (
+                    <div className="rounded-2xl bg-slate-50 px-4 py-8 text-center text-sm text-gray-500 dark:bg-gray-900/60 dark:text-gray-400">
+                      아직 저장된 분석 이력이 없습니다
+                    </div>
+                  )}
+                  {!historyLoading && !historyError && history.map((item, index) => (
                     <motion.div
                       key={item.id}
                       initial={{ opacity: 0, x: -20 }}
@@ -234,7 +308,7 @@ export function Dashboard() {
                               <div className="space-y-1 text-sm text-gray-600">
                                 <div className="flex items-center gap-2">
                                   <Calendar className="w-4 h-4" />
-                                  {item.date.toLocaleDateString("ko-KR")}
+                                  {formatDashboardDate(item.date)}
                                 </div>
                                 <div>주소: {item.address}</div>
                                 <div>계약 유형: {item.contractType}</div>
@@ -269,7 +343,7 @@ export function Dashboard() {
                 </TabsContent>
 
                 <TabsContent value="high" className="space-y-4">
-                  {MOCK_HISTORY.filter(item => item.riskLevel === "high").map((item) => (
+                  {highRiskHistory.map((item) => (
                     <Card key={item.id} className="border-red-200">
                       <CardContent className="pt-6">
                         <div className="flex items-start justify-between gap-4">
@@ -280,7 +354,7 @@ export function Dashboard() {
                             </div>
                             <div className="text-sm text-gray-600">
                               <div>{item.address}</div>
-                              <div>{item.date.toLocaleDateString("ko-KR")}</div>
+                              <div>{formatDashboardDate(item.date)}</div>
                             </div>
                           </div>
                           <Badge className={getRiskBadgeClass(item.riskLevel)}>
@@ -290,7 +364,7 @@ export function Dashboard() {
                       </CardContent>
                     </Card>
                   ))}
-                  {MOCK_HISTORY.filter(item => item.riskLevel === "high").length === 0 && (
+                  {!historyLoading && highRiskHistory.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       고위험 계약이 없습니다
                     </div>
@@ -298,7 +372,7 @@ export function Dashboard() {
                 </TabsContent>
 
                 <TabsContent value="medium" className="space-y-4">
-                  {MOCK_HISTORY.filter(item => item.riskLevel === "medium").map((item) => (
+                  {mediumRiskHistory.map((item) => (
                     <Card key={item.id} className="border-yellow-200">
                       <CardContent className="pt-6">
                         <div className="flex items-start justify-between gap-4">
@@ -309,7 +383,7 @@ export function Dashboard() {
                             </div>
                             <div className="text-sm text-gray-600">
                               <div>{item.address}</div>
-                              <div>{item.date.toLocaleDateString("ko-KR")}</div>
+                              <div>{formatDashboardDate(item.date)}</div>
                             </div>
                           </div>
                           <Badge className={getRiskBadgeClass(item.riskLevel)}>
@@ -319,7 +393,7 @@ export function Dashboard() {
                       </CardContent>
                     </Card>
                   ))}
-                  {MOCK_HISTORY.filter(item => item.riskLevel === "medium").length === 0 && (
+                  {!historyLoading && mediumRiskHistory.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       중간위험 계약이 없습니다
                     </div>
@@ -327,7 +401,7 @@ export function Dashboard() {
                 </TabsContent>
 
                 <TabsContent value="low" className="space-y-4">
-                  {MOCK_HISTORY.filter(item => item.riskLevel === "low").map((item) => (
+                  {lowRiskHistory.map((item) => (
                     <Card key={item.id} className="border-green-200">
                       <CardContent className="pt-6">
                         <div className="flex items-start justify-between gap-4">
@@ -338,7 +412,7 @@ export function Dashboard() {
                             </div>
                             <div className="text-sm text-gray-600">
                               <div>{item.address}</div>
-                              <div>{item.date.toLocaleDateString("ko-KR")}</div>
+                              <div>{formatDashboardDate(item.date)}</div>
                             </div>
                           </div>
                           <Badge className={getRiskBadgeClass(item.riskLevel)}>
@@ -348,7 +422,7 @@ export function Dashboard() {
                       </CardContent>
                     </Card>
                   ))}
-                  {MOCK_HISTORY.filter(item => item.riskLevel === "low").length === 0 && (
+                  {!historyLoading && lowRiskHistory.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       저위험 계약이 없습니다
                     </div>
@@ -383,7 +457,7 @@ export function Dashboard() {
                     분석일
                   </div>
                   <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                    {selectedHistory.date.toLocaleDateString("ko-KR")}
+                    {formatDashboardDate(selectedHistory.date)}
                   </div>
                 </div>
               </div>
@@ -427,3 +501,5 @@ export function Dashboard() {
     </div>
   );
 }
+
+export default Dashboard;

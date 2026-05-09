@@ -1,5 +1,6 @@
 import { apiRequest } from "./api";
 import type { AnalysisResult } from "../data/contractAnalysis";
+import type { AnalysisHistory } from "../data/dashboard";
 
 type BackendRiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -124,4 +125,34 @@ export async function analyzeContractText(text: string) {
   });
 
   return mapContractAnalysisResponse(response);
+}
+
+interface AnalysisHistoryResponse {
+  analysis_id: string;
+  file_name: string;
+  created_at: string;
+  completed_at?: string | null;
+  status: string;
+  risk_level?: BackendRiskLevel | string | null;
+  risk_score?: number | null;
+  address?: string | null;
+  contract_type?: string | null;
+  summary?: string | null;
+}
+
+export async function getAnalysisHistory(): Promise<AnalysisHistory[]> {
+  const response = await apiRequest<AnalysisHistoryResponse[]>("/analysis/history", {
+    method: "GET",
+    auth: true,
+  });
+
+  return response.map((item) => ({
+    id: item.analysis_id,
+    fileName: item.file_name || "계약서 분석",
+    date: item.completed_at || item.created_at,
+    riskLevel: item.risk_level || "MEDIUM",
+    riskScore: item.risk_score ?? 0,
+    address: item.address || "주소 미확인",
+    contractType: item.contract_type || "계약서",
+  }));
 }

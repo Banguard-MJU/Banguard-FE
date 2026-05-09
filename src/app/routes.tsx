@@ -8,7 +8,7 @@ import { Outlet } from "react-router";
 const Home = lazy(() => import("./components/Home").then((module) => ({ default: module.Home })));
 const ContractAnalysis = lazy(() => import("./components/ContractAnalysis").then((module) => ({ default: module.ContractAnalysis })));
 const Chatbot = lazy(() => import("./components/Chatbot").then((module) => ({ default: module.Chatbot })));
-const Dashboard = lazy(() => import("./components/Dashboard").then((module) => ({ default: module.Dashboard })));
+const Dashboard = lazy(() => import("./components/Dashboard"));
 const PolicyExplorer = lazy(() => import("./components/PolicyExplorer").then((module) => ({ default: module.PolicyExplorer })));
 const ListingsExplorer = lazy(() => import("./components/ListingsExplorer").then((module) => ({ default: module.ListingsExplorer })));
 const ResidenceReviews = lazy(() => import("./components/ResidenceReviews").then((module) => ({ default: module.ResidenceReviews })));
