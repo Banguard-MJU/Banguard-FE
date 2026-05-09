@@ -1,4 +1,4 @@
-import { apiRequest, clearAuthTokens, getAccessToken, setAuthTokens, type AuthTokens } from "./api";
+import { apiRequest, buildApiUrl, clearAuthTokens, getAccessToken, setAuthTokens, type AuthTokens } from "./api";
 
 export interface SignupPayload {
   email: string;
@@ -118,6 +118,11 @@ export async function resendEmailVerification(email: string) {
 export async function confirmEmailVerification(token: string) {
   const query = new URLSearchParams({ token }).toString();
   return apiRequest<VerificationResponse>(`/auth/verify-email?${query}`);
+}
+
+export function getGoogleOAuthLoginUrl(redirectUri: string) {
+  const query = new URLSearchParams({ redirect_uri: redirectUri }).toString();
+  return buildApiUrl(`/auth/google/login?${query}`);
 }
 
 export async function updateMeWithBackend(payload: {

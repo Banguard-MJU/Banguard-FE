@@ -15,6 +15,7 @@ const ResidenceReviews = lazy(() => import("./components/ResidenceReviews").then
 const Community = lazy(() => import("./components/Community").then((module) => ({ default: module.Community })));
 const Login = lazy(() => import("./components/Login").then((module) => ({ default: module.Login })));
 const Signup = lazy(() => import("./components/Signup").then((module) => ({ default: module.Signup })));
+const GoogleOAuthCallback = lazy(() => import("./components/GoogleOAuthCallback").then((module) => ({ default: module.GoogleOAuthCallback })));
 const Onboarding = lazy(() => import("./components/Onboarding").then((module) => ({ default: module.Onboarding })));
 const ProfileSetup = lazy(() => import("./components/ProfileSetup").then((module) => ({ default: module.ProfileSetup })));
 const Settings = lazy(() => import("./components/Settings").then((module) => ({ default: module.Settings })));
@@ -89,6 +90,7 @@ export const router = createBrowserRouter([
           { path: "community/:postId", element: withSuspense(<Community />) },
           { path: "login", element: withSuspense(<Login />) },
           { path: "signup", element: withSuspense(<Signup />) },
+          { path: "auth/google/callback", element: withSuspense(<GoogleOAuthCallback />) },
           { path: "profile-setup", element: withSuspense(<ProfileSetup />) },
           { path: "profile", element: <Navigate to="/settings" replace /> },
           { path: "settings", element: withSuspense(<Settings />) },

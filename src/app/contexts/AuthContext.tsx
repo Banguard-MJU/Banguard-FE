@@ -2,12 +2,13 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import {
   deleteMeFromBackend,
   getCurrentUserFromBackend,
+  getGoogleOAuthLoginUrl,
   loginWithBackend,
   logoutFromBackend,
   signupWithBackend,
   updateMeWithBackend,
 } from "../lib/auth-api";
-import { clearAuthTokens, getAccessToken } from "../lib/api";
+import { clearAuthTokens, getAccessToken, setAuthTokens, type AuthTokens } from "../lib/api";
 import { getDisplayErrorMessage } from "../lib/error-message";
 import { MIN_PASSWORD_LENGTH, getPasswordMinLengthMessage } from "../lib/password-policy";
 import type { UserProfile } from "../data/profile";
@@ -31,6 +32,7 @@ interface AuthContextType {
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  completeGoogleLogin: (tokens: AuthTokens) => Promise<User>;
   signup: (email: string, password: string, name: string, nickname: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   deleteAccount: () => Promise<void>;
@@ -232,30 +234,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
+    window.location.assign(getGoogleOAuthLoginUrl(redirectUri));
+    return new Promise<{ success: boolean; error?: string }>(() => undefined);
+  };
 
-    const googleUser: StoredUserRecord = {
-      id: "google-user-001",
-      email: "google@banguard.com",
-      name: "Google 사용자",
-      nickname: "google_user",
-      isAdmin: false,
-      createdAt: new Date().toISOString()
-    };
+  const completeGoogleLogin = async (tokens: AuthTokens) => {
+    setAuthTokens(tokens);
 
-    const users = readUsers();
-    users[googleUser.email] = {
-      ...users[googleUser.email],
-      ...googleUser,
-    };
-    writeUsers(users);
+    try {
+      const backendUser = await getCurrentUserFromBackend();
+      const userData = toUserSession(backendUser);
 
-    const userData = toUserSession(googleUser);
-    setUser(userData);
-    persistSession(userData);
+      setUser(userData);
+      persistSession(userData);
 
-    return { success: true };
+      return userData;
+    } catch (error) {
+      clearAuthTokens();
+      throw error;
+    }
   };
 
   const signup = async (email: string, password: string, name: string, nickname: string): Promise<{ success: boolean; error?: string }> => {
@@ -396,6 +394,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAdmin: !!user?.isAdmin,
     login,
     loginWithGoogle,
+    completeGoogleLogin,
     signup,
     logout,
     deleteAccount,
