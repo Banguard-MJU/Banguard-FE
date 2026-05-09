@@ -39,6 +39,8 @@ import {
 } from "./ui/alert-dialog";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
+import { getDisplayErrorMessage } from "../lib/error-message";
+import { MIN_PASSWORD_LENGTH, getPasswordMinLengthMessage } from "../lib/password-policy";
 import {
   CATEGORY_CONFIG,
   getCommunityActivityStore,
@@ -363,8 +365,8 @@ export function Settings() {
       return;
     }
 
-    if (newPassword.length < 8) {
-      toast.error("새 비밀번호는 최소 8자 이상이어야 합니다");
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      toast.error(getPasswordMinLengthMessage("새 비밀번호"));
       return;
     }
 
@@ -382,7 +384,7 @@ export function Settings() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "비밀번호 변경에 실패했습니다");
+      toast.error(getDisplayErrorMessage(error, "비밀번호 변경에 실패했습니다"));
     } finally {
       setPasswordLoading(false);
     }
@@ -480,7 +482,7 @@ export function Settings() {
       toast.success("계정이 성공적으로 탈퇴되었습니다");
       navigate("/");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "계정 탈퇴에 실패했습니다");
+      toast.error(getDisplayErrorMessage(error, "계정 탈퇴에 실패했습니다"));
     }
   };
 
@@ -683,7 +685,7 @@ export function Settings() {
                   <Input
                     id="new-password"
                     type={showNewPassword ? "text" : "password"}
-                    placeholder="최소 8자 이상"
+                    placeholder={`최소 ${MIN_PASSWORD_LENGTH}자 이상`}
                     value={newPassword}
                     onChange={(event) => setNewPassword(event.target.value)}
                     disabled={passwordLoading}

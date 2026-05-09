@@ -61,6 +61,7 @@ import {
   unlikeComment,
   unlikePost,
 } from "../lib/community-api";
+import { getDisplayErrorMessage } from "../lib/error-message";
 
 const CATEGORY_CONFIG = {
   all: { label: "전체", icon: Users, color: "from-gray-500 to-gray-600" },
@@ -91,6 +92,7 @@ export function Community() {
   const [posts, setPosts] = useState<Post[]>(() => applyCommunityInteractionFlags(MOCK_POSTS));
   const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
   const [usesBackendPosts, setUsesBackendPosts] = useState(false);
+  const [hasLoadedBackendPosts, setHasLoadedBackendPosts] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"latest" | "popular">("latest");
@@ -126,16 +128,18 @@ export function Community() {
 
     getCommunityPosts({ size: 50 })
       .then((backendPosts) => {
-        if (!isMounted || backendPosts.length === 0) {
+        if (!isMounted) {
           return;
         }
 
         setPosts(applyCommunityInteractionFlags(backendPosts, user?.id));
         setUsesBackendPosts(true);
+        setHasLoadedBackendPosts(true);
       })
       .catch(() => {
         if (isMounted) {
           setUsesBackendPosts(false);
+          setHasLoadedBackendPosts(true);
         }
       });
 
@@ -196,6 +200,10 @@ export function Community() {
 
     const targetPost = posts.find((post) => post.id === postId);
     if (!targetPost) {
+      if (!hasLoadedBackendPosts) {
+        return;
+      }
+
       navigate("/community", { replace: true });
       return;
     }
@@ -229,7 +237,7 @@ export function Community() {
         })
         .catch(() => undefined);
     }
-  }, [navigate, postId, posts]);
+  }, [hasLoadedBackendPosts, navigate, postId, posts, usesBackendPosts]);
 
   useEffect(() => {
     if (!postId || viewedPostIdRef.current === postId) {
@@ -281,7 +289,7 @@ export function Community() {
         toast.success(nextIsLiked ? "좋아요가 저장되었습니다!" : "좋아요를 취소했습니다");
         return;
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "좋아요 처리에 실패했습니다");
+        toast.error(getDisplayErrorMessage(error, "좋아요 처리에 실패했습니다"));
         return;
       }
     }
@@ -337,7 +345,7 @@ export function Community() {
         toast.success(nextIsBookmarked ? "저장됨에 추가되었습니다!" : "저장됨에서 제거되었습니다");
         return;
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "저장 처리에 실패했습니다");
+        toast.error(getDisplayErrorMessage(error, "저장 처리에 실패했습니다"));
         return;
       }
     }
@@ -378,7 +386,7 @@ export function Community() {
           category: newPost.category,
         });
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "게시글 작성에 실패했습니다");
+        toast.error(getDisplayErrorMessage(error, "게시글 작성에 실패했습니다"));
         return;
       }
     } else {
@@ -429,7 +437,7 @@ export function Community() {
       try {
         comment = await createPostComment(selectedPost.id, newCommentContent);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "댓글 작성에 실패했습니다");
+        toast.error(getDisplayErrorMessage(error, "댓글 작성에 실패했습니다"));
         return;
       }
     } else {
@@ -470,7 +478,7 @@ export function Community() {
           )
         );
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "댓글 좋아요 처리에 실패했습니다");
+        toast.error(getDisplayErrorMessage(error, "댓글 좋아요 처리에 실패했습니다"));
       }
       return;
     }
@@ -496,7 +504,7 @@ export function Community() {
       try {
         await deletePostComment(commentId);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "댓글 삭제에 실패했습니다");
+        toast.error(getDisplayErrorMessage(error, "댓글 삭제에 실패했습니다"));
         return;
       }
     }

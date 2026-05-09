@@ -1,3 +1,5 @@
+import { normalizeErrorMessage } from "./error-message";
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/+$/, "");
 
 const ACCESS_TOKEN_STORAGE_KEY = "banguard_access_token";
@@ -78,17 +80,27 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     requestHeaders.set("Authorization", `Bearer ${authToken}`);
   }
 
-  const response = await fetch(buildApiUrl(path), {
-    ...requestOptions,
-    headers: requestHeaders,
-    body,
-  });
+  let response: Response;
+  try {
+    response = await fetch(buildApiUrl(path), {
+      ...requestOptions,
+      headers: requestHeaders,
+      body,
+    });
+  } catch (error) {
+    throw new Error(normalizeErrorMessage(error instanceof Error ? error.message : undefined));
+  }
 
   const text = await response.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: unknown = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = { detail: text };
+  }
 
   if (!response.ok) {
-    throw new Error(getErrorMessage(data) || "요청 처리에 실패했습니다");
+    throw new Error(normalizeErrorMessage(getErrorMessage(data)));
   }
 
   return data as T;

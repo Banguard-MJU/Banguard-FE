@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "./ui/alert";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
 import { motion } from "motion/react";
+import { getDisplayErrorMessage } from "../lib/error-message";
 
 export function Login() {
   const [email, setEmail] = useState("");
@@ -31,7 +32,7 @@ export function Login() {
       toast.success("로그인되었습니다!");
       navigate("/");
     } else {
-      setError(result.error || "로그인에 실패했습니다");
+      setError(getDisplayErrorMessage(result.error, "로그인에 실패했습니다"));
     }
 
     setIsLoading(false);
@@ -47,7 +48,7 @@ export function Login() {
       toast.success("Google 계정으로 로그인되었습니다!");
       navigate("/");
     } else {
-      setError(result.error || "Google 로그인에 실패했습니다");
+      setError(getDisplayErrorMessage(result.error, "Google 로그인에 실패했습니다"));
     }
 
     setIsGoogleLoading(false);

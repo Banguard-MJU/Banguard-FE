@@ -17,6 +17,7 @@ import {
   getSampleAnalysisResult,
 } from "../data/contractAnalysis";
 import { analyzeContractFile } from "../lib/analysis-api";
+import { getDisplayErrorMessage } from "../lib/error-message";
 import {
   Dialog,
   DialogContent,
@@ -90,7 +91,7 @@ export function ContractAnalysis() {
       setResult(analysisResult);
       toast.success("계약서 분석이 완료되었습니다");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "계약서 분석에 실패했습니다");
+      toast.error(getDisplayErrorMessage(error, "계약서 분석에 실패했습니다"));
     } finally {
       setAnalyzing(false);
     }

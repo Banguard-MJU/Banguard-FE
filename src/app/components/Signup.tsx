@@ -11,8 +11,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { ScrollArea } from "./ui/scroll-area";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
+import { sendEmailVerification, resendEmailVerification } from "../lib/auth-api";
+import { getDisplayErrorMessage } from "../lib/error-message";
+import { MIN_PASSWORD_LENGTH, getPasswordMinLengthMessage } from "../lib/password-policy";
 
 type CheckStatus = "idle" | "checking" | "available" | "unavailable";
+type EmailVerificationStatus = "idle" | "sending" | "sent" | "verified" | "failed";
+const REQUIRE_EMAIL_VERIFICATION = import.meta.env.VITE_REQUIRE_EMAIL_VERIFICATION === "true";
 
 export function Signup() {
   const [email, setEmail] = useState("");
@@ -24,6 +29,11 @@ export function Signup() {
   const [nicknameCheckStatus, setNicknameCheckStatus] = useState<CheckStatus>("idle");
   const [emailCheckMessage, setEmailCheckMessage] = useState("");
   const [nicknameCheckMessage, setNicknameCheckMessage] = useState("");
+  const [lastCheckedEmail, setLastCheckedEmail] = useState("");
+  const [lastCheckedNickname, setLastCheckedNickname] = useState("");
+  const [emailVerificationStatus, setEmailVerificationStatus] = useState<EmailVerificationStatus>("idle");
+  const [emailVerificationMessage, setEmailVerificationMessage] = useState("");
+  const [lastVerificationEmail, setLastVerificationEmail] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [agreedToMarketing, setAgreedToMarketing] = useState(false);
@@ -44,12 +54,17 @@ export function Signup() {
     setEmail(value);
     setEmailCheckStatus("idle");
     setEmailCheckMessage("");
+    setLastCheckedEmail("");
+    setEmailVerificationStatus("idle");
+    setEmailVerificationMessage("");
+    setLastVerificationEmail("");
   };
 
   const resetNicknameCheck = (value: string) => {
     setNickname(value);
     setNicknameCheckStatus("idle");
     setNicknameCheckMessage("");
+    setLastCheckedNickname("");
   };
 
   const handleCheckEmail = async () => {
@@ -60,6 +75,7 @@ export function Signup() {
     }
 
     setEmailCheckStatus("available");
+    setLastCheckedEmail(email);
     setEmailCheckMessage("이메일 형식이 확인되었습니다. 중복 여부는 가입 시 서버에서 검증됩니다.");
   };
 
@@ -71,7 +87,34 @@ export function Signup() {
     }
 
     setNicknameCheckStatus("available");
+    setLastCheckedNickname(nickname);
     setNicknameCheckMessage("닉네임 형식이 확인되었습니다. 중복 여부는 가입 시 서버에서 검증됩니다.");
+  };
+
+  const handleSendEmailVerification = async () => {
+    if (!emailRegex.test(email)) {
+      setEmailVerificationStatus("failed");
+      setEmailVerificationMessage("올바른 이메일 형식을 입력해주세요");
+      return;
+    }
+
+    setEmailVerificationStatus("sending");
+    setEmailVerificationMessage("");
+
+    try {
+      const response =
+        emailVerificationStatus === "sent" && lastVerificationEmail === email
+          ? await resendEmailVerification(email)
+          : await sendEmailVerification(email);
+
+      setLastVerificationEmail(email);
+      setEmailVerificationStatus("sent");
+      setEmailVerificationMessage(response.message || response.detail || "인증 메일을 보냈습니다. 메일함에서 인증 링크를 확인해주세요.");
+      toast.success("인증 메일을 보냈습니다");
+    } catch (error) {
+      setEmailVerificationStatus("failed");
+      setEmailVerificationMessage(getDisplayErrorMessage(error, "인증 메일 전송에 실패했습니다"));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,14 +140,20 @@ export function Signup() {
       return;
     }
 
+    if (REQUIRE_EMAIL_VERIFICATION && (emailVerificationStatus !== "sent" || lastVerificationEmail !== email)) {
+      setError("회원가입 전에 이메일 인증 메일을 먼저 발송해주세요");
+      setIsLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("비밀번호가 일치하지 않습니다");
       setIsLoading(false);
       return;
     }
 
-    if (password.length < 8) {
-      setError("비밀번호는 8자 이상이어야 합니다");
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setError(getPasswordMinLengthMessage());
       setIsLoading(false);
       return;
     }
@@ -116,7 +165,7 @@ export function Signup() {
       toast.success("회원가입이 완료되었습니다!");
       navigate("/profile-setup");
     } else {
-      setError(result.error || "회원가입에 실패했습니다");
+      setError(getDisplayErrorMessage(result.error, "회원가입에 실패했습니다"));
       setIsLoading(false);
     }
   };
@@ -131,7 +180,7 @@ export function Signup() {
       toast.success("Google 계정으로 가입되었습니다!");
       navigate("/profile-setup");
     } else {
-      setError(result.error || "Google 회원가입에 실패했습니다");
+      setError(getDisplayErrorMessage(result.error, "Google 회원가입에 실패했습니다"));
     }
 
     setIsGoogleLoading(false);
@@ -259,6 +308,45 @@ export function Signup() {
                     {emailCheckMessage}
                   </p>
                 )}
+                <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3 dark:border-blue-900/50 dark:bg-blue-950/20">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex min-w-0 items-start gap-2">
+                      <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">이메일 인증</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          {REQUIRE_EMAIL_VERIFICATION
+                            ? "가입 전 메일함에서 인증 링크를 확인할 수 있도록 인증 메일을 발송합니다."
+                            : "Gmail SMTP 연동 후 필수 인증으로 전환됩니다. 지금은 인증 메일 발송만 준비되어 있습니다."}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-10 shrink-0 rounded-xl px-3"
+                      onClick={handleSendEmailVerification}
+                      disabled={isLoading || emailVerificationStatus === "sending" || !emailRegex.test(email)}
+                    >
+                      {emailVerificationStatus === "sending" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : emailVerificationStatus === "sent" && lastVerificationEmail === email ? (
+                        "재발송"
+                      ) : (
+                        "인증메일 발송"
+                      )}
+                    </Button>
+                  </div>
+                  {emailVerificationMessage && (
+                    <p
+                      className={`mt-2 text-xs ${
+                        emailVerificationStatus === "sent" ? "text-green-600" : "text-red-500"
+                      }`}
+                    >
+                      {emailVerificationMessage}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -268,15 +356,18 @@ export function Signup() {
                   <Input
                     id="password"
                     type="password"
-                    placeholder="8자 이상"
+                    placeholder={`${MIN_PASSWORD_LENGTH}자 이상`}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-11 h-12 rounded-xl border-2 focus:border-blue-300 transition-all"
                     required
                     disabled={isLoading}
-                    minLength={8}
+                    minLength={MIN_PASSWORD_LENGTH}
                   />
                 </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  비밀번호는 {MIN_PASSWORD_LENGTH}자 이상 입력해야 합니다.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -378,8 +469,10 @@ export function Signup() {
                   !agreedToTerms ||
                   !agreedToPrivacy ||
                   emailCheckStatus !== "available" ||
+                  (REQUIRE_EMAIL_VERIFICATION && emailVerificationStatus !== "sent") ||
                   nicknameCheckStatus !== "available" ||
                   lastCheckedEmail !== email ||
+                  (REQUIRE_EMAIL_VERIFICATION && lastVerificationEmail !== email) ||
                   lastCheckedNickname !== nickname
                 }
               >

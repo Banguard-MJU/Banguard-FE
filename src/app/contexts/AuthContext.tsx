@@ -8,6 +8,8 @@ import {
   updateMeWithBackend,
 } from "../lib/auth-api";
 import { clearAuthTokens, getAccessToken } from "../lib/api";
+import { getDisplayErrorMessage } from "../lib/error-message";
+import { MIN_PASSWORD_LENGTH, getPasswordMinLengthMessage } from "../lib/password-policy";
 import type { UserProfile } from "../data/profile";
 
 const USER_STORAGE_KEY = "banguard_user";
@@ -190,7 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return { success: true };
     } catch (error) {
-      const backendError = error instanceof Error ? error.message : "로그인에 실패했습니다";
+      const backendError = getDisplayErrorMessage(error, "로그인에 실패했습니다");
 
       // Keep locally seeded demo/admin accounts usable until backend seed data or OAuth exists.
       const localResult = loginWithLocalUser(email, password);
@@ -263,8 +265,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Password validation
-    if (password.length < 8) {
-      return { success: false, error: "비밀번호는 8자 이상이어야 합니다" };
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      return { success: false, error: getPasswordMinLengthMessage() };
     }
 
     // Name validation
@@ -285,7 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (result.success === false) {
-        return { success: false, error: result.message || "회원가입에 실패했습니다" };
+        return { success: false, error: getDisplayErrorMessage(result.message, "회원가입에 실패했습니다") };
       }
 
       const newUser = {
@@ -310,7 +312,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : "회원가입에 실패했습니다",
+        error: getDisplayErrorMessage(error, "회원가입에 실패했습니다"),
       };
     }
   };

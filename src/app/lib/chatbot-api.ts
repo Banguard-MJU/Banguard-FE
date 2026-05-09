@@ -1,4 +1,5 @@
 import { apiRequest, buildApiUrl, getAccessToken } from "./api";
+import { normalizeErrorMessage } from "./error-message";
 
 export interface ChatbotSession {
   session_id: string;
@@ -36,25 +37,32 @@ export async function streamChatbotMessage(
     throw new Error("로그인이 필요합니다.");
   }
 
-  const response = await fetch(buildApiUrl(`/chatbot/sessions/${sessionId}/messages`), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "text/event-stream",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ question }),
-    signal,
-  });
+  let response: Response;
+  try {
+    response = await fetch(buildApiUrl(`/chatbot/sessions/${sessionId}/messages`), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "text/event-stream",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ question }),
+      signal,
+    });
+  } catch (error) {
+    throw new Error(normalizeErrorMessage(error instanceof Error ? error.message : undefined));
+  }
 
   if (!response.ok) {
     const text = await response.text();
+    let message: unknown = text;
     try {
       const data = JSON.parse(text);
-      throw new Error(data.detail || data.message || "챗봇 응답 생성에 실패했습니다.");
+      message = data.detail || data.message;
     } catch {
-      throw new Error(text || "챗봇 응답 생성에 실패했습니다.");
+      message = text;
     }
+    throw new Error(normalizeErrorMessage(message, "챗봇 응답 생성에 실패했습니다."));
   }
 
   if (!response.body) {
@@ -89,12 +97,20 @@ export async function streamChatbotMessage(
         continue;
       }
 
-      onEvent(JSON.parse(data) as ChatbotStreamEvent);
+      try {
+        onEvent(JSON.parse(data) as ChatbotStreamEvent);
+      } catch {
+        onEvent({ type: "error", content: "챗봇 응답을 읽는 중 문제가 발생했습니다." });
+      }
     }
   }
 
   const remaining = buffer.trim();
   if (remaining.startsWith("data:")) {
-    onEvent(JSON.parse(remaining.replace(/^data:\s*/, "")) as ChatbotStreamEvent);
+    try {
+      onEvent(JSON.parse(remaining.replace(/^data:\s*/, "")) as ChatbotStreamEvent);
+    } catch {
+      onEvent({ type: "error", content: "챗봇 응답을 읽는 중 문제가 발생했습니다." });
+    }
   }
 }

@@ -66,6 +66,7 @@ export function ResidenceReviews() {
   const [activeSatisfaction, setActiveSatisfaction] = useState<ResidenceSatisfaction | "all">("all");
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [backendReviews, setBackendReviews] = useState<ResidenceReview[]>([]);
+  const [hasBackendReviewsLoaded, setHasBackendReviewsLoaded] = useState(false);
 
   const districtOptions = getDistrictOptions(activeRegion === "all" ? undefined : activeRegion);
   const universityOptions = getUniversityOptions(activeDistrict);
@@ -81,11 +82,13 @@ export function ResidenceReviews() {
       .then((reviews) => {
         if (isMounted) {
           setBackendReviews(reviews);
+          setHasBackendReviewsLoaded(true);
         }
       })
       .catch(() => {
         if (isMounted) {
           setBackendReviews([]);
+          setHasBackendReviewsLoaded(false);
         }
       });
 
@@ -117,12 +120,16 @@ export function ResidenceReviews() {
         return matchesHousingType && matchesSatisfaction && matchesQuery;
       });
 
-      return [...matchingBackendReviews, ...localReviews];
+      return hasBackendReviewsLoaded ? matchingBackendReviews : localReviews;
     },
-    [activeDistrict, activeHousingType, activeRegion, activeSatisfaction, activeUniversity, backendReviews, query]
+    [activeDistrict, activeHousingType, activeRegion, activeSatisfaction, activeUniversity, backendReviews, hasBackendReviewsLoaded, query]
   );
 
   const featuredReviews = useMemo(() => {
+    if (hasBackendReviewsLoaded) {
+      return backendReviews.slice(0, 2);
+    }
+
     if (user?.profile?.university) {
       const byUniversity = RESIDENCE_REVIEWS.filter((review) => review.nearbyUniversity === user.profile?.university);
       if (byUniversity.length > 0) {
@@ -137,8 +144,8 @@ export function ResidenceReviews() {
       }
     }
 
-    return backendReviews.length > 0 ? backendReviews.slice(0, 2) : RESIDENCE_REVIEWS.slice(0, 2);
-  }, [backendReviews, user?.profile?.district, user?.profile?.university]);
+    return RESIDENCE_REVIEWS.slice(0, 2);
+  }, [backendReviews, hasBackendReviewsLoaded, user?.profile?.district, user?.profile?.university]);
 
   const selectedReview = selectedReviewId
     ? [...backendReviews, ...RESIDENCE_REVIEWS].find((review) => review.id === selectedReviewId) ?? null

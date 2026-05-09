@@ -43,6 +43,11 @@ export interface AuthApiResponse {
   user: AuthApiUser;
 }
 
+interface VerificationResponse {
+  message?: string;
+  detail?: string;
+}
+
 function normalizeBackendUser(user: BackendUserResponse, nameFallback?: string): AuthApiUser {
   return {
     id: String(user.user_id),
@@ -94,6 +99,25 @@ export async function signupWithBackend(payload: SignupPayload): Promise<AuthApi
       name: payload.name,
     },
   };
+}
+
+export async function sendEmailVerification(email: string) {
+  return apiRequest<VerificationResponse>("/auth/send-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resendEmailVerification(email: string) {
+  return apiRequest<VerificationResponse>("/auth/resend-verification", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function confirmEmailVerification(token: string) {
+  const query = new URLSearchParams({ token }).toString();
+  return apiRequest<VerificationResponse>(`/auth/verify-email?${query}`);
 }
 
 export async function updateMeWithBackend(payload: {

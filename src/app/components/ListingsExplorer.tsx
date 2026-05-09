@@ -92,6 +92,7 @@ export function ListingsExplorer() {
   const [activeUniversity, setActiveUniversity] = useState(initialUniversity || user?.profile?.university || "");
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [backendListings, setBackendListings] = useState<Listing[]>([]);
+  const [hasBackendListingsLoaded, setHasBackendListingsLoaded] = useState(false);
 
   const districtOptions = getDistrictOptions(activeRegion === "all" ? undefined : activeRegion);
   const universityOptions = getUniversityOptions(activeDistrict);
@@ -123,11 +124,13 @@ export function ListingsExplorer() {
       .then((listings) => {
         if (isMounted) {
           setBackendListings(listings);
+          setHasBackendListingsLoaded(true);
         }
       })
       .catch(() => {
         if (isMounted) {
           setBackendListings([]);
+          setHasBackendListingsLoaded(false);
         }
       });
 
@@ -151,7 +154,7 @@ export function ListingsExplorer() {
 
     return true;
   });
-  const featuredListings = backendListings.length > 0
+  const featuredListings = hasBackendListingsLoaded
     ? backendListings.slice(0, 2)
     : personalizedFeaturedListings.length > 0
       ? personalizedFeaturedListings
@@ -183,9 +186,9 @@ export function ListingsExplorer() {
         return matchesType && matchesBudget && matchesQuery;
       });
 
-      return [...matchingBackendListings, ...localListings];
+      return hasBackendListingsLoaded ? matchingBackendListings : localListings;
     },
-    [activeBudget, activeDistrict, activeRegion, activeType, activeUniversity, backendListings, query]
+    [activeBudget, activeDistrict, activeRegion, activeType, activeUniversity, backendListings, hasBackendListingsLoaded, query]
   );
   const selectedListing = selectedListingId
     ? backendListings.find((listing) => listing.id === selectedListingId) ?? getListingById(selectedListingId)

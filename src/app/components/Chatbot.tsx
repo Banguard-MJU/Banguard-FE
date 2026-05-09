@@ -42,6 +42,7 @@ import {
 } from "../data/chatbot";
 import { createChatbotSession, streamChatbotMessage, type ChatbotSource } from "../lib/chatbot-api";
 import { useAuth } from "../contexts/AuthContext";
+import { getDisplayErrorMessage } from "../lib/error-message";
 
 const CHATBOT_SIDEBAR_WIDTH = 320;
 
@@ -206,7 +207,7 @@ export function Chatbot() {
           }
 
           if (event.type === "error") {
-            throw new Error(event.content);
+            throw new Error(getDisplayErrorMessage(event.content, "챗봇 응답 생성에 실패했습니다"));
           }
         },
         controller.signal,
@@ -216,7 +217,7 @@ export function Chatbot() {
         return;
       }
 
-      const errorMessage = error instanceof Error ? error.message : "챗봇 응답 생성에 실패했습니다";
+      const errorMessage = getDisplayErrorMessage(error, "챗봇 응답 생성에 실패했습니다");
       toast.error(errorMessage);
       setMessages(prev => prev.map(msg =>
         msg.id === assistantMessageId
