@@ -96,7 +96,7 @@ export function mapContractAnalysisResponse(response: ContractAnalysisResponse):
       ...response.fraud_analysis.safe_items.map((item) => `확인됨: ${item}`),
     ],
     rightsData: {
-      propertyValue: Math.max(deposit * 1.4, deposit),
+      propertyValue: 0,
       deposit,
       mortgages: [],
       previousDeposits: 0,

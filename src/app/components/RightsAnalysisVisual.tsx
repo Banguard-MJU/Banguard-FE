@@ -21,13 +21,32 @@ interface RightsAnalysisVisualProps {
 }
 
 export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
+  // 시세 정보 없음 처리
+  const hasPropertyValue = data.propertyValue > 0;
+
   // 계산
   const totalMortgage = data.mortgages.reduce((sum, m) => sum + m.amount, 0);
   const totalBurden = totalMortgage + data.previousDeposits + data.deposit;
-  const burdenRatio = (totalBurden / data.propertyValue) * 100;
-  const mortgageRatio = (totalMortgage / data.propertyValue) * 100;
-  const depositRatio = (data.deposit / data.propertyValue) * 100;
-  
+  const burdenRatio = hasPropertyValue ? (totalBurden / data.propertyValue) * 100 : 0;
+  const mortgageRatio = hasPropertyValue ? (totalMortgage / data.propertyValue) * 100 : 0;
+  const depositRatio = hasPropertyValue ? (data.deposit / data.propertyValue) * 100 : 0;
+
+  // 시세 정보 없을 때 안내 UI
+  if (!hasPropertyValue) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center gap-4">
+        <HelpCircle className="w-16 h-16 text-gray-400" />
+        <div>
+          <p className="text-lg font-semibold text-gray-600">부동산 시세 정보 없음</p>
+          <p className="text-sm text-gray-500 mt-1">
+            계약서에서 보증금 또는 시세 정보를 확인하지 못했습니다.<br />
+            국토교통부 실거래가 공개시스템에서 시세를 직접 확인하세요.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // 신호등 색상 결정
   const getTrafficLight = (ratio: number): { color: string; label: string; icon: any } => {
     if (ratio < 60) {
