@@ -74,6 +74,15 @@ const evidenceTypeLabel: Record<ChatEvidenceItem["type"], string> = {
   insurance: "보증",
 };
 
+function getDocumentUrlFromTitle(title: string) {
+  const filename = title.split(/[\\/]/).pop()?.trim();
+  if (!filename || !filename.toLowerCase().endsWith(".pdf")) {
+    return undefined;
+  }
+
+  return `/documents/${encodeURIComponent(filename)}`;
+}
+
 function sourcesToEvidence(sources: ChatbotSource[]): ChatEvidenceItem[] {
   return sources.map((source, index) => ({
     id: `${source.title}-${source.page}-${index}`,
@@ -81,7 +90,7 @@ function sourcesToEvidence(sources: ChatbotSource[]): ChatEvidenceItem[] {
     summary: `${source.page}쪽${source.date ? ` · ${source.date}` : ""}`,
     type: "policy",
     page: source.page,
-    url: source.url,
+    url: source.url || getDocumentUrlFromTitle(source.title),
     excerpt: source.excerpt,
   }));
 }
@@ -508,11 +517,12 @@ export function Chatbot() {
   );
 
   const getSourceUrl = (item: ChatEvidenceItem) => {
-    if (!item.url) {
+    const url = item.url || getDocumentUrlFromTitle(item.title);
+    if (!url) {
       return undefined;
     }
 
-    const baseUrl = item.url.startsWith("http") ? item.url : buildApiUrl(item.url);
+    const baseUrl = url.startsWith("http") ? url : buildApiUrl(url);
     return item.page ? `${baseUrl}#page=${item.page}` : baseUrl;
   };
 
@@ -524,6 +534,69 @@ export function Chatbot() {
     }
 
     window.open(sourceUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const renderEvidenceItem = (item: ChatEvidenceItem) => {
+    const sourceUrl = getSourceUrl(item);
+
+    return (
+      <div
+        key={item.id}
+        className="rounded-2xl border border-blue-100/80 bg-gradient-to-br from-white to-blue-50/60 p-4 dark:border-indigo-900/60 dark:from-gray-900 dark:to-indigo-950/20"
+      >
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+            {item.title}
+          </div>
+          <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-medium text-blue-700 dark:bg-indigo-950/60 dark:text-blue-200">
+            {evidenceTypeLabel[item.type]}
+          </span>
+        </div>
+        <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
+          {item.summary}
+        </p>
+        {item.excerpt && (
+          <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
+            {item.excerpt}
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => openSource(item)}
+            disabled={!sourceUrl}
+            className="h-8 gap-1.5 rounded-full px-3 text-xs"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            PDF 열기
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => openSource(item)}
+            disabled={!sourceUrl}
+            className="h-8 gap-1.5 rounded-full px-3 text-xs"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            링크 열기
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setPreviewEvidence(item)}
+            disabled={!item.excerpt}
+            className="h-8 gap-1.5 rounded-full px-3 text-xs"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            원문 보기
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   const renderEvidenceCard = (evidence: ChatEvidenceItem[]) => (
@@ -543,64 +616,7 @@ export function Chatbot() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        {evidence.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-2xl border border-blue-100/80 bg-gradient-to-br from-white to-blue-50/60 p-4 dark:border-indigo-900/60 dark:from-gray-900 dark:to-indigo-950/20"
-          >
-            <div className="mb-2 flex items-center justify-between gap-3">
-              <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                {item.title}
-              </div>
-              <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-medium text-blue-700 dark:bg-indigo-950/60 dark:text-blue-200">
-                {evidenceTypeLabel[item.type]}
-              </span>
-            </div>
-            <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
-              {item.summary}
-            </p>
-            {item.excerpt && (
-              <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
-                {item.excerpt}
-              </p>
-            )}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => openSource(item)}
-                disabled={!item.url}
-                className="h-8 gap-1.5 rounded-full px-3 text-xs"
-              >
-                <FileText className="h-3.5 w-3.5" />
-                PDF 열기
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => openSource(item)}
-                disabled={!item.url}
-                className="h-8 gap-1.5 rounded-full px-3 text-xs"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                링크 열기
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => setPreviewEvidence(item)}
-                disabled={!item.excerpt}
-                className="h-8 gap-1.5 rounded-full px-3 text-xs"
-              >
-                <Eye className="h-3.5 w-3.5" />
-                원문 보기
-              </Button>
-            </div>
-          </div>
-        ))}
+        {evidence.map(renderEvidenceItem)}
       </div>
     </div>
   );
@@ -1073,7 +1089,7 @@ export function Chatbot() {
             {previewEvidence?.excerpt || "표시할 원문 미리보기가 없습니다."}
           </div>
 
-          {previewEvidence?.url && (
+          {previewEvidence && getSourceUrl(previewEvidence) && (
             <div className="flex justify-end">
               <Button
                 type="button"
