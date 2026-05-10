@@ -6,7 +6,7 @@ import type { ResidenceReview } from "../data/reviews";
 type CommunityCategory = CommunityPost["category"];
 
 interface PostListItem {
-  post_id: string;
+  post_id: string | number;
   title: string;
   category: CommunityCategory;
   author: string;
@@ -32,7 +32,7 @@ interface PostDetailResponse extends PostListItem {
 }
 
 interface PostWriteResponse {
-  post_id: string;
+  post_id: string | number;
   title: string;
   content: string;
   category: CommunityCategory;
@@ -75,7 +75,7 @@ interface ReviewResponse {
 
 function mapPost(item: PostListItem | PostDetailResponse | PostWriteResponse): CommunityPost {
   return {
-    id: item.post_id,
+    id: String(item.post_id),
     title: item.title,
     content: "content" in item ? item.content : "",
     author: item.author,
@@ -180,12 +180,12 @@ export async function getCommunityPosts(params: {
   if (params.size) searchParams.set("size", String(params.size));
 
   const query = searchParams.toString();
-  const response = await apiRequest<PostListResponse>(`/posts${query ? `?${query}` : ""}`);
+  const response = await apiRequest<PostListResponse>(`/community/posts${query ? `?${query}` : ""}`);
   return response.posts.map(mapPost);
 }
 
 export async function getCommunityPost(postId: string) {
-  const response = await apiRequest<PostDetailResponse>(`/posts/${postId}`);
+  const response = await apiRequest<PostDetailResponse>(`/community/posts/${postId}`);
   return mapPost(response);
 }
 
@@ -194,7 +194,7 @@ export async function createCommunityPost(payload: {
   content: string;
   category: CommunityCategory;
 }) {
-  const response = await apiRequest<PostWriteResponse>("/posts", {
+  const response = await apiRequest<PostWriteResponse>("/community/posts", {
     method: "POST",
     auth: true,
     body: JSON.stringify(payload),
@@ -203,12 +203,12 @@ export async function createCommunityPost(payload: {
 }
 
 export async function getPostComments(postId: string) {
-  const response = await apiRequest<CommentResponse[]>(`/posts/${postId}/comments`);
+  const response = await apiRequest<CommentResponse[]>(`/community/posts/${postId}/comments`);
   return response.map(mapComment);
 }
 
 export async function createPostComment(postId: string, content: string) {
-  const response = await apiRequest<CommentResponse>(`/posts/${postId}/comments`, {
+  const response = await apiRequest<CommentResponse>(`/community/posts/${postId}/comments`, {
     method: "POST",
     auth: true,
     body: JSON.stringify({ content }),
@@ -217,49 +217,49 @@ export async function createPostComment(postId: string, content: string) {
 }
 
 export async function deletePostComment(commentId: string) {
-  await apiRequest<{ message: string }>(`/comments/${commentId}`, {
+  await apiRequest<{ message: string }>(`/community/comments/${commentId}`, {
     method: "DELETE",
     auth: true,
   });
 }
 
 export async function likePost(postId: string) {
-  return apiRequest<LikeResponse>(`/posts/${postId}/like`, {
+  return apiRequest<LikeResponse>(`/community/posts/${postId}/like`, {
     method: "POST",
     auth: true,
   });
 }
 
 export async function unlikePost(postId: string) {
-  return apiRequest<LikeResponse>(`/posts/${postId}/like`, {
+  return apiRequest<LikeResponse>(`/community/posts/${postId}/like`, {
     method: "DELETE",
     auth: true,
   });
 }
 
 export async function bookmarkPost(postId: string) {
-  return apiRequest<{ message: string }>(`/posts/${postId}/bookmark`, {
+  return apiRequest<{ message: string }>(`/community/posts/${postId}/bookmark`, {
     method: "POST",
     auth: true,
   });
 }
 
 export async function unbookmarkPost(postId: string) {
-  return apiRequest<{ message: string }>(`/posts/${postId}/bookmark`, {
+  return apiRequest<{ message: string }>(`/community/posts/${postId}/bookmark`, {
     method: "DELETE",
     auth: true,
   });
 }
 
 export async function likeComment(commentId: string) {
-  return apiRequest<LikeResponse>(`/comments/${commentId}/like`, {
+  return apiRequest<LikeResponse>(`/community/comments/${commentId}/like`, {
     method: "POST",
     auth: true,
   });
 }
 
 export async function unlikeComment(commentId: string) {
-  return apiRequest<LikeResponse>(`/comments/${commentId}/like`, {
+  return apiRequest<LikeResponse>(`/community/comments/${commentId}/like`, {
     method: "DELETE",
     auth: true,
   });
@@ -267,12 +267,12 @@ export async function unlikeComment(commentId: string) {
 
 export async function getProperties(type?: string) {
   const query = type ? `?type=${encodeURIComponent(type)}` : "";
-  const response = await apiRequest<PropertyResponse[]>(`/properties${query}`);
+  const response = await apiRequest<PropertyResponse[]>(`/community/properties${query}`);
   return response.map(mapPropertyToListing);
 }
 
 export async function getResidenceReviews(buildingAddress?: string) {
   const query = buildingAddress ? `?building_address=${encodeURIComponent(buildingAddress)}` : "";
-  const response = await apiRequest<ReviewResponse[]>(`/reviews${query}`);
+  const response = await apiRequest<ReviewResponse[]>(`/community/reviews${query}`);
   return response.map(mapReviewToResidenceReview);
 }

@@ -50,7 +50,17 @@ import {
   type ChatEvidenceItem,
   type ChatMessage as Message,
 } from "../data/chatbot";
-import { createChatbotSession, streamChatbotMessage, type ChatbotSource } from "../lib/chatbot-api";
+import {
+  createChatbotSession,
+  deleteChatbotSession,
+  getChatbotSessionDetail,
+  getChatbotSessions,
+  streamChatbotMessage,
+  type ChatbotMessageRecord,
+  type ChatbotSession,
+  type ChatbotSessionDetail,
+  type ChatbotSource,
+} from "../lib/chatbot-api";
 import { buildApiUrl } from "../lib/api";
 import { useAuth } from "../contexts/AuthContext";
 import { getDisplayErrorMessage } from "../lib/error-message";
@@ -74,6 +84,33 @@ function sourcesToEvidence(sources: ChatbotSource[]): ChatEvidenceItem[] {
     url: source.url,
     excerpt: source.excerpt,
   }));
+}
+
+function recordsToMessages(records: ChatbotMessageRecord[]): Message[] {
+  return records.map((record) => ({
+    id: record.message_id,
+    role: record.role,
+    content: record.content,
+    timestamp: new Date(record.sent_at),
+    evidence: record.sources && record.sources.length > 0 ? sourcesToEvidence(record.sources) : undefined,
+  }));
+}
+
+function sessionToConversation(session: ChatbotSession, detail?: ChatbotSessionDetail): Conversation {
+  const messages = detail ? recordsToMessages(detail.messages) : [];
+  const firstUserMessage = messages.find((message) => message.role === "user");
+  const lastMessage = messages[messages.length - 1];
+  const fallbackTitle = firstUserMessage
+    ? firstUserMessage.content.substring(0, 30) + (firstUserMessage.content.length > 30 ? "..." : "")
+    : "이전 대화";
+
+  return {
+    id: session.session_id,
+    title: session.title || detail?.title || fallbackTitle,
+    lastMessage: lastMessage?.content || firstUserMessage?.content || "",
+    timestamp: new Date(session.last_active_at || session.created_at),
+    messages,
+  };
 }
 
 export function Chatbot() {
@@ -114,6 +151,48 @@ export function Chatbot() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setConversations([]);
+      setCurrentConversationId(null);
+      setMessages([]);
+      return;
+    }
+
+    let isMounted = true;
+
+    getChatbotSessions()
+      .then(async (sessions) => {
+        const details = await Promise.all(
+          sessions.map(async (session) => {
+            try {
+              return await getChatbotSessionDetail(session.session_id);
+            } catch {
+              return undefined;
+            }
+          }),
+        );
+
+        if (!isMounted) {
+          return;
+        }
+
+        const restoredConversations = sessions.map((session, index) =>
+          sessionToConversation(session, details[index]),
+        );
+        setConversations(restoredConversations);
+      })
+      .catch((error) => {
+        if (isMounted) {
+          toast.error(getDisplayErrorMessage(error, "이전 대화를 불러오지 못했습니다"));
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!currentConversationId || messages.length === 0) {
@@ -299,6 +378,36 @@ export function Chatbot() {
     setIsSidebarOpen(false);
   };
 
+  const handleSelectConversation = async (conversation: Conversation) => {
+    setCurrentConversationId(conversation.id);
+    setIsSidebarOpen(false);
+
+    if (conversation.messages.length > 0) {
+      setMessages(conversation.messages);
+      return;
+    }
+
+    try {
+      const detail = await getChatbotSessionDetail(conversation.id);
+      const restoredMessages = recordsToMessages(detail.messages);
+      setMessages(restoredMessages);
+      setConversations((prev) =>
+        prev.map((item) =>
+          item.id === conversation.id
+            ? {
+                ...item,
+                title: detail.title || item.title,
+                lastMessage: restoredMessages[restoredMessages.length - 1]?.content || item.lastMessage,
+                messages: restoredMessages,
+              }
+            : item,
+        ),
+      );
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "대화 내역을 불러오지 못했습니다"));
+    }
+  };
+
   const handleGoHome = () => {
     setIsSidebarOpen(false);
     navigate("/");
@@ -317,7 +426,14 @@ export function Chatbot() {
     );
   };
 
-  const handleDeleteConversation = (conversationId: string) => {
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      await deleteChatbotSession(conversationId);
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "대화 삭제에 실패했습니다"));
+      return;
+    }
+
     setConversations(prev => prev.filter(conv => conv.id !== conversationId));
     if (currentConversationId === conversationId) {
       setCurrentConversationId(null);
@@ -595,11 +711,7 @@ export function Chatbot() {
   const ConversationItem = ({ conversation }: { conversation: Conversation }) => (
     <div className="group/item relative">
       <button
-        onClick={() => {
-          setCurrentConversationId(conversation.id);
-          setMessages(conversation.messages);
-          setIsSidebarOpen(false);
-        }}
+        onClick={() => handleSelectConversation(conversation)}
         className={`w-full rounded-xl border border-transparent p-3 pr-12 text-left transition-all hover:border-blue-100 hover:bg-blue-50/70 dark:hover:border-indigo-900/60 dark:hover:bg-gray-800/80 ${
           currentConversationId === conversation.id 
             ? "border-blue-100 bg-white shadow-sm shadow-blue-100/40 dark:border-indigo-900/60 dark:bg-gray-800/90 dark:shadow-none" 
@@ -656,7 +768,7 @@ export function Chatbot() {
             <DropdownMenuItem
               onClick={(e) => {
                 e.stopPropagation();
-                handleDeleteConversation(conversation.id);
+                void handleDeleteConversation(conversation.id);
               }}
               className="gap-2 cursor-pointer text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
             >

@@ -38,11 +38,7 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
 import {
-  applyCommunityInteractionFlags,
   COMMUNITY_REPORT_REASONS,
-  MOCK_COMMENTS,
-  MOCK_POSTS,
-  toggleCommunityActivity,
   type CommunityComment as Comment,
   type CommunityPost as Post,
   type CommunityReportReasonId,
@@ -89,9 +85,8 @@ export function Community() {
   const navigate = useNavigate();
   const { postId } = useParams();
   const { user, isAuthenticated } = useAuth();
-  const [posts, setPosts] = useState<Post[]>(() => applyCommunityInteractionFlags(MOCK_POSTS));
-  const [comments, setComments] = useState<Comment[]>(MOCK_COMMENTS);
-  const [usesBackendPosts, setUsesBackendPosts] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [hasLoadedBackendPosts, setHasLoadedBackendPosts] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -132,14 +127,13 @@ export function Community() {
           return;
         }
 
-        setPosts(applyCommunityInteractionFlags(backendPosts, user?.id));
-        setUsesBackendPosts(true);
+        setPosts(backendPosts);
         setHasLoadedBackendPosts(true);
       })
-      .catch(() => {
+      .catch((error) => {
         if (isMounted) {
-          setUsesBackendPosts(false);
           setHasLoadedBackendPosts(true);
+          toast.error(getDisplayErrorMessage(error, "커뮤니티 게시글을 불러오지 못했습니다"));
         }
       });
 
@@ -169,27 +163,6 @@ export function Community() {
   );
 
   useEffect(() => {
-    setPosts((currentPosts) => {
-      const nextPosts = applyCommunityInteractionFlags(
-        currentPosts.map((post) => {
-          const baselinePost = MOCK_POSTS.find((mockPost) => mockPost.id === post.id);
-          return baselinePost
-            ? {
-                ...baselinePost,
-                views: post.views,
-                comments: post.comments,
-                likes: post.likes,
-              }
-            : post;
-        }),
-        user?.id
-      );
-
-      return nextPosts;
-    });
-  }, [user?.id]);
-
-  useEffect(() => {
     if (!postId) {
       setSelectedPostId(null);
       setIsDetailDialogOpen(false);
@@ -211,7 +184,7 @@ export function Community() {
     setSelectedPostId(postId);
     setIsDetailDialogOpen(true);
 
-    if (usesBackendPosts && targetPost.content === "") {
+    if (targetPost.content === "") {
       getCommunityPost(postId)
         .then((backendPost) => {
           setPosts((currentPosts) =>
@@ -237,7 +210,7 @@ export function Community() {
         })
         .catch(() => undefined);
     }
-  }, [hasLoadedBackendPosts, navigate, postId, posts, usesBackendPosts]);
+  }, [hasLoadedBackendPosts, navigate, postId, posts]);
 
   useEffect(() => {
     if (!postId || viewedPostIdRef.current === postId) {
@@ -272,43 +245,23 @@ export function Community() {
 
     const nextIsLiked = !targetPost.isLiked;
 
-    if (usesBackendPosts) {
-      try {
-        const result = nextIsLiked ? await likePost(postId) : await unlikePost(postId);
-        setPosts((currentPosts) =>
-          currentPosts.map((post) =>
-            post.id === postId
-              ? {
-                  ...post,
-                  likes: result.like_count,
-                  isLiked: nextIsLiked,
-                }
-              : post
-          )
-        );
-        toast.success(nextIsLiked ? "좋아요가 저장되었습니다!" : "좋아요를 취소했습니다");
-        return;
-      } catch (error) {
-        toast.error(getDisplayErrorMessage(error, "좋아요 처리에 실패했습니다"));
-        return;
-      }
+    try {
+      const result = nextIsLiked ? await likePost(postId) : await unlikePost(postId);
+      setPosts((currentPosts) =>
+        currentPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likes: result.like_count,
+                isLiked: nextIsLiked,
+              }
+            : post
+        )
+      );
+      toast.success(nextIsLiked ? "좋아요가 저장되었습니다!" : "좋아요를 취소했습니다");
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "좋아요 처리에 실패했습니다"));
     }
-
-    const localNextIsLiked = toggleCommunityActivity(user.id, targetPost, "likedPosts");
-
-    setPosts((currentPosts) =>
-      currentPosts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              likes: localNextIsLiked ? post.likes + 1 : Math.max(0, post.likes - 1),
-              isLiked: localNextIsLiked,
-            }
-          : post
-      )
-    );
-
-    toast.success(localNextIsLiked ? "좋아요가 저장되었습니다!" : "좋아요를 취소했습니다");
   };
 
   const handleBookmark = async (postId: string) => {
@@ -324,46 +277,27 @@ export function Community() {
 
     const nextIsBookmarked = !targetPost.isBookmarked;
 
-    if (usesBackendPosts) {
-      try {
-        if (nextIsBookmarked) {
-          await bookmarkPost(postId);
-        } else {
-          await unbookmarkPost(postId);
-        }
-
-        setPosts((currentPosts) =>
-          currentPosts.map((post) =>
-            post.id === postId
-              ? {
-                  ...post,
-                  isBookmarked: nextIsBookmarked,
-                }
-              : post
-          )
-        );
-        toast.success(nextIsBookmarked ? "저장됨에 추가되었습니다!" : "저장됨에서 제거되었습니다");
-        return;
-      } catch (error) {
-        toast.error(getDisplayErrorMessage(error, "저장 처리에 실패했습니다"));
-        return;
+    try {
+      if (nextIsBookmarked) {
+        await bookmarkPost(postId);
+      } else {
+        await unbookmarkPost(postId);
       }
+
+      setPosts((currentPosts) =>
+        currentPosts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                isBookmarked: nextIsBookmarked,
+              }
+            : post
+        )
+      );
+      toast.success(nextIsBookmarked ? "저장됨에 추가되었습니다!" : "저장됨에서 제거되었습니다");
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "저장 처리에 실패했습니다"));
     }
-
-    const localNextIsBookmarked = toggleCommunityActivity(user.id, targetPost, "bookmarkedPosts");
-
-    setPosts((currentPosts) =>
-      currentPosts.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              isBookmarked: localNextIsBookmarked,
-            }
-          : post
-      )
-    );
-
-    toast.success(localNextIsBookmarked ? "저장됨에 추가되었습니다!" : "저장됨에서 제거되었습니다");
   };
 
   const handleSubmitPost = async () => {
@@ -378,30 +312,15 @@ export function Community() {
     }
 
     let post: Post;
-    if (usesBackendPosts) {
-      try {
-        post = await createCommunityPost({
-          title: newPost.title,
-          content: newPost.content,
-          category: newPost.category,
-        });
-      } catch (error) {
-        toast.error(getDisplayErrorMessage(error, "게시글 작성에 실패했습니다"));
-        return;
-      }
-    } else {
-      post = {
-        id: Date.now().toString(),
+    try {
+      post = await createCommunityPost({
         title: newPost.title,
         content: newPost.content,
-        author: communityDisplayName,
         category: newPost.category,
-        likes: 0,
-        comments: 0,
-        views: 0,
-        timestamp: new Date(),
-        tags: newPost.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-      };
+      });
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "게시글 작성에 실패했습니다"));
+      return;
     }
 
     setPosts((currentPosts) => [post, ...currentPosts]);
@@ -433,22 +352,11 @@ export function Community() {
     }
 
     let comment: Comment;
-    if (usesBackendPosts) {
-      try {
-        comment = await createPostComment(selectedPost.id, newCommentContent);
-      } catch (error) {
-        toast.error(getDisplayErrorMessage(error, "댓글 작성에 실패했습니다"));
-        return;
-      }
-    } else {
-      comment = {
-        id: Date.now().toString(),
-        postId: selectedPost.id,
-        author: communityDisplayName,
-        content: newCommentContent,
-        timestamp: new Date(),
-        likes: 0,
-      };
+    try {
+      comment = await createPostComment(selectedPost.id, newCommentContent);
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "댓글 작성에 실패했습니다"));
+      return;
     }
 
     setComments((currentComments) => [...currentComments, comment]);
@@ -467,46 +375,28 @@ export function Community() {
       return;
     }
 
-    if (usesBackendPosts) {
-      try {
-        const result = targetComment.isLiked ? await unlikeComment(commentId) : await likeComment(commentId);
-        setComments((currentComments) =>
-          currentComments.map((comment) =>
-            comment.id === commentId
-              ? { ...comment, likes: result.like_count, isLiked: !comment.isLiked }
-              : comment
-          )
-        );
-      } catch (error) {
-        toast.error(getDisplayErrorMessage(error, "댓글 좋아요 처리에 실패했습니다"));
-      }
-      return;
+    try {
+      const result = targetComment.isLiked ? await unlikeComment(commentId) : await likeComment(commentId);
+      setComments((currentComments) =>
+        currentComments.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, likes: result.like_count, isLiked: !comment.isLiked }
+            : comment
+        )
+      );
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "댓글 좋아요 처리에 실패했습니다"));
     }
-
-    setComments((currentComments) =>
-      currentComments.map((comment) => {
-        if (comment.id === commentId) {
-          return {
-            ...comment,
-            likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
-            isLiked: !comment.isLiked
-          };
-        }
-        return comment;
-      })
-    );
   };
 
   const handleDeleteComment = async (commentId: string) => {
     const deletedComment = comments.find((comment) => comment.id === commentId);
 
-    if (usesBackendPosts) {
-      try {
-        await deletePostComment(commentId);
-      } catch (error) {
-        toast.error(getDisplayErrorMessage(error, "댓글 삭제에 실패했습니다"));
-        return;
-      }
+    try {
+      await deletePostComment(commentId);
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "댓글 삭제에 실패했습니다"));
+      return;
     }
 
     setComments((currentComments) => currentComments.filter((comment) => comment.id !== commentId));
@@ -600,7 +490,7 @@ export function Community() {
   return (
     <div className="min-h-screen py-8 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <div className="app-shell">
-        <Card className="mb-8 rounded-3xl border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+        <Card className="mb-8 rounded-2xl border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80 sm:rounded-3xl">
           <CardContent className="flex flex-col gap-4 px-6 py-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <div className="mb-2 text-sm font-semibold text-blue-700 dark:text-blue-300">토론과 후기 분리</div>
@@ -609,7 +499,7 @@ export function Community() {
                 여기는 질문, 경험 공유, 주의 정보 중심 커뮤니티입니다. 생활 만족도와 주거 형태 후기는 거주지 리뷰 화면에서 더 정돈된 형태로 볼 수 있습니다.
               </p>
             </div>
-            <Button className="rounded-xl" onClick={() => navigate("/reviews")}>
+            <Button className="w-full rounded-xl sm:w-auto" onClick={() => navigate("/reviews")}>
               거주지 리뷰 보러가기
             </Button>
           </CardContent>
@@ -625,7 +515,7 @@ export function Community() {
             <Users className="w-4 h-4" />
             <span className="text-sm font-medium">함께 만드는 안전한 주거</span>
           </div>
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">
+          <h1 className="mb-4 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-4xl font-bold text-transparent dark:from-indigo-400 dark:to-purple-400 sm:text-5xl">
             커뮤니티
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
@@ -644,12 +534,12 @@ export function Community() {
             </div>
             <Dialog open={isWriteDialogOpen} onOpenChange={setIsWriteDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="h-12 px-6 rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 transition-all whitespace-nowrap">
+                <Button className="h-12 w-full rounded-xl px-6 shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 sm:w-auto">
                   <Plus className="w-5 h-5 mr-2" />
                   글쓰기
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl rounded-3xl">
+              <DialogContent className="max-h-[90vh] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl sm:max-w-2xl sm:rounded-3xl">
                 <DialogHeader>
                   <DialogTitle className="text-2xl">새 게시글 작성</DialogTitle>
                   <DialogDescription>
@@ -705,7 +595,7 @@ export function Community() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-2 justify-end">
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                   <Button variant="outline" onClick={() => setIsWriteDialogOpen(false)} className="rounded-xl">
                     취소
                   </Button>
@@ -724,7 +614,7 @@ export function Community() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-6"
         >
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center">
             {Object.entries(CATEGORY_CONFIG).map(([key, config]) => {
               const Icon = config.icon;
               const isActive = selectedCategory === key;
@@ -733,14 +623,14 @@ export function Community() {
                   key={key}
                   onClick={() => setSelectedCategory(key)}
                   variant={isActive ? "default" : "outline"}
-                  className={`rounded-xl transition-all ${
+                  className={`min-w-0 rounded-xl px-3 transition-all ${
                     isActive
                       ? `bg-gradient-to-r ${config.color} text-white shadow-lg`
                       : "hover:border-indigo-300 hover:bg-indigo-50 dark:hover:border-indigo-600 dark:hover:bg-indigo-950/50"
                   }`}
                 >
-                  <Icon className="w-4 h-4 mr-2" />
-                  {config.label}
+                  <Icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{config.label}</span>
                 </Button>
               );
             })}
@@ -751,12 +641,12 @@ export function Community() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex justify-between items-center mb-6"
+          className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="text-sm text-gray-600">
             총 <span className="font-bold text-indigo-600">{filteredPosts.length}</span>개의 게시글
           </div>
-          <div className="flex gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:flex">
             <Button
               variant={sortBy === "latest" ? "default" : "ghost"}
               size="sm"
@@ -798,17 +688,17 @@ export function Community() {
                     className="hover:shadow-xl transition-all cursor-pointer border-0 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm group"
                     onClick={() => handlePostClick(post)}
                   >
-                    <CardContent className="p-6">
-                      <div className="flex gap-4">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${categoryConfig.color} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform`}>
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col gap-4 sm:flex-row">
+                        <div className={`h-12 w-12 flex-shrink-0 rounded-xl bg-gradient-to-br ${categoryConfig.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-110`}>
                           <CategoryIcon className="w-6 h-6 text-white" />
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-4 mb-2">
+                          <div className="mb-2 flex min-w-0 items-start justify-between gap-2 sm:gap-4">
                             <div className="flex-1">
                               <div className="flex flex-wrap items-center gap-2 mb-1">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
+                                <h3 className="min-w-0 text-base font-bold text-gray-900 line-clamp-2 transition-colors group-hover:text-indigo-600 dark:text-gray-100 dark:group-hover:text-indigo-400 sm:text-lg">
                                   {post.title}
                                 </h3>
                                 {reportRecord && (
@@ -861,8 +751,8 @@ export function Community() {
                             </div>
                           )}
 
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
                               <span className="font-medium text-gray-700 dark:text-gray-300">{post.author}</span>
                               <span className="flex items-center gap-1">
                                 <Clock className="w-4 h-4" />
@@ -874,7 +764,7 @@ export function Community() {
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="grid grid-cols-3 gap-2 sm:flex sm:items-center">
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -882,12 +772,12 @@ export function Community() {
                                   event.stopPropagation();
                                   handleLike(post.id);
                                 }}
-                                className={`rounded-xl ${post.isLiked ? "text-red-500" : ""}`}
+                                className={`min-w-0 rounded-xl px-2 ${post.isLiked ? "text-red-500" : ""}`}
                               >
                                 <ThumbsUp className={`w-4 h-4 mr-1 ${post.isLiked ? "fill-current" : ""}`} />
                                 {post.likes}
                               </Button>
-                              <Button variant="ghost" size="sm" className="rounded-xl">
+                              <Button variant="ghost" size="sm" className="min-w-0 rounded-xl px-2">
                                 <MessageCircle className="w-4 h-4 mr-1" />
                                 {post.comments}
                               </Button>
@@ -898,7 +788,7 @@ export function Community() {
                                   event.stopPropagation();
                                   handleBookmark(post.id);
                                 }}
-                                className={`rounded-xl ${post.isBookmarked ? "text-yellow-500" : ""}`}
+                                className={`min-w-0 rounded-xl px-2 ${post.isBookmarked ? "text-yellow-500" : ""}`}
                               >
                                 <Bookmark className={`w-4 h-4 ${post.isBookmarked ? "fill-current" : ""}`} />
                               </Button>
@@ -925,7 +815,7 @@ export function Community() {
         </div>
 
         <Dialog open={isDetailDialogOpen} onOpenChange={handleDetailDialogChange}>
-          <DialogContent className="max-w-2xl max-h-[80vh] rounded-3xl overflow-y-auto dark:bg-gray-800/95 dark:border-gray-700">
+          <DialogContent className="max-h-[85vh] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl dark:border-gray-700 dark:bg-gray-800/95 sm:max-w-2xl sm:rounded-3xl">
             {selectedPost && (
               <>
                 <DialogHeader>
@@ -945,8 +835,8 @@ export function Community() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
                       <span className="font-medium text-gray-700 dark:text-gray-300">{selectedPost.author}</span>
                       <span className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
@@ -958,7 +848,7 @@ export function Community() {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="grid grid-cols-4 gap-2 sm:flex sm:items-center">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -1080,7 +970,7 @@ export function Community() {
 
                   <div className="space-y-3">
                     <h4 className="text-base font-bold dark:text-gray-100">댓글 작성</h4>
-                    <div className="flex gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row">
                       <Avatar className="w-8 h-8 flex-shrink-0">
                         <AvatarFallback className="bg-indigo-500 text-white text-sm">나</AvatarFallback>
                       </Avatar>
@@ -1091,7 +981,7 @@ export function Community() {
                           placeholder="댓글을 입력하세요..."
                           className="rounded-xl min-h-[80px] resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                         />
-                        <div className="flex gap-2 justify-end">
+                        <div className="flex justify-end gap-2">
                           <Button onClick={handleSubmitComment} className="rounded-xl" disabled={!newCommentContent.trim()}>
                             <Send className="w-4 h-4 mr-2" />
                             등록

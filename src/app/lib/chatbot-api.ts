@@ -6,6 +6,7 @@ export interface ChatbotSession {
   result_id?: string | null;
   title?: string | null;
   created_at: string;
+  last_active_at?: string;
 }
 
 export interface ChatbotSource {
@@ -21,9 +22,45 @@ export type ChatbotStreamEvent =
   | { type: "sources"; content: ChatbotSource[]; is_grounded?: boolean }
   | { type: "error"; content: string };
 
+export interface ChatbotMessageRecord {
+  message_id: string;
+  role: "user" | "assistant";
+  content: string;
+  sources?: ChatbotSource[] | null;
+  is_grounded: boolean;
+  sent_at: string;
+}
+
+export interface ChatbotSessionDetail {
+  session_id: string;
+  title?: string | null;
+  messages: ChatbotMessageRecord[];
+}
+
 export async function createChatbotSession() {
   return apiRequest<ChatbotSession>("/chatbot/sessions", {
     method: "POST",
+    auth: true,
+  });
+}
+
+export async function getChatbotSessions() {
+  return apiRequest<ChatbotSession[]>("/chatbot/sessions", {
+    method: "GET",
+    auth: true,
+  });
+}
+
+export async function getChatbotSessionDetail(sessionId: string) {
+  return apiRequest<ChatbotSessionDetail>(`/chatbot/sessions/${sessionId}`, {
+    method: "GET",
+    auth: true,
+  });
+}
+
+export async function deleteChatbotSession(sessionId: string) {
+  await apiRequest<null>(`/chatbot/sessions/${sessionId}`, {
+    method: "DELETE",
     auth: true,
   });
 }
