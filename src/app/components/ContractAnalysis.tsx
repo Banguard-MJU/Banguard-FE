@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { toast } from "sonner";
 import { motion } from "motion/react";
@@ -257,23 +256,27 @@ export function ContractAnalysis() {
 
               <TabsContent value="issues" className="space-y-4">
                 {result.issues.map((issue, index) => (
-                  <Alert key={index} className={
-                    issue.type === "critical" ? "border-red-200 bg-red-50" :
-                    issue.type === "warning" ? "border-yellow-200 bg-yellow-50" :
-                    "border-blue-200 bg-blue-50"
-                  }>
+                  <div
+                    key={index}
+                    role="alert"
+                    className={`w-full rounded-lg border px-4 py-3 text-sm ${
+                      issue.type === "critical" ? "border-red-200 bg-red-50" :
+                      issue.type === "warning" ? "border-yellow-200 bg-yellow-50" :
+                      "border-blue-200 bg-blue-50"
+                    }`}
+                  >
                     <div className="flex min-w-0 items-start gap-3">
                       {getIssueIcon(issue.type)}
                       <div className="min-w-0 flex-1 text-left">
-                        <AlertTitle className={`mb-1 ${resultTextClassName}`}>
+                        <h4 className={`mb-1 font-medium tracking-tight text-gray-900 dark:text-gray-100 ${resultTextClassName}`}>
                           {issue.title}
-                        </AlertTitle>
-                        <AlertDescription className={resultTextClassName}>
+                        </h4>
+                        <p className={`text-sm text-gray-700 dark:text-gray-300 ${resultTextClassName}`}>
                           {issue.description}
-                        </AlertDescription>
+                        </p>
                       </div>
                     </div>
-                  </Alert>
+                  </div>
                 ))}
               </TabsContent>
 

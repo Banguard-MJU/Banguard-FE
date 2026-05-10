@@ -57,6 +57,8 @@ export function PolicyExplorer() {
     navigate("/listings");
   };
 
+  const responsiveButtonClassName = "h-auto min-h-10 min-w-0 whitespace-normal rounded-xl px-4 py-2 text-center leading-5";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 py-12 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <div className="app-shell space-y-8">
@@ -119,17 +121,17 @@ export function PolicyExplorer() {
                         </span>
                       ))}
                     </div>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <Button className="flex-1 gap-2 rounded-xl" onClick={() => handleOpenPolicy(policy)}>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <Button className={`w-full gap-2 ${responsiveButtonClassName}`} onClick={() => handleOpenPolicy(policy)}>
                         자세히 보기
                         <ChevronRight className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" className="flex-1 rounded-xl" onClick={handleExploreListings}>
+                      <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleExploreListings}>
                         매물 탐색으로 이어가기
                       </Button>
                     </div>
-                    <div className="flex flex-col gap-3 sm:flex-row">
-                      <Button variant="outline" className="flex-1 rounded-xl" onClick={handleAskChatbot}>
+                    <div className="grid gap-3">
+                      <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
                         AI 상담으로 이어가기
                       </Button>
                     </div>
@@ -158,11 +160,11 @@ export function PolicyExplorer() {
                   className="h-12 rounded-2xl border-blue-100/80 bg-white/90 pl-11 shadow-sm dark:border-indigo-900/60 dark:bg-gray-900/80"
                 />
               </div>
-              <div className="flex gap-3">
-                <Button variant="outline" className="h-12 rounded-2xl px-5" onClick={handleExploreListings}>
+              <div className="grid gap-3 sm:grid-cols-2 lg:flex">
+                <Button variant="outline" className="h-auto min-h-12 whitespace-normal rounded-2xl px-5 py-2 leading-5" onClick={handleExploreListings}>
                   매물 탐색
                 </Button>
-                <Button variant="outline" className="h-12 rounded-2xl px-5" onClick={handleAskChatbot}>
+                <Button variant="outline" className="h-auto min-h-12 whitespace-normal rounded-2xl px-5 py-2 leading-5" onClick={handleAskChatbot}>
                   AI 상담 열기
                 </Button>
               </div>
@@ -230,16 +232,16 @@ export function PolicyExplorer() {
                         ))}
                       </div>
 
-                      <div className="flex flex-col gap-3 sm:flex-row">
-                        <Button className="flex-1 rounded-xl" onClick={() => handleOpenPolicy(policy)}>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Button className={`w-full ${responsiveButtonClassName}`} onClick={() => handleOpenPolicy(policy)}>
                           상세 보기
                         </Button>
-                        <Button variant="outline" className="flex-1 rounded-xl" onClick={handleExploreListings}>
+                        <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleExploreListings}>
                           매물 탐색
                         </Button>
                       </div>
-                      <div className="flex flex-col gap-3 sm:flex-row">
-                        <Button variant="outline" className="flex-1 rounded-xl" onClick={handleAskChatbot}>
+                      <div className="grid gap-3">
+                        <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
                           상담으로 이어가기
                         </Button>
                       </div>
@@ -266,23 +268,23 @@ export function PolicyExplorer() {
 
       <Dialog open={Boolean(selectedPolicy)} onOpenChange={(open) => !open && setSelectedPolicyId(null)}>
         {selectedPolicy && (
-          <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto rounded-3xl border-0 bg-white/95 p-0 shadow-2xl dark:bg-gray-900/95">
-            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-8 text-white">
-              <div className="mb-3 flex items-center gap-3">
+          <DialogContent className="max-h-[85vh] w-[calc(100vw-2rem)] max-w-3xl overflow-y-auto rounded-3xl border-0 bg-white/95 p-0 shadow-2xl dark:bg-gray-900/95">
+            <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-5 py-6 text-white sm:px-8 sm:py-8">
+              <div className="mb-3 flex min-w-0 flex-wrap items-center gap-3">
                 <Badge className="rounded-full border border-white/20 bg-white/15 px-3 py-1 text-white">
                   {getCategoryLabel(selectedPolicy.category)}
                 </Badge>
-                <span className="text-sm text-blue-100">{selectedPolicy.provider}</span>
+                <span className="min-w-0 text-sm text-blue-100 [overflow-wrap:anywhere]">{selectedPolicy.provider}</span>
               </div>
               <DialogHeader className="text-left">
-                <DialogTitle className="text-3xl font-bold text-white">{selectedPolicy.title}</DialogTitle>
-                <DialogDescription className="text-base leading-7 text-blue-100">
+                <DialogTitle className="text-2xl font-bold leading-tight text-white [word-break:keep-all] sm:text-3xl">{selectedPolicy.title}</DialogTitle>
+                <DialogDescription className="text-base leading-7 text-blue-100 [overflow-wrap:anywhere] [word-break:keep-all]">
                   {selectedPolicy.summary}
                 </DialogDescription>
               </DialogHeader>
             </div>
 
-            <div className="space-y-6 px-8 py-8">
+            <div className="space-y-6 px-5 py-6 sm:px-8 sm:py-8">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5 dark:border-blue-900/60 dark:bg-blue-950/20">
                   <div className="mb-2 text-sm font-semibold text-gray-900 dark:text-gray-100">혜택 요약</div>
@@ -311,18 +313,18 @@ export function PolicyExplorer() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-5 dark:border-indigo-900/60 dark:from-blue-950/20 dark:to-indigo-950/20 md:flex-row md:items-center md:justify-between">
-                <div>
+              <div className="grid gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-5 dark:border-indigo-900/60 dark:from-blue-950/20 dark:to-indigo-950/20 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                <div className="min-w-0">
                   <div className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">정책을 봤다면 바로 이어서 점검해보세요</div>
-                  <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
+                  <p className="text-sm leading-6 text-gray-600 dark:text-gray-300 [overflow-wrap:anywhere] [word-break:keep-all]">
                     조건에 맞는 매물을 먼저 좁혀보거나, AI 상담에서 계약 상황을 한 번 더 확인할 수 있습니다.
                   </p>
                 </div>
-                <div className="flex flex-col gap-3 md:flex-row">
-                  <Button variant="outline" className="rounded-xl" onClick={handleExploreListings}>
+                <div className="grid min-w-0 gap-3 sm:grid-cols-2 md:w-max">
+                  <Button variant="outline" className={`w-full md:w-auto ${responsiveButtonClassName}`} onClick={handleExploreListings}>
                     매물 탐색
                   </Button>
-                  <Button className="rounded-xl" onClick={handleAskChatbot}>
+                  <Button className={`w-full md:w-auto ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
                     AI 상담으로 이어가기
                   </Button>
                 </div>
