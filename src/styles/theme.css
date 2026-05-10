@@ -152,7 +152,7 @@
   button,
   a,
   span {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     word-break: keep-all;
   }
 

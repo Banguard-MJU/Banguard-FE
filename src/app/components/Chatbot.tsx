@@ -18,7 +18,10 @@ import {
   PinOff,
   Shield,
   Trash2,
-  MoreHorizontal
+  MoreHorizontal,
+  ExternalLink,
+  FileText,
+  Eye
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -31,6 +34,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
@@ -41,6 +51,7 @@ import {
   type ChatMessage as Message,
 } from "../data/chatbot";
 import { createChatbotSession, streamChatbotMessage, type ChatbotSource } from "../lib/chatbot-api";
+import { buildApiUrl } from "../lib/api";
 import { useAuth } from "../contexts/AuthContext";
 import { getDisplayErrorMessage } from "../lib/error-message";
 
@@ -59,6 +70,9 @@ function sourcesToEvidence(sources: ChatbotSource[]): ChatEvidenceItem[] {
     title: source.title,
     summary: `${source.page}쪽${source.date ? ` · ${source.date}` : ""}`,
     type: "policy",
+    page: source.page,
+    url: source.url,
+    excerpt: source.excerpt,
   }));
 }
 
@@ -77,6 +91,7 @@ export function Chatbot() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
+  const [previewEvidence, setPreviewEvidence] = useState<ChatEvidenceItem | null>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -376,6 +391,25 @@ export function Chatbot() {
     </div>
   );
 
+  const getSourceUrl = (item: ChatEvidenceItem) => {
+    if (!item.url) {
+      return undefined;
+    }
+
+    const baseUrl = item.url.startsWith("http") ? item.url : buildApiUrl(item.url);
+    return item.page ? `${baseUrl}#page=${item.page}` : baseUrl;
+  };
+
+  const openSource = (item: ChatEvidenceItem) => {
+    const sourceUrl = getSourceUrl(item);
+    if (!sourceUrl) {
+      toast.error("열 수 있는 문서 링크가 없습니다");
+      return;
+    }
+
+    window.open(sourceUrl, "_blank", "noopener,noreferrer");
+  };
+
   const renderEvidenceCard = (evidence: ChatEvidenceItem[]) => (
     <div className="mt-4 rounded-2xl border border-blue-100/80 bg-white/85 p-4 shadow-sm shadow-blue-100/30 backdrop-blur-sm dark:border-indigo-900/60 dark:bg-gray-900/70 dark:shadow-none">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -409,6 +443,46 @@ export function Chatbot() {
             <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
               {item.summary}
             </p>
+            {item.excerpt && (
+              <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-500 dark:text-gray-400">
+                {item.excerpt}
+              </p>
+            )}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => openSource(item)}
+                disabled={!item.url}
+                className="h-8 gap-1.5 rounded-full px-3 text-xs"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                PDF 열기
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => openSource(item)}
+                disabled={!item.url}
+                className="h-8 gap-1.5 rounded-full px-3 text-xs"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                링크 열기
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => setPreviewEvidence(item)}
+                disabled={!item.excerpt}
+                className="h-8 gap-1.5 rounded-full px-3 text-xs"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                원문 보기
+              </Button>
+            </div>
           </div>
         ))}
       </div>
@@ -873,6 +947,34 @@ export function Chatbot() {
           </div>
         )}
       </div>
+
+      <Dialog open={Boolean(previewEvidence)} onOpenChange={(open) => !open && setPreviewEvidence(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{previewEvidence?.title || "원문 보기"}</DialogTitle>
+            <DialogDescription>
+              {previewEvidence?.summary || "답변 생성에 참고된 문서 원문 일부입니다."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 text-sm leading-7 text-gray-700 dark:border-indigo-900/60 dark:bg-indigo-950/20 dark:text-gray-200">
+            {previewEvidence?.excerpt || "표시할 원문 미리보기가 없습니다."}
+          </div>
+
+          {previewEvidence?.url && (
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                onClick={() => openSource(previewEvidence)}
+                className="gap-2 rounded-xl"
+              >
+                <ExternalLink className="h-4 w-4" />
+                PDF에서 열기
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

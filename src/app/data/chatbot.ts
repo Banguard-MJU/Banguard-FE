@@ -3,6 +3,9 @@ export interface ChatEvidenceItem {
   title: string;
   summary: string;
   type: "guide" | "policy" | "registry" | "insurance";
+  page?: number;
+  url?: string;
+  excerpt?: string;
 }
 
 export interface ChatMessage {

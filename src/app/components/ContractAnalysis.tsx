@@ -116,13 +116,17 @@ export function ContractAnalysis() {
   };
 
   const getIssueIcon = (type: string) => {
+    const iconClassName = "mt-0.5 h-5 w-5 flex-shrink-0";
+
     switch (type) {
-      case "critical": return <XCircle className="w-5 h-5 text-red-500" />;
-      case "warning": return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case "info": return <Info className="w-5 h-5 text-blue-500" />;
+      case "critical": return <XCircle className={`${iconClassName} text-red-500`} />;
+      case "warning": return <AlertTriangle className={`${iconClassName} text-yellow-500`} />;
+      case "info": return <Info className={`${iconClassName} text-blue-500`} />;
       default: return null;
     }
   };
+
+  const tabTriggerClassName = "h-auto min-h-9 whitespace-normal break-keep px-2 py-2 text-center leading-5";
 
   return (
     <div className="min-h-screen py-12 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
@@ -237,11 +241,11 @@ export function ContractAnalysis() {
 
             {/* Tabs for detailed results */}
             <Tabs defaultValue="visual" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="visual">권리 분석</TabsTrigger>
-                <TabsTrigger value="issues">발견된 문제</TabsTrigger>
-                <TabsTrigger value="info">계약 정보</TabsTrigger>
-                <TabsTrigger value="recommendations">권장사항</TabsTrigger>
+              <TabsList className="grid h-auto w-full grid-cols-2 gap-1 sm:grid-cols-4">
+                <TabsTrigger value="visual" className={tabTriggerClassName}>권리 분석</TabsTrigger>
+                <TabsTrigger value="issues" className={tabTriggerClassName}>발견된 문제</TabsTrigger>
+                <TabsTrigger value="info" className={tabTriggerClassName}>계약 정보</TabsTrigger>
+                <TabsTrigger value="recommendations" className={tabTriggerClassName}>권장사항</TabsTrigger>
               </TabsList>
 
               <TabsContent value="visual">
@@ -255,11 +259,15 @@ export function ContractAnalysis() {
                     issue.type === "warning" ? "border-yellow-200 bg-yellow-50" :
                     "border-blue-200 bg-blue-50"
                   }>
-                    <div className="flex gap-3">
+                    <div className="flex min-w-0 items-start gap-3">
                       {getIssueIcon(issue.type)}
-                      <div className="flex-1">
-                        <AlertTitle className="mb-1">{issue.title}</AlertTitle>
-                        <AlertDescription>{issue.description}</AlertDescription>
+                      <div className="min-w-0 flex-1 text-left">
+                        <AlertTitle className="mb-1 whitespace-normal break-keep leading-6">
+                          {issue.title}
+                        </AlertTitle>
+                        <AlertDescription className="whitespace-normal break-keep leading-6 [overflow-wrap:break-word]">
+                          {issue.description}
+                        </AlertDescription>
                       </div>
                     </div>
                   </Alert>
@@ -302,9 +310,11 @@ export function ContractAnalysis() {
                   <CardContent className="pt-6">
                     <div className="space-y-3">
                       {result.recommendations.map((rec, index) => (
-                        <div key={index} className="flex gap-3">
+                        <div key={index} className="flex min-w-0 items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                          <p className="text-gray-700">{rec}</p>
+                          <p className="min-w-0 whitespace-normal break-keep text-gray-700 [overflow-wrap:break-word]">
+                            {rec}
+                          </p>
                         </div>
                       ))}
                     </div>
