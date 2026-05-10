@@ -544,11 +544,11 @@ export function Chatbot() {
         key={item.id}
         className="rounded-2xl border border-blue-100/80 bg-gradient-to-br from-white to-blue-50/60 p-4 dark:border-indigo-900/60 dark:from-gray-900 dark:to-indigo-950/20"
       >
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+        <div className="mb-2 flex items-start justify-between gap-3">
+          <div className="min-w-0 text-sm font-semibold leading-6 text-gray-900 dark:text-white">
             {item.title}
           </div>
-          <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-medium text-blue-700 dark:bg-indigo-950/60 dark:text-blue-200">
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-blue-100 px-3 py-1 text-[11px] font-medium leading-4 text-blue-700 dark:bg-indigo-950/60 dark:text-blue-200">
             {evidenceTypeLabel[item.type]}
           </span>
         </div>
@@ -570,7 +570,7 @@ export function Chatbot() {
             className="h-8 gap-1.5 rounded-full px-3 text-xs"
           >
             <FileText className="h-3.5 w-3.5" />
-            PDF 열기
+            관련 문서 열기
           </Button>
           <Button
             type="button"
