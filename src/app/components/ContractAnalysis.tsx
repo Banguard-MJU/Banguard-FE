@@ -127,6 +127,9 @@ export function ContractAnalysis() {
   };
 
   const tabTriggerClassName = "h-auto min-h-9 whitespace-normal break-keep px-2 py-2 text-center leading-5";
+  const resultTextClassName = "whitespace-normal leading-6 [line-break:loose] [overflow-wrap:anywhere] [word-break:keep-all]";
+  const resultValueClassName = "min-w-0 font-semibold leading-6 [line-break:loose] [overflow-wrap:anywhere] [word-break:keep-all]";
+  const resultActionButtonClassName = "min-h-10 h-auto flex-1 whitespace-normal px-3 py-2 text-center leading-5";
 
   return (
     <div className="min-h-screen py-12 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
@@ -226,13 +229,13 @@ export function ContractAnalysis() {
             <Card className={`border-2 ${getRiskColor(result.riskLevel)}`}>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-sm text-gray-600 mb-1">위험도 평가</div>
-                    <div className="text-3xl font-bold">{getRiskLabel(result.riskLevel)}</div>
+                    <div className="text-2xl font-bold leading-tight sm:text-3xl">{getRiskLabel(result.riskLevel)}</div>
                   </div>
-                  <div className="text-right">
+                  <div className="min-w-0 text-left sm:text-right">
                     <div className="text-sm text-gray-600 mb-1">위험 점수</div>
-                    <div className="text-3xl font-bold">{result.riskScore}/100</div>
+                    <div className="text-2xl font-bold leading-tight sm:text-3xl">{result.riskScore}/100</div>
                   </div>
                 </div>
                 <Progress value={result.riskScore} className="mt-4 h-3" />
@@ -262,10 +265,10 @@ export function ContractAnalysis() {
                     <div className="flex min-w-0 items-start gap-3">
                       {getIssueIcon(issue.type)}
                       <div className="min-w-0 flex-1 text-left">
-                        <AlertTitle className="mb-1 whitespace-normal break-keep leading-6">
+                        <AlertTitle className={`mb-1 ${resultTextClassName}`}>
                           {issue.title}
                         </AlertTitle>
-                        <AlertDescription className="whitespace-normal break-keep leading-6 [overflow-wrap:break-word]">
+                        <AlertDescription className={resultTextClassName}>
                           {issue.description}
                         </AlertDescription>
                       </div>
@@ -278,27 +281,27 @@ export function ContractAnalysis() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="min-w-0">
                           <div className="text-sm text-gray-600 mb-1">계약 유형</div>
-                          <div className="font-semibold">{result.contractInfo.type}</div>
+                          <div className={resultValueClassName}>{result.contractInfo.type}</div>
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <div className="text-sm text-gray-600 mb-1">보증금</div>
-                          <div className="font-semibold">{result.contractInfo.deposit}</div>
+                          <div className={resultValueClassName}>{result.contractInfo.deposit}</div>
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <div className="text-sm text-gray-600 mb-1">월세</div>
-                          <div className="font-semibold">{result.contractInfo.monthlyRent}</div>
+                          <div className={resultValueClassName}>{result.contractInfo.monthlyRent}</div>
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <div className="text-sm text-gray-600 mb-1">계약기간</div>
-                          <div className="font-semibold">{result.contractInfo.period}</div>
+                          <div className={resultValueClassName}>{result.contractInfo.period}</div>
                         </div>
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="text-sm text-gray-600 mb-1">주소</div>
-                        <div className="font-semibold">{result.contractInfo.address}</div>
+                        <div className={resultValueClassName}>{result.contractInfo.address}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -312,7 +315,7 @@ export function ContractAnalysis() {
                       {result.recommendations.map((rec, index) => (
                         <div key={index} className="flex min-w-0 items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                          <p className="min-w-0 whitespace-normal break-keep text-gray-700 [overflow-wrap:break-word]">
+                          <p className={`min-w-0 text-gray-700 ${resultTextClassName}`}>
                             {rec}
                           </p>
                         </div>
@@ -330,31 +333,31 @@ export function ContractAnalysis() {
                     <Landmark className="w-4 h-4" />
                     관련 정책 · 공공정보
                   </div>
-                  <h3 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  <h3 className={`mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl ${resultTextClassName}`}>
                     분석 결과와 함께 보증·체크리스트도 같이 확인해보세요
                   </h3>
-                  <p className="text-base leading-7 text-gray-600 dark:text-gray-400">
+                  <p className={`text-base leading-7 text-gray-600 dark:text-gray-400 ${resultTextClassName}`}>
                     위험 요소를 확인했다면 관련 보증 제도와 계약 체크리스트를 함께 보면 다음 행동을 정리하기 쉽습니다.
                   </p>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
                   <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-900/60 dark:bg-blue-950/20">
-                    <div className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">보증 제도 확인</div>
-                    <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
+                    <div className={`mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100 ${resultTextClassName}`}>보증 제도 확인</div>
+                    <p className={`text-sm leading-6 text-gray-600 dark:text-gray-300 ${resultTextClassName}`}>
                       전세보증금 반환보증처럼 위험 완화에 도움이 되는 항목을 먼저 살펴볼 수 있어요.
                     </p>
                   </div>
                   <div className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 dark:border-indigo-900/60 dark:bg-indigo-950/20">
-                    <div className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">계약 절차 가이드</div>
-                    <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
+                    <div className={`mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100 ${resultTextClassName}`}>계약 절차 가이드</div>
+                    <p className={`text-sm leading-6 text-gray-600 dark:text-gray-300 ${resultTextClassName}`}>
                       전입신고, 확정일자, 특약 확인 순서를 다시 점검하며 놓친 부분을 줄일 수 있습니다.
                     </p>
                   </div>
                 </div>
 
                 <div className="lg:col-span-2">
-                  <Button variant="outline" className="gap-2 rounded-xl" onClick={() => navigate("/policy?category=guarantee")}>
+                  <Button variant="outline" className="h-auto min-h-10 w-full whitespace-normal rounded-xl px-4 py-2 leading-5 sm:w-auto" onClick={() => navigate("/policy?category=guarantee")}>
                     정책/공공정보 화면 열기
                     <ChevronRight className="w-4 h-4" />
                   </Button>
@@ -363,11 +366,11 @@ export function ContractAnalysis() {
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Button
                 variant="outline"
                 onClick={() => setIsDialogOpen(true)}
-                className="flex-1"
+                className={resultActionButtonClassName}
               >
                 분석 결과 저장
               </Button>
@@ -377,20 +380,20 @@ export function ContractAnalysis() {
                   setFile(null);
                   setResult(null);
                 }}
-                className="flex-1"
+                className={resultActionButtonClassName}
               >
                 새로운 계약서 분석
               </Button>
               <Button 
                 variant="outline"
                 onClick={() => navigate("/dashboard")}
-                className="flex-1"
+                className={resultActionButtonClassName}
               >
                 대시보드에서 이력 보기
               </Button>
               <Button 
                 onClick={() => navigate("/chatbot", { state: { fromAnalysis: true } })}
-                className="flex-1 gap-2"
+                className={`${resultActionButtonClassName} gap-2`}
               >
                 <MessageSquare className="w-4 h-4" />
                 챗봇으로 질문하기
