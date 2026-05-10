@@ -158,6 +158,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         } catch (error) {
           clearAuthTokens();
+          persistSession(null);
+          if (isMounted) {
+            setUser(null);
+          }
+          return;
         }
       }
 
