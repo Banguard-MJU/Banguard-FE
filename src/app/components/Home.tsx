@@ -130,7 +130,7 @@ export function Home() {
                     >
                       <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 sm:h-52">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <FileText className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
+                        <FileText className="relative z-10 h-14 w-14 translate-y-1 text-white transition-transform duration-300 group-hover:scale-110 sm:h-20 sm:w-20" />
                       </div>
                       <div className="flex flex-1 flex-col p-5 sm:p-8">
                         <div className="sm:min-h-[4rem]">
