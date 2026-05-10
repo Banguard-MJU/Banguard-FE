@@ -1,6 +1,6 @@
 import { normalizeErrorMessage } from "./error-message";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(/\/+$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/+$/, "");
 
 const ACCESS_TOKEN_STORAGE_KEY = "banguard_access_token";
 const REFRESH_TOKEN_STORAGE_KEY = "banguard_refresh_token";
