@@ -1,6 +1,18 @@
 import { normalizeErrorMessage } from "./error-message";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/+$/, "");
+const AZURE_API_BASE_URL = "https://banguard-api.azurewebsites.net/api";
+
+function getDefaultApiBaseUrl() {
+  if (typeof window === "undefined") {
+    return "/api";
+  }
+
+  const hostname = window.location.hostname;
+  const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+  return isLocalHost ? "/api" : AZURE_API_BASE_URL;
+}
+
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || getDefaultApiBaseUrl()).replace(/\/+$/, "");
 
 const ACCESS_TOKEN_STORAGE_KEY = "banguard_access_token";
 const REFRESH_TOKEN_STORAGE_KEY = "banguard_refresh_token";
