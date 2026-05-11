@@ -92,6 +92,7 @@ function sourcesToEvidence(sources: ChatbotSource[]): ChatEvidenceItem[] {
     page: source.page,
     url: source.url || getDocumentUrlFromTitle(source.title),
     excerpt: source.excerpt,
+    content: source.content,
   }));
 }
 
@@ -552,6 +553,7 @@ export function Chatbot() {
 
   const renderEvidenceItem = (item: ChatEvidenceItem) => {
     const sourceUrl = getSourceUrl(item);
+    const sourceContent = item.content || item.excerpt;
 
     return (
       <div
@@ -602,7 +604,7 @@ export function Chatbot() {
             size="sm"
             variant="ghost"
             onClick={() => setPreviewEvidence(item)}
-            disabled={!item.excerpt}
+            disabled={!sourceContent}
             className="h-8 gap-1.5 rounded-full px-3 text-xs"
           >
             <Eye className="h-3.5 w-3.5" />
@@ -1091,20 +1093,24 @@ export function Chatbot() {
       </div>
 
       <Dialog open={Boolean(previewEvidence)} onOpenChange={(open) => !open && setPreviewEvidence(null)}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>{previewEvidence?.title || "원문 보기"}</DialogTitle>
-            <DialogDescription>
-              {previewEvidence?.summary || "답변 생성에 참고된 문서 원문 일부입니다."}
-            </DialogDescription>
+        <DialogContent className="flex h-[85vh] max-h-[760px] flex-col overflow-hidden p-0 sm:max-w-3xl">
+          <DialogHeader className="shrink-0">
+            <div className="space-y-2 border-b border-blue-100 px-6 py-5 dark:border-indigo-900/60">
+              <DialogTitle>{previewEvidence?.title || "원문 보기"}</DialogTitle>
+              <DialogDescription>
+                {previewEvidence?.summary || "답변 생성에 참고된 문서 원문입니다."}
+              </DialogDescription>
+            </div>
           </DialogHeader>
 
-          <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 text-sm leading-7 text-gray-700 dark:border-indigo-900/60 dark:bg-indigo-950/20 dark:text-gray-200">
-            {previewEvidence?.excerpt || "표시할 원문 미리보기가 없습니다."}
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+            <div className="min-h-full whitespace-pre-wrap break-words rounded-2xl border border-blue-100 bg-blue-50/60 p-4 text-sm leading-7 text-gray-700 dark:border-indigo-900/60 dark:bg-indigo-950/20 dark:text-gray-200">
+              {previewEvidence?.content || previewEvidence?.excerpt || "표시할 원문이 없습니다."}
+            </div>
           </div>
 
           {previewEvidence && getSourceUrl(previewEvidence) && (
-            <div className="flex justify-end">
+            <div className="flex shrink-0 justify-end border-t border-blue-100 px-6 py-4 dark:border-indigo-900/60">
               <Button
                 type="button"
                 onClick={() => openSource(previewEvidence)}

@@ -15,6 +15,7 @@ export interface ChatbotSource {
   date?: string;
   url?: string;
   excerpt?: string;
+  content?: string;
 }
 
 export type ChatbotStreamEvent =

@@ -6,6 +6,7 @@ export interface ChatEvidenceItem {
   page?: number;
   url?: string;
   excerpt?: string;
+  content?: string;
 }
 
 export interface ChatMessage {

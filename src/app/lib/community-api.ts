@@ -13,6 +13,8 @@ interface PostListItem {
   like_count: number;
   comment_count: number;
   view_count: number;
+  is_liked?: boolean;
+  is_bookmarked?: boolean;
   created_at: string;
 }
 
@@ -180,12 +182,16 @@ export async function getCommunityPosts(params: {
   if (params.size) searchParams.set("size", String(params.size));
 
   const query = searchParams.toString();
-  const response = await apiRequest<PostListResponse>(`/community/posts${query ? `?${query}` : ""}`);
+  const response = await apiRequest<PostListResponse>(`/community/posts${query ? `?${query}` : ""}`, {
+    auth: true,
+  });
   return response.posts.map(mapPost);
 }
 
 export async function getCommunityPost(postId: string) {
-  const response = await apiRequest<PostDetailResponse>(`/community/posts/${postId}`);
+  const response = await apiRequest<PostDetailResponse>(`/community/posts/${postId}`, {
+    auth: true,
+  });
   return mapPost(response);
 }
 
