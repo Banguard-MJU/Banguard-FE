@@ -93,7 +93,7 @@ function mapPost(item: PostListItem | PostDetailResponse | PostWriteResponse): C
 function mapComment(comment: CommentResponse): CommunityComment {
   return {
     id: String(comment.comment_id),
-    postId: comment.post_id,
+    postId: String(comment.post_id),
     author: comment.author,
     content: comment.content,
     timestamp: new Date(comment.created_at),
