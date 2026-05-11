@@ -120,7 +120,10 @@ export async function confirmEmailVerification(token: string) {
   return apiRequest<VerificationResponse>(`/auth/verify-email?${query}`);
 }
 
-export function getGoogleOAuthLoginUrl(redirectUri: string) {
+export function getGoogleOAuthLoginUrl(redirectUri: string | null) {
+  if (!redirectUri) {
+    return buildApiUrl("/auth/google/login");
+  }
   const query = new URLSearchParams({ redirect_uri: redirectUri }).toString();
   return buildApiUrl(`/auth/google/login?${query}`);
 }

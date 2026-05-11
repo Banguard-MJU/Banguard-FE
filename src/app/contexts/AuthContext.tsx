@@ -239,7 +239,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
-    const redirectUri = `${window.location.origin}/auth/google/callback`;
+    // localhost에서는 redirect_uri 생략 → 백엔드 기본값(Azure 설정 URL) 사용
+    const isLocalhost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+    const redirectUri = isLocalhost ? null : `${window.location.origin}/auth/google/callback`;
     window.location.assign(getGoogleOAuthLoginUrl(redirectUri));
     return new Promise<{ success: boolean; error?: string }>(() => undefined);
   };

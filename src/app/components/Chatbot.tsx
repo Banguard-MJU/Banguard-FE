@@ -527,6 +527,20 @@ export function Chatbot() {
   };
 
   const openSource = (item: ChatEvidenceItem) => {
+    // "관련 문서 열기"는 로컬 PDF 다운로드 우선 — 외부 URL 대신 /documents/ 경로 사용
+    const localPath = getDocumentUrlFromTitle(item.title);
+    if (localPath) {
+      const downloadUrl = buildApiUrl(localPath);
+      const filename = item.title.split(/[\\/]/).pop() || "document.pdf";
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      return;
+    }
+
     const sourceUrl = getSourceUrl(item);
     if (!sourceUrl) {
       toast.error("열 수 있는 문서 링크가 없습니다");
