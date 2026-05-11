@@ -200,16 +200,16 @@ export function Community() {
           );
         })
         .catch(() => undefined);
-
-      getPostCommentsFromBackend(postId)
-        .then((backendComments) => {
-          setComments((currentComments) => [
-            ...currentComments.filter((comment) => comment.postId !== postId),
-            ...backendComments,
-          ]);
-        })
-        .catch(() => undefined);
     }
+
+    getPostCommentsFromBackend(postId)
+      .then((backendComments) => {
+        setComments((currentComments) => [
+          ...currentComments.filter((comment) => comment.postId !== postId),
+          ...backendComments,
+        ]);
+      })
+      .catch(() => undefined);
   }, [hasLoadedBackendPosts, navigate, postId, posts]);
 
   useEffect(() => {
