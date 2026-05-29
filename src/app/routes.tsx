@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import { Root } from "./components/Root";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { AnalysisHistoryProvider } from "./contexts/AnalysisHistoryContext";
 import { Outlet } from "react-router";
 
 const Home = lazy(() => import("./components/Home").then((module) => ({ default: module.Home })));
@@ -39,7 +40,9 @@ function AuthLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Outlet />
+        <AnalysisHistoryProvider>
+          <Outlet />
+        </AnalysisHistoryProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -37,40 +37,6 @@ export interface RecommendedAction {
   tone: "primary" | "warning" | "secondary";
 }
 
-export const MOCK_RECENT_CHAT_ACTIVITY: RecentChatActivity[] = [
-  {
-    id: "chat-1",
-    title: "근저당권 설정 문의",
-    summary: "근저당권이 전세금보다 많을 때 어떤 기준으로 위험을 판단해야 하는지 상담했어요.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 45),
-  },
-  {
-    id: "chat-2",
-    title: "전세보증보험 가입 조건",
-    summary: "보증보험 가입 가능 여부와 준비 서류를 확인했어요.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6),
-  },
-];
-
-export const MOCK_RECENT_COMMUNITY_ACTIVITY: RecentCommunityActivity[] = [
-  {
-    id: "community-1",
-    title: "전세보증보험 가입 성공 후기",
-    category: "experience",
-    summary: "조건이 까다로웠던 사례에서 어떤 서류를 준비했는지 공유한 글이에요.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4),
-    engagement: "댓글 28 · 좋아요 156",
-  },
-  {
-    id: "community-2",
-    title: "[경고] 서울 관악구 OO동 건물주 조심하세요",
-    category: "warning",
-    summary: "최근 지역 내 전세 사기 의심 사례를 경고하는 게시물이에요.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12),
-    engagement: "댓글 67 · 조회 3,421",
-  },
-];
-
 export function normalizeRiskLevel(level: DashboardRiskLevelInput): DashboardRiskLevel {
   switch (String(level).toLowerCase()) {
     case "low":

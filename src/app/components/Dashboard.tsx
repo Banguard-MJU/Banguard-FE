@@ -20,19 +20,16 @@ import {
   getRiskLabel,
   normalizeRiskLevel,
 } from "../data/dashboard";
-import { getAnalysisHistory } from "../lib/analysis-api";
 import { getChatbotSessions } from "../lib/chatbot-api";
 import { getCommunityPosts } from "../lib/community-api";
-import { getDisplayErrorMessage } from "../lib/error-message";
 import { useAuth } from "../contexts/AuthContext";
+import { useAnalysisHistory } from "../contexts/AnalysisHistoryContext";
 
 export function Dashboard() {
   const navigate = useNavigate();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { history, removeAnalysis } = useAnalysisHistory();
   const [selectedHistory, setSelectedHistory] = useState<AnalysisHistory | null>(null);
-  const [history, setHistory] = useState<AnalysisHistory[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(true);
-  const [historyError, setHistoryError] = useState<string | null>(null);
   const [recentChatActivity, setRecentChatActivity] = useState<RecentChatActivity[]>([]);
   const [recentCommunityActivity, setRecentCommunityActivity] = useState<RecentCommunityActivity[]>([]);
   const highRiskHistory = useMemo(
@@ -59,45 +56,6 @@ export function Dashboard() {
             : CheckCircle,
   }));
   const recommendedActions = buildRecommendedActions(history);
-
-  useEffect(() => {
-    if (authLoading) {
-      return;
-    }
-
-    if (!isAuthenticated) {
-      setHistory([]);
-      setHistoryError(null);
-      setHistoryLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-    setHistoryLoading(true);
-    setHistoryError(null);
-
-    getAnalysisHistory()
-      .then((items) => {
-        if (isMounted) {
-          setHistory(items);
-        }
-      })
-      .catch((error) => {
-        if (isMounted) {
-          setHistory([]);
-          setHistoryError(getDisplayErrorMessage(error, "분석 이력을 불러오지 못했습니다"));
-        }
-      })
-      .finally(() => {
-        if (isMounted) {
-          setHistoryLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [authLoading, isAuthenticated]);
 
   useEffect(() => {
     if (authLoading || !isAuthenticated) return;
@@ -317,22 +275,12 @@ export function Dashboard() {
                 </TabsList>
 
                 <TabsContent value="all" className="space-y-4">
-                  {historyLoading && (
+                  {history.length === 0 && (
                     <div className="rounded-2xl bg-slate-50 px-4 py-8 text-center text-sm text-gray-500 dark:bg-gray-900/60 dark:text-gray-400">
-                      분석 이력을 불러오는 중입니다
+                      아직 분석 이력이 없습니다. 새 계약서를 분석하면 여기에 표시됩니다.
                     </div>
                   )}
-                  {!historyLoading && historyError && (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-8 text-center text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/20 dark:text-red-300">
-                      {historyError}
-                    </div>
-                  )}
-                  {!historyLoading && !historyError && history.length === 0 && (
-                    <div className="rounded-2xl bg-slate-50 px-4 py-8 text-center text-sm text-gray-500 dark:bg-gray-900/60 dark:text-gray-400">
-                      아직 저장된 분석 이력이 없습니다
-                    </div>
-                  )}
-                  {!historyLoading && !historyError && history.map((item, index) => (
+                  {history.map((item, index) => (
                     <motion.div
                       key={item.id}
                       initial={{ opacity: 0, x: -20 }}
@@ -377,6 +325,14 @@ export function Dashboard() {
                             <Button variant="ghost" size="sm" onClick={() => navigate("/contract-analysis")}>
                               다시 분석
                             </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                              onClick={() => removeAnalysis(item.id)}
+                            >
+                              삭제
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -406,7 +362,7 @@ export function Dashboard() {
                       </CardContent>
                     </Card>
                   ))}
-                  {!historyLoading && highRiskHistory.length === 0 && (
+                  {highRiskHistory.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       고위험 계약이 없습니다
                     </div>
@@ -435,7 +391,7 @@ export function Dashboard() {
                       </CardContent>
                     </Card>
                   ))}
-                  {!historyLoading && mediumRiskHistory.length === 0 && (
+                  {mediumRiskHistory.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       중간위험 계약이 없습니다
                     </div>
@@ -464,7 +420,7 @@ export function Dashboard() {
                       </CardContent>
                     </Card>
                   ))}
-                  {!historyLoading && lowRiskHistory.length === 0 && (
+                  {lowRiskHistory.length === 0 && (
                     <div className="text-center py-8 text-gray-500">
                       저위험 계약이 없습니다
                     </div>

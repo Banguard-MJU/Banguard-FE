@@ -10,6 +10,7 @@ import { motion } from "motion/react";
 import { RightsAnalysisVisual } from "./RightsAnalysisVisual";
 import { SampleSelector } from "./SampleSelector";
 import { useAuth } from "../contexts/AuthContext";
+import { useAnalysisHistory } from "../contexts/AnalysisHistoryContext";
 import { useNavigate } from "react-router";
 import {
   type AnalysisResult,
@@ -33,6 +34,7 @@ export function ContractAnalysis() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useAuth();
+  const { addAnalysis } = useAnalysisHistory();
   const navigate = useNavigate();
 
   const handleSampleSelect = async (sampleId: string) => {
@@ -88,6 +90,15 @@ export function ContractAnalysis() {
       const analysisResult = await analyzeContractFile(file);
       setProgress(100);
       setResult(analysisResult);
+      addAnalysis({
+        id: crypto.randomUUID(),
+        fileName: file.name,
+        date: new Date(),
+        riskLevel: analysisResult.riskLevel,
+        riskScore: analysisResult.riskScore,
+        address: analysisResult.contractInfo.address,
+        contractType: analysisResult.contractInfo.type,
+      });
       toast.success("계약서 분석이 완료되었습니다");
     } catch (error) {
       toast.error(getDisplayErrorMessage(error, "계약서 분석에 실패했습니다"));
