@@ -11,7 +11,6 @@ import {
   Mail,
   MapPin,
   MessageSquare,
-  Phone,
   Settings as SettingsIcon,
   Shield,
   Trash2,
@@ -23,7 +22,6 @@ import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Label } from "./ui/label";
-import { Separator } from "./ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Switch } from "./ui/switch";
 import {
@@ -232,11 +230,6 @@ export function Settings() {
   const [emailCodeSent, setEmailCodeSent] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
 
-  const [newPhone, setNewPhone] = useState("");
-  const [phoneVerificationCode, setPhoneVerificationCode] = useState("");
-  const [phoneCodeSent, setPhoneCodeSent] = useState(false);
-  const [phoneLoading, setPhoneLoading] = useState(false);
-
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [notificationSettings, setNotificationSettings] = useState<NotificationPreferences>(
     DEFAULT_NOTIFICATION_PREFERENCES
@@ -427,47 +420,6 @@ export function Settings() {
       setEmailVerificationCode("");
       setEmailCodeSent(false);
       setEmailLoading(false);
-    }, 1000);
-  };
-
-  const handleSendPhoneCode = () => {
-    if (!newPhone.trim()) {
-      toast.error("휴대폰 번호를 입력해주세요");
-      return;
-    }
-
-    const normalizedPhone = newPhone.replace(/-/g, "");
-    const phoneRegex = /^01[0-9][0-9]{7,8}$/;
-    if (!phoneRegex.test(normalizedPhone)) {
-      toast.error("유효한 휴대폰 번호를 입력해주세요");
-      return;
-    }
-
-    setPhoneLoading(true);
-
-    setTimeout(() => {
-      setPhoneCodeSent(true);
-      toast.success("인증코드가 전송되었습니다");
-      setPhoneLoading(false);
-    }, 1000);
-  };
-
-  const handlePhoneChange = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!phoneVerificationCode) {
-      toast.error("인증코드를 입력해주세요");
-      return;
-    }
-
-    setPhoneLoading(true);
-
-    setTimeout(() => {
-      toast.success("휴대폰 번호가 성공적으로 변경되었습니다");
-      setNewPhone("");
-      setPhoneVerificationCode("");
-      setPhoneCodeSent(false);
-      setPhoneLoading(false);
     }, 1000);
   };
 
@@ -738,7 +690,7 @@ export function Settings() {
               <Mail className="w-5 h-5 text-indigo-500" />
               연락처 및 로그인 수단
             </CardTitle>
-            <CardDescription>이메일과 휴대폰 인증을 최신 상태로 유지하세요.</CardDescription>
+            <CardDescription>로그인에 사용하는 이메일을 최신 상태로 유지하세요.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleEmailChange} className="space-y-3">
@@ -766,39 +718,6 @@ export function Settings() {
                     className="rounded-2xl"
                   />
                   <Button type="submit" className="rounded-full" disabled={emailLoading}>
-                    변경 완료
-                  </Button>
-                </div>
-              )}
-            </form>
-
-            <Separator />
-
-            <form onSubmit={handlePhoneChange} className="space-y-3">
-              <Label htmlFor="new-phone">새 휴대폰 번호</Label>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Input
-                  id="new-phone"
-                  type="tel"
-                  placeholder="01012345678"
-                  value={newPhone}
-                  onChange={(event) => setNewPhone(event.target.value)}
-                  disabled={phoneLoading}
-                  className="rounded-2xl"
-                />
-                <Button type="button" variant="outline" className="rounded-full" onClick={handleSendPhoneCode} disabled={phoneLoading}>
-                  {phoneLoading ? "전송 중..." : "인증코드 전송"}
-                </Button>
-              </div>
-              {phoneCodeSent && (
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Input
-                    placeholder="인증코드 입력"
-                    value={phoneVerificationCode}
-                    onChange={(event) => setPhoneVerificationCode(event.target.value)}
-                    className="rounded-2xl"
-                  />
-                  <Button type="submit" className="rounded-full" disabled={phoneLoading}>
                     변경 완료
                   </Button>
                 </div>
