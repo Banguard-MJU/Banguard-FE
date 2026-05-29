@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import { Navigation } from "./Navigation";
+import { NewPolicyPopup } from "./NewPolicyPopup";
 import { useAuth } from "../contexts/AuthContext";
 
 const ONBOARDING_SESSION_KEY = "banguard_onboarding_seen_session";
@@ -36,6 +37,7 @@ export function Root() {
       <main className="app-bottom-safe">
         <Outlet />
       </main>
+      {isAuthenticated && <NewPolicyPopup />}
     </div>
   );
 }
