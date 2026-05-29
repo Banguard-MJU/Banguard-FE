@@ -9,13 +9,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "./ui/input";
 import {
   POLICY_CATEGORY_OPTIONS,
-  filterPolicies,
+  POLICY_RESOURCES,
   getCategoryLabel,
-  getFeaturedPolicies,
-  getPolicyById,
   type PolicyCategory,
   type PolicyResource,
 } from "../data/policy";
+import { getPolicies } from "../lib/policy-api";
 
 const categoryIconMap: Record<PolicyCategory, typeof Shield> = {
   guarantee: Shield,
@@ -36,14 +35,29 @@ export function PolicyExplorer() {
   const [activeCategory, setActiveCategory] = useState<PolicyCategory | "all">(normalizedInitialCategory);
   const [query, setQuery] = useState("");
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null);
+  const [policies, setPolicies] = useState<PolicyResource[]>(POLICY_RESOURCES);
 
-  const featuredPolicies = getFeaturedPolicies();
-  const filteredPolicies = filterPolicies(query, activeCategory);
-  const selectedPolicy = selectedPolicyId ? getPolicyById(selectedPolicyId) : null;
+  const featuredPolicies = policies.filter((p) => p.featured);
+  const filteredPolicies = policies.filter((p) => {
+    const matchesCategory = activeCategory === "all" || p.category === activeCategory;
+    if (!matchesCategory) return false;
+    const q = query.trim().toLowerCase();
+    if (!q) return true;
+    return [p.title, p.provider, p.summary, p.benefit, p.eligibility, p.recommendedFor, ...p.tags].some(
+      (field) => field.toLowerCase().includes(q),
+    );
+  });
+  const selectedPolicy = selectedPolicyId ? policies.find((p) => p.id === selectedPolicyId) ?? null : null;
 
   useEffect(() => {
     setActiveCategory(normalizedInitialCategory);
   }, [normalizedInitialCategory]);
+
+  useEffect(() => {
+    getPolicies()
+      .then(setPolicies)
+      .catch(() => {});
+  }, []);
 
   const handleOpenPolicy = (policy: PolicyResource) => {
     setSelectedPolicyId(policy.id);

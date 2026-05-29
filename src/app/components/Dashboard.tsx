@@ -10,17 +10,19 @@ import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import {
   type AnalysisHistory,
+  type RecentChatActivity,
+  type RecentCommunityActivity,
   buildRecommendedActions,
   buildDashboardStats,
   formatDashboardDate,
   formatTimeAgo,
   getRiskBadgeClass,
   getRiskLabel,
-  MOCK_RECENT_CHAT_ACTIVITY,
-  MOCK_RECENT_COMMUNITY_ACTIVITY,
   normalizeRiskLevel,
 } from "../data/dashboard";
 import { getAnalysisHistory } from "../lib/analysis-api";
+import { getChatbotSessions } from "../lib/chatbot-api";
+import { getCommunityPosts } from "../lib/community-api";
 import { getDisplayErrorMessage } from "../lib/error-message";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -31,6 +33,8 @@ export function Dashboard() {
   const [history, setHistory] = useState<AnalysisHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [recentChatActivity, setRecentChatActivity] = useState<RecentChatActivity[]>([]);
+  const [recentCommunityActivity, setRecentCommunityActivity] = useState<RecentCommunityActivity[]>([]);
   const highRiskHistory = useMemo(
     () => history.filter((item) => normalizeRiskLevel(item.riskLevel) === "high"),
     [history],
@@ -89,6 +93,44 @@ export function Dashboard() {
           setHistoryLoading(false);
         }
       });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [authLoading, isAuthenticated]);
+
+  useEffect(() => {
+    if (authLoading || !isAuthenticated) return;
+
+    let isMounted = true;
+
+    getChatbotSessions()
+      .then((sessions) => {
+        if (!isMounted) return;
+        const mapped: RecentChatActivity[] = sessions.slice(0, 2).map((s) => ({
+          id: s.session_id,
+          title: s.title || "AI 상담",
+          summary: "대화를 이어서 확인하세요.",
+          timestamp: s.last_active_at || s.created_at,
+        }));
+        setRecentChatActivity(mapped);
+      })
+      .catch(() => {});
+
+    getCommunityPosts({ sort: "latest", size: 2 })
+      .then((posts) => {
+        if (!isMounted) return;
+        const mapped: RecentCommunityActivity[] = posts.map((p) => ({
+          id: p.id,
+          title: p.title,
+          category: p.category,
+          summary: "",
+          timestamp: p.timestamp,
+          engagement: `댓글 ${p.comments} · 좋아요 ${p.likes}`,
+        }));
+        setRecentCommunityActivity(mapped);
+      })
+      .catch(() => {});
 
     return () => {
       isMounted = false;
@@ -171,7 +213,7 @@ export function Dashboard() {
                     </Button>
                   </div>
                   <div className="space-y-3">
-                    {MOCK_RECENT_CHAT_ACTIVITY.map((activity) => (
+                    {recentChatActivity.map((activity) => (
                       <div key={activity.id} className="rounded-xl bg-white/80 px-4 py-3 dark:bg-gray-800/80">
                         <div className="mb-1 flex items-center justify-between gap-3">
                           <div className="font-medium text-gray-900 dark:text-gray-100">{activity.title}</div>
@@ -200,7 +242,7 @@ export function Dashboard() {
                     </Button>
                   </div>
                   <div className="space-y-3">
-                    {MOCK_RECENT_COMMUNITY_ACTIVITY.map((activity) => (
+                    {recentCommunityActivity.map((activity) => (
                       <div key={activity.id} className="rounded-xl bg-white/80 px-4 py-3 dark:bg-gray-800/80">
                         <div className="mb-1 flex items-center justify-between gap-3">
                           <div className="font-medium text-gray-900 dark:text-gray-100">{activity.title}</div>
