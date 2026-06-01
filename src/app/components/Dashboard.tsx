@@ -24,6 +24,7 @@ import { getChatbotSessions } from "../lib/chatbot-api";
 import { getCommunityPosts } from "../lib/community-api";
 import { useAuth } from "../contexts/AuthContext";
 import { useAnalysisHistory } from "../contexts/AnalysisHistoryContext";
+import { CATEGORY_CONFIG } from "../data/community";
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -68,7 +69,6 @@ export function Dashboard() {
         const mapped: RecentChatActivity[] = sessions.slice(0, 2).map((s) => ({
           id: s.session_id,
           title: s.title || "AI 상담",
-          summary: "대화를 이어서 확인하세요.",
           timestamp: s.last_active_at || s.created_at,
         }));
         setRecentChatActivity(mapped);
@@ -82,9 +82,8 @@ export function Dashboard() {
           id: p.id,
           title: p.title,
           category: p.category,
-          summary: "",
           timestamp: p.timestamp,
-          engagement: `댓글 ${p.comments} · 좋아요 ${p.likes}`,
+          engagement: `댓글 ${p.comments} · 좋아요 ${p.likes} · 조회 ${p.views}`,
         }));
         setRecentCommunityActivity(mapped);
       })
@@ -173,11 +172,10 @@ export function Dashboard() {
                   <div className="space-y-3">
                     {recentChatActivity.map((activity) => (
                       <div key={activity.id} className="rounded-xl bg-white/80 px-4 py-3 dark:bg-gray-800/80">
-                        <div className="mb-1 flex items-center justify-between gap-3">
-                          <div className="font-medium text-gray-900 dark:text-gray-100">{activity.title}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(activity.timestamp)}</div>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="font-medium text-gray-900 dark:text-gray-100 truncate">{activity.title}</div>
+                          <div className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(activity.timestamp)}</div>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">{activity.summary}</p>
                       </div>
                     ))}
                   </div>
@@ -202,11 +200,17 @@ export function Dashboard() {
                   <div className="space-y-3">
                     {recentCommunityActivity.map((activity) => (
                       <div key={activity.id} className="rounded-xl bg-white/80 px-4 py-3 dark:bg-gray-800/80">
-                        <div className="mb-1 flex items-center justify-between gap-3">
-                          <div className="font-medium text-gray-900 dark:text-gray-100">{activity.title}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(activity.timestamp)}</div>
+                        <div className="mb-2 flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-1 flex items-center gap-2">
+                              <Badge variant="outline" className="rounded-full text-[10px]">
+                                {CATEGORY_CONFIG[activity.category]?.label ?? activity.category}
+                              </Badge>
+                            </div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100 truncate">{activity.title}</div>
+                          </div>
+                          <div className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">{formatTimeAgo(activity.timestamp)}</div>
                         </div>
-                        <p className="mb-2 text-sm text-gray-600 dark:text-gray-300">{activity.summary}</p>
                         <div className="text-xs text-indigo-600 dark:text-indigo-300">{activity.engagement}</div>
                       </div>
                     ))}

@@ -14,28 +14,35 @@ import {
 import { getCategoryLabel, type PolicyResource } from "../data/policy";
 import { getPolicies } from "../lib/policy-api";
 import { getSeenPolicyIds, hasSeenRecord, markPoliciesSeen } from "../lib/policy-seen";
+import { useAuth } from "../contexts/AuthContext";
 
 export function NewPolicyPopup() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [open, setOpen] = useState(false);
   const [newPolicies, setNewPolicies] = useState<PolicyResource[]>([]);
-  const checkedRef = useRef(false);
+  const checkedUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (checkedRef.current) return;
-    checkedRef.current = true;
+    if (!userId) return;
+    if (checkedUserIdRef.current === userId) return;
+    checkedUserIdRef.current = userId;
+
+    let cancelled = false;
 
     getPolicies()
       .then((policies) => {
+        if (cancelled) return;
         const ids = policies.map((p) => p.id);
 
         // 최초 방문: 현재 정책 전체를 "이미 본 것"으로 표시하고 팝업은 띄우지 않음
-        if (!hasSeenRecord()) {
-          markPoliciesSeen(ids);
+        if (!hasSeenRecord(userId)) {
+          markPoliciesSeen(userId, ids);
           return;
         }
 
-        const seen = getSeenPolicyIds();
+        const seen = getSeenPolicyIds(userId);
         const unseen = policies.filter((p) => !seen.includes(p.id));
         if (unseen.length > 0) {
           setNewPolicies(unseen);
@@ -43,10 +50,16 @@ export function NewPolicyPopup() {
         }
       })
       .catch(() => {});
-  }, []);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const dismiss = () => {
-    markPoliciesSeen(newPolicies.map((p) => p.id));
+    if (userId) {
+      markPoliciesSeen(userId, newPolicies.map((p) => p.id));
+    }
     setOpen(false);
   };
 

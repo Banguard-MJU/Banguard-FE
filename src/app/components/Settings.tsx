@@ -8,7 +8,6 @@ import {
   EyeOff,
   Heart,
   Lock,
-  Mail,
   MapPin,
   MessageSquare,
   Settings as SettingsIcon,
@@ -225,11 +224,6 @@ export function Settings() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  const [newEmail, setNewEmail] = useState("");
-  const [emailVerificationCode, setEmailVerificationCode] = useState("");
-  const [emailCodeSent, setEmailCodeSent] = useState(false);
-  const [emailLoading, setEmailLoading] = useState(false);
-
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [notificationSettings, setNotificationSettings] = useState<NotificationPreferences>(
     DEFAULT_NOTIFICATION_PREFERENCES
@@ -381,46 +375,6 @@ export function Settings() {
     } finally {
       setPasswordLoading(false);
     }
-  };
-
-  const handleSendEmailCode = () => {
-    if (!newEmail.trim()) {
-      toast.error("이메일을 입력해주세요");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newEmail)) {
-      toast.error("유효한 이메일 주소를 입력해주세요");
-      return;
-    }
-
-    setEmailLoading(true);
-
-    setTimeout(() => {
-      setEmailCodeSent(true);
-      toast.success("인증코드가 전송되었습니다");
-      setEmailLoading(false);
-    }, 1000);
-  };
-
-  const handleEmailChange = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!emailVerificationCode) {
-      toast.error("인증코드를 입력해주세요");
-      return;
-    }
-
-    setEmailLoading(true);
-
-    setTimeout(() => {
-      toast.success("이메일이 성공적으로 변경되었습니다");
-      setNewEmail("");
-      setEmailVerificationCode("");
-      setEmailCodeSent(false);
-      setEmailLoading(false);
-    }, 1000);
   };
 
   const handleDeleteAccount = async () => {
@@ -680,48 +634,6 @@ export function Settings() {
                   {passwordLoading ? "변경 중..." : "비밀번호 변경"}
                 </Button>
               </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-[28px] border-0 bg-white/85 shadow-sm shadow-slate-200/50 ring-1 ring-slate-200/70 dark:bg-gray-900/75 dark:ring-gray-800">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Mail className="w-5 h-5 text-indigo-500" />
-              연락처 및 로그인 수단
-            </CardTitle>
-            <CardDescription>로그인에 사용하는 이메일을 최신 상태로 유지하세요.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <form onSubmit={handleEmailChange} className="space-y-3">
-              <Label htmlFor="new-email">새 이메일</Label>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Input
-                  id="new-email"
-                  type="email"
-                  placeholder="새 이메일 주소"
-                  value={newEmail}
-                  onChange={(event) => setNewEmail(event.target.value)}
-                  disabled={emailLoading}
-                  className="rounded-2xl"
-                />
-                <Button type="button" variant="outline" className="rounded-full" onClick={handleSendEmailCode} disabled={emailLoading}>
-                  {emailLoading ? "전송 중..." : "인증코드 전송"}
-                </Button>
-              </div>
-              {emailCodeSent && (
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Input
-                    placeholder="인증코드 입력"
-                    value={emailVerificationCode}
-                    onChange={(event) => setEmailVerificationCode(event.target.value)}
-                    className="rounded-2xl"
-                  />
-                  <Button type="submit" className="rounded-full" disabled={emailLoading}>
-                    변경 완료
-                  </Button>
-                </div>
-              )}
             </form>
           </CardContent>
         </Card>

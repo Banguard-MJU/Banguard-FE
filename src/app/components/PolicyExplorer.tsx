@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "./ui/input";
 import {
   POLICY_CATEGORY_OPTIONS,
-  POLICY_RESOURCES,
   getCategoryLabel,
   type PolicyCategory,
   type PolicyResource,
@@ -35,7 +34,7 @@ export function PolicyExplorer() {
   const [activeCategory, setActiveCategory] = useState<PolicyCategory | "all">(normalizedInitialCategory);
   const [query, setQuery] = useState("");
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null);
-  const [policies, setPolicies] = useState<PolicyResource[]>(POLICY_RESOURCES);
+  const [policies, setPolicies] = useState<PolicyResource[]>([]);
 
   const featuredPolicies = policies.filter((p) => p.featured);
   const filteredPolicies = policies.filter((p) => {

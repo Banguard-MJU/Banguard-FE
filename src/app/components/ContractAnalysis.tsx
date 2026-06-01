@@ -18,6 +18,7 @@ import {
 } from "../data/contractAnalysis";
 import { analyzeContractFile } from "../lib/analysis-api";
 import { getDisplayErrorMessage } from "../lib/error-message";
+import { generateId } from "../lib/uuid";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "./ui/dialog";
+
+const SAMPLE_HISTORY_NAMES: Record<string, string> = {
+  safe: "안전한 계약 (신림동 원룸)",
+  moderate: "주의 필요 계약 (봉천동 투룸)",
+  risky: "위험한 계약 (상도동 빌라)",
+};
 
 export function ContractAnalysis() {
   const [file, setFile] = useState<File | null>(null);
@@ -52,6 +59,15 @@ export function ContractAnalysis() {
 
     const sampleResult = getSampleAnalysisResult(sampleId);
     setResult(sampleResult);
+    addAnalysis({
+      id: generateId(),
+      fileName: `[샘플] ${SAMPLE_HISTORY_NAMES[sampleId] ?? sampleId}`,
+      date: new Date(),
+      riskLevel: sampleResult.riskLevel,
+      riskScore: sampleResult.riskScore,
+      address: sampleResult.contractInfo.address,
+      contractType: sampleResult.contractInfo.type,
+    });
     setAnalyzing(false);
     toast.success("샘플 계약서 분석이 완료되었습니다");
   };
@@ -91,7 +107,7 @@ export function ContractAnalysis() {
       setProgress(100);
       setResult(analysisResult);
       addAnalysis({
-        id: crypto.randomUUID(),
+        id: generateId(),
         fileName: file.name,
         date: new Date(),
         riskLevel: analysisResult.riskLevel,

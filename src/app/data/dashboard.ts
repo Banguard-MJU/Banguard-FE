@@ -15,7 +15,6 @@ export interface AnalysisHistory {
 export interface RecentChatActivity {
   id: string;
   title: string;
-  summary: string;
   timestamp: DashboardDateInput;
 }
 
@@ -23,7 +22,6 @@ export interface RecentCommunityActivity {
   id: string;
   title: string;
   category: "experience" | "qa" | "region" | "warning";
-  summary: string;
   timestamp: DashboardDateInput;
   engagement: string;
 }
