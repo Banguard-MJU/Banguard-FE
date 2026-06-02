@@ -16,6 +16,7 @@ export interface ChatMessage {
   timestamp: Date;
   isStreaming?: boolean;
   evidence?: ChatEvidenceItem[];
+  feedback?: "like" | "dislike";
 }
 
 export interface ChatConversation {

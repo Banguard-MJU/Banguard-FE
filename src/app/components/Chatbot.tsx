@@ -354,6 +354,19 @@ export function Chatbot() {
     toast.success("클립보드에 복사되었습니다");
   };
 
+  const handleAssistantFeedback = (messageId: string, feedback: "like" | "dislike") => {
+    setMessages((prev) =>
+      prev.map((message) =>
+        message.id === messageId
+          ? {
+              ...message,
+              feedback: message.feedback === feedback ? undefined : feedback,
+            }
+          : message
+      )
+    );
+  };
+
   const handleEdit = (messageId: string, content: string) => {
     setEditingMessageId(messageId);
     setEditText(content);
@@ -1005,12 +1018,12 @@ export function Chatbot() {
 
                           {/* Action Buttons */}
                           {!message.isStreaming && (
-                            <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="mt-3 flex flex-wrap gap-2 opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
                               <Button
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => handleCopy(message.content)}
-                                className="h-7 px-2 text-xs gap-1.5"
+                                className="h-9 gap-1.5 rounded-full px-3 text-xs"
                               >
                                 <Copy className="w-3.5 h-3.5" />
                                 복사
@@ -1022,24 +1035,42 @@ export function Chatbot() {
                                     size="sm"
                                     variant="ghost"
                                     onClick={() => handleRegenerate(message.id)}
-                                    className="h-7 px-2 text-xs gap-1.5"
+                                    className="h-9 gap-1.5 rounded-full px-3 text-xs"
                                   >
                                     <RotateCcw className="w-3.5 h-3.5" />
                                     재생성
                                   </Button>
                                   <Button
+                                    type="button"
                                     size="sm"
-                                    variant="ghost"
-                                    className="h-7 w-7 p-0"
+                                    variant={message.feedback === "like" ? "default" : "ghost"}
+                                    aria-pressed={message.feedback === "like"}
+                                    aria-label="좋아요"
+                                    title="좋아요"
+                                    onClick={() => handleAssistantFeedback(message.id, "like")}
+                                    className={`h-9 min-w-9 rounded-full px-3 ${
+                                      message.feedback === "like"
+                                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                                        : "text-gray-500 hover:bg-blue-50 hover:text-blue-600 dark:text-gray-400 dark:hover:bg-indigo-950/50 dark:hover:text-blue-300"
+                                    }`}
                                   >
-                                    <ThumbsUp className="w-3.5 h-3.5" />
+                                    <ThumbsUp className={`h-4 w-4 ${message.feedback === "like" ? "fill-current" : ""}`} />
                                   </Button>
                                   <Button
+                                    type="button"
                                     size="sm"
-                                    variant="ghost"
-                                    className="h-7 w-7 p-0"
+                                    variant={message.feedback === "dislike" ? "default" : "ghost"}
+                                    aria-pressed={message.feedback === "dislike"}
+                                    aria-label="싫어요"
+                                    title="싫어요"
+                                    onClick={() => handleAssistantFeedback(message.id, "dislike")}
+                                    className={`h-9 min-w-9 rounded-full px-3 ${
+                                      message.feedback === "dislike"
+                                        ? "bg-red-600 text-white hover:bg-red-700"
+                                        : "text-gray-500 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-950/40 dark:hover:text-red-300"
+                                    }`}
                                   >
-                                    <ThumbsDown className="w-3.5 h-3.5" />
+                                    <ThumbsDown className={`h-4 w-4 ${message.feedback === "dislike" ? "fill-current" : ""}`} />
                                   </Button>
                                 </>
                               )}
@@ -1049,7 +1080,7 @@ export function Chatbot() {
                                   size="sm"
                                   variant="ghost"
                                   onClick={() => handleEdit(message.id, message.content)}
-                                  className="h-7 px-2 text-xs gap-1.5"
+                                  className="h-9 gap-1.5 rounded-full px-3 text-xs"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
                                   수정

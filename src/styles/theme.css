@@ -348,8 +348,8 @@
 
   .home-hero-card {
     display: grid;
-    height: 22rem;
-    grid-template-rows: 9rem minmax(0, 1fr);
+    min-height: 22rem;
+    grid-template-rows: 9rem minmax(13rem, 1fr);
     overflow: hidden;
     border: 2px solid transparent;
     border-radius: 1.5rem;
@@ -367,8 +367,9 @@
 
   .home-hero-card-body {
     display: grid;
-    min-height: 0;
-    grid-template-rows: 3.5rem minmax(0, 1fr) 1.75rem;
+    min-height: 13rem;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 0.875rem;
     padding: 1.25rem;
   }
 
@@ -387,6 +388,10 @@
     text-align: left;
     font-size: 0.875rem;
     line-height: 1.625rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
 
   .home-hero-card-action {
@@ -439,11 +444,12 @@
 
   @media (min-width: 768px) {
     .home-hero-card {
-      height: 24rem;
-      grid-template-rows: 11rem minmax(0, 1fr);
+      min-height: 24rem;
+      grid-template-rows: 11rem minmax(13rem, 1fr);
     }
 
     .home-hero-card-body {
+      min-height: 13rem;
       padding: 1.5rem;
     }
 
@@ -473,11 +479,12 @@
 
   @media (min-width: 1024px) {
     .home-hero-card {
-      height: 25rem;
-      grid-template-rows: 12rem minmax(0, 1fr);
+      min-height: 25rem;
+      grid-template-rows: 12rem minmax(13rem, 1fr);
     }
 
     .home-hero-card-body {
+      min-height: 13rem;
       padding: 1.75rem;
     }
 
