@@ -116,6 +116,7 @@ export function Community() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [newCommentContent, setNewCommentContent] = useState("");
+  const isComposingCommentRef = useRef(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [reportTargetPostId, setReportTargetPostId] = useState<string | null>(null);
   const [reportForm, setReportForm] = useState<ReportFormState>({
@@ -404,6 +405,10 @@ export function Community() {
     }
 
     event.preventDefault();
+    if (isComposingCommentRef.current || event.nativeEvent.isComposing) {
+      return;
+    }
+
     void handleSubmitComment();
   };
 
@@ -1076,6 +1081,12 @@ export function Community() {
                         <Textarea
                           value={newCommentContent}
                           onChange={(event) => setNewCommentContent(event.target.value)}
+                          onCompositionStart={() => {
+                            isComposingCommentRef.current = true;
+                          }}
+                          onCompositionEnd={() => {
+                            isComposingCommentRef.current = false;
+                          }}
                           onKeyDown={handleCommentKeyDown}
                           placeholder="댓글을 입력하세요..."
                           className="rounded-xl min-h-[80px] resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
