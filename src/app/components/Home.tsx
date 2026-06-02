@@ -126,11 +126,11 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/contract-analysis")}
-                      className="flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-blue-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-blue-600 sm:h-[400px] sm:rounded-3xl"
+                      className="group flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-blue-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-blue-600 sm:h-[400px] sm:rounded-3xl"
                     >
                       <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 sm:h-52">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <FileText className="relative z-10 h-14 w-14 translate-y-1 text-white transition-transform duration-300 group-hover:scale-110 sm:h-20 sm:w-20" />
+                        <FileText className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
                       </div>
                       <div className="flex flex-1 flex-col p-5 sm:p-8">
                         <div className="sm:min-h-[4rem]">
@@ -153,7 +153,7 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/chatbot")}
-                      className="flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-indigo-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-indigo-600 sm:h-[400px] sm:rounded-3xl"
+                      className="group flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-indigo-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-indigo-600 sm:h-[400px] sm:rounded-3xl"
                     >
                       <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 sm:h-52">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
@@ -180,7 +180,7 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/community")}
-                      className="flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-purple-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-purple-600 sm:h-[400px] sm:rounded-3xl"
+                      className="group flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-purple-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-purple-600 sm:h-[400px] sm:rounded-3xl"
                     >
                       <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 sm:h-52">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
@@ -235,7 +235,7 @@ export function Home() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <Card className="text-center border-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 hover:shadow-xl transition-all duration-300 rounded-2xl">
-                  <CardContent className="pt-8 pb-6">
+                  <CardContent className="py-8">
                     <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 sm:mb-4 sm:h-14 sm:w-14">
                       <stat.icon className="h-5 w-5 text-white sm:h-7 sm:w-7" />
                     </div>
@@ -391,7 +391,7 @@ export function Home() {
                   <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{step.description}</p>
                 </div>
                 {index < 2 && (
-                  <div className="hidden md:block absolute top-1/2 -right-4 w-8 h-1 bg-gradient-to-r from-blue-300 to-indigo-300 dark:from-blue-700 dark:to-indigo-700 rounded-full" />
+                  <div className="hidden md:block absolute top-1/2 -right-6 w-12 h-1 bg-gradient-to-r from-blue-300 to-indigo-300 dark:from-blue-700 dark:to-indigo-700 rounded-full" />
                 )}
               </motion.div>
             ))}
