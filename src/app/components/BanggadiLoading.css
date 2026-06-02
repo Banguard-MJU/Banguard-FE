@@ -1,0 +1,208 @@
+.banggadi-loading {
+  --banggadi-navy: #1e3a8a;
+  --banggadi-yellow: #f59e0b;
+  --banggadi-sky: #38bdf8;
+  --banggadi-progress: 60;
+
+  width: min(420px, 90vw);
+  margin: 0 auto;
+  color: var(--banggadi-navy);
+  text-align: center;
+}
+
+.banggadi-loading-stage {
+  position: relative;
+  min-height: 84px;
+  padding-top: 46px;
+}
+
+.banggadi-runner {
+  position: absolute;
+  top: 0;
+  left: calc(var(--banggadi-progress) * 1%);
+  width: 72px;
+  height: 72px;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+  transition: left 320ms ease;
+}
+
+.banggadi-runner-svg {
+  display: block;
+  width: 72px;
+  height: 72px;
+  overflow: visible;
+}
+
+.banggadi-loading-track {
+  position: relative;
+  height: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e2e8f0;
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.12),
+    0 10px 28px rgba(30, 58, 138, 0.1);
+}
+
+.banggadi-loading-fill {
+  width: calc(var(--banggadi-progress) * 1%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--banggadi-navy) 0%, #2563eb 52%, var(--banggadi-sky) 100%);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+  transition: width 320ms ease;
+}
+
+.banggadi-loading-text {
+  margin: 14px 0 0;
+  color: var(--banggadi-navy);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.banggadi-loading.is-indeterminate .banggadi-runner {
+  animation: banggadi-run-across 2s ease-in-out infinite;
+}
+
+.banggadi-loading.is-indeterminate .banggadi-loading-fill {
+  width: 42%;
+  animation: banggadi-fill-loop 2s ease-in-out infinite;
+}
+
+.runner-character {
+  animation: banggadi-runner-bounce 0.42s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.runner-shadow {
+  animation: banggadi-shadow-pulse 0.42s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center center;
+}
+
+.runner-ear,
+.runner-arm {
+  transform-box: fill-box;
+}
+
+.runner-ear {
+  animation: banggadi-ear-flap 0.42s ease-in-out infinite;
+}
+
+.left-ear {
+  transform-origin: right top;
+}
+
+.right-ear {
+  animation-delay: 0.12s;
+  transform-origin: left top;
+}
+
+.runner-arm {
+  animation: banggadi-arm-swing 0.42s ease-in-out infinite;
+}
+
+.left-arm {
+  transform-origin: right center;
+}
+
+.right-arm {
+  animation-delay: 0.21s;
+  transform-origin: left center;
+}
+
+@keyframes banggadi-run-across {
+  0%,
+  100% {
+    left: 0%;
+  }
+
+  50% {
+    left: 100%;
+  }
+}
+
+@keyframes banggadi-fill-loop {
+  0%,
+  100% {
+    width: 18%;
+  }
+
+  50% {
+    width: 100%;
+  }
+}
+
+@keyframes banggadi-runner-bounce {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(3deg);
+  }
+}
+
+@keyframes banggadi-shadow-pulse {
+  0%,
+  100% {
+    transform: scaleX(1.05);
+    opacity: 0.75;
+  }
+
+  50% {
+    transform: scaleX(0.78);
+    opacity: 0.35;
+  }
+}
+
+@keyframes banggadi-ear-flap {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(-8deg);
+  }
+}
+
+@keyframes banggadi-arm-swing {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+
+  50% {
+    transform: rotate(9deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banggadi-loading.is-indeterminate .banggadi-runner,
+  .banggadi-loading.is-indeterminate .banggadi-loading-fill,
+  .runner-character,
+  .runner-shadow,
+  .runner-ear,
+  .runner-arm {
+    animation: none;
+  }
+
+  .banggadi-runner,
+  .banggadi-loading-fill {
+    transition: none;
+  }
+
+  .banggadi-loading.is-indeterminate .banggadi-runner {
+    left: 60%;
+  }
+
+  .banggadi-loading.is-indeterminate .banggadi-loading-fill {
+    width: 60%;
+  }
+}

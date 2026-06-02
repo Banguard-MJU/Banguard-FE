@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, Info, Loader2, MessageSquare, Landmark, ChevronRight } from "lucide-react";
+import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, Info, MessageSquare, Landmark, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
@@ -7,6 +7,7 @@ import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { toast } from "sonner";
 import { motion } from "motion/react";
+import { BanggadiLoading } from "./BanggadiLoading";
 import { RightsAnalysisVisual } from "./RightsAnalysisVisual";
 import { SampleSelector } from "./SampleSelector";
 import { useAuth } from "../contexts/AuthContext";
@@ -100,9 +101,13 @@ export function ContractAnalysis() {
 
     setAnalyzing(true);
     setProgress(0);
+    let progressTimer: number | undefined;
 
     try {
       setProgress(25);
+      progressTimer = window.setInterval(() => {
+        setProgress((currentProgress) => Math.min(currentProgress + 7, 88));
+      }, 450);
       const analysisResult = await analyzeContractFile(file);
       setProgress(100);
       setResult(analysisResult);
@@ -119,6 +124,9 @@ export function ContractAnalysis() {
     } catch (error) {
       toast.error(getDisplayErrorMessage(error, "계약서 분석에 실패했습니다"));
     } finally {
+      if (progressTimer) {
+        window.clearInterval(progressTimer);
+      }
       setAnalyzing(false);
     }
   };
@@ -150,6 +158,13 @@ export function ContractAnalysis() {
       case "info": return <Info className={`${iconClassName} text-blue-500`} />;
       default: return null;
     }
+  };
+
+  const getAnalysisProgressText = () => {
+    if (progress < 25) return "OCR로 문서를 스캔하는 중...";
+    if (progress < 50) return "텍스트를 추출하는 중...";
+    if (progress < 75) return "AI가 내용을 분석하는 중...";
+    return "분석 결과를 생성하는 중...";
   };
 
   const tabTriggerClassName = "h-auto min-h-9 whitespace-normal break-keep px-2 py-2 text-center leading-5";
@@ -221,18 +236,8 @@ export function ContractAnalysis() {
             )}
 
             {analyzing && (
-              <div className="mt-8 space-y-4">
-                <div className="flex items-center justify-center gap-3 text-blue-600">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                  <span className="text-lg font-medium">계약서를 분석하는 중입니다...</span>
-                </div>
-                <Progress value={progress} className="h-3" />
-                <div className="text-center text-sm text-gray-600 font-medium">
-                  {progress < 25 && "OCR로 문서를 스캔하는 중..."}
-                  {progress >= 25 && progress < 50 && "텍스트를 추출하는 중..."}
-                  {progress >= 50 && progress < 75 && "AI가 내용을 분석하는 중..."}
-                  {progress >= 75 && "분석 결과를 생성하는 중..."}
-                </div>
+              <div className="mt-8 rounded-2xl border border-blue-100 bg-white/70 px-4 py-8 shadow-inner shadow-blue-100/50 dark:border-blue-900/50 dark:bg-gray-900/40 dark:shadow-none">
+                <BanggadiLoading progress={progress} text={getAnalysisProgressText()} />
               </div>
             )}
           </CardContent>
