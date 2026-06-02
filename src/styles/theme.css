@@ -209,41 +209,30 @@
 }
 
 @layer components {
+  /* Design tokens — fluid scaling without breakpoint jumps */
   .app-shell {
     width: 100%;
     max-width: 1440px;
     margin-inline: auto;
-    padding-inline: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-left: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-right, 0px));
   }
 
   .app-shell-wide {
     width: 100%;
     max-width: 1560px;
     margin-inline: auto;
-    padding-inline: max(1rem, env(safe-area-inset-left));
-    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-left: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-left, 0px));
+    padding-right: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-right, 0px));
   }
 
-  @media (min-width: 640px) {
-    .app-shell,
-    .app-shell-wide {
-      padding-inline: 1.25rem;
-    }
+  /* Fluid section vertical rhythm */
+  .section-py {
+    padding-block: clamp(2.5rem, 6vw, 7rem);
   }
 
-  @media (min-width: 1024px) {
-    .app-shell,
-    .app-shell-wide {
-      padding-inline: 1.5rem;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .app-shell,
-    .app-shell-wide {
-      padding-inline: 2rem;
-    }
+  .section-py-sm {
+    padding-block: clamp(2rem, 4vw, 4.5rem);
   }
 
   .app-bottom-safe {

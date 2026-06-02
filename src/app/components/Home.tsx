@@ -87,30 +87,30 @@ export function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       {/* Hero Section */}
-      <section className="py-10 sm:py-16 lg:py-24">
+      <section className="section-py">
         <div className="app-shell text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-blue-200 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-4 py-2 text-blue-700 backdrop-blur-sm dark:border-blue-800 dark:text-blue-300 sm:mb-8 sm:px-5 sm:py-2.5">
+            <div className="mb-8 inline-flex max-w-full items-center gap-2 rounded-full border border-blue-200 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 px-5 py-2.5 text-blue-700 backdrop-blur-sm dark:border-blue-800 dark:text-blue-300">
               <Shield className="w-4 h-4" />
               <span className="text-sm font-medium">AI 기반 부동산 안전 플랫폼</span>
             </div>
-            
-            <h1 className="mb-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-[2.55rem] font-bold leading-[1.12] text-transparent dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 sm:mb-8 sm:text-6xl lg:text-7xl">
+
+            <h1 className="mb-8 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text font-bold text-transparent dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 text-[clamp(2.5rem,7vw,6.5rem)] leading-[1.1]">
               방가드로 안전하게
               <br />
               주거를 시작하세요
             </h1>
-            
-            <p className="mx-auto mb-8 max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-400 sm:mb-10 sm:text-xl sm:leading-relaxed">
+
+            <p className="mx-auto mb-10 max-w-2xl text-gray-600 dark:text-gray-400 text-[clamp(1rem,1.4vw,1.25rem)] leading-relaxed">
               부동산 지식이 부족한 대학생과 1인 가구를 위한 AI 기반 계약서 분석 및 전세 사기 예방 플랫폼
             </p>
 
             {/* Carousel Section */}
-            <div className="relative max-w-5xl mx-auto">
+            <div className="relative mx-auto max-w-5xl">
               <Carousel
                 setApi={setApi}
                 opts={{
@@ -126,17 +126,17 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/contract-analysis")}
-                      className="group flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-blue-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-blue-600 sm:h-[400px] sm:rounded-3xl"
+                      className="group flex h-[clamp(22rem,30vw,28rem)] cursor-pointer select-none flex-col overflow-hidden rounded-3xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-blue-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-blue-600"
                     >
-                      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 sm:h-52">
+                      <div className="relative flex h-[clamp(9rem,14vw,14rem)] items-center justify-center overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <FileText className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
+                        <FileText className="relative z-10 size-[clamp(4rem,5.5vw,6rem)] text-white transition-transform duration-300 group-hover:scale-110" />
                       </div>
-                      <div className="flex flex-1 flex-col p-5 sm:p-8">
-                        <div className="sm:min-h-[4rem]">
-                          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:mb-3 sm:text-2xl">AI 계약서 분석</h3>
+                      <div className="flex flex-1 flex-col p-[clamp(1.25rem,2vw,2rem)]">
+                        <div className="min-h-[3.5rem]">
+                          <h3 className="mb-3 font-bold text-gray-900 dark:text-gray-100 text-[clamp(1.125rem,1.6vw,1.5rem)]">AI 계약서 분석</h3>
                         </div>
-                        <p className="mb-4 min-h-0 text-sm leading-6 text-gray-600 dark:text-gray-400 sm:mb-5 sm:min-h-[6.5rem] sm:text-base sm:leading-relaxed">
+                        <p className="mb-5 text-gray-600 dark:text-gray-400 text-[clamp(0.875rem,1vw,1rem)] leading-relaxed">
                           OCR과 LLM 기술로 계약서의 위험 요소를 자동으로 탐지하고 분석합니다. 복잡한 권리관계를 신호등 색상으로 직관적으로 표시합니다.
                         </p>
                         <div className="mt-auto flex min-h-[1.75rem] items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
@@ -153,17 +153,17 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/chatbot")}
-                      className="group flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-indigo-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-indigo-600 sm:h-[400px] sm:rounded-3xl"
+                      className="group flex h-[clamp(22rem,30vw,28rem)] cursor-pointer select-none flex-col overflow-hidden rounded-3xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-indigo-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-indigo-600"
                     >
-                      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600 sm:h-52">
+                      <div className="relative flex h-[clamp(9rem,14vw,14rem)] items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-500 to-indigo-600">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <MessageSquare className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
+                        <MessageSquare className="relative z-10 size-[clamp(4rem,5.5vw,6rem)] text-white transition-transform duration-300 group-hover:scale-110" />
                       </div>
-                      <div className="flex flex-1 flex-col p-5 sm:p-8">
-                        <div className="sm:min-h-[4rem]">
-                          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:mb-3 sm:text-2xl">AI 상담 챗봇</h3>
+                      <div className="flex flex-1 flex-col p-[clamp(1.25rem,2vw,2rem)]">
+                        <div className="min-h-[3.5rem]">
+                          <h3 className="mb-3 font-bold text-gray-900 dark:text-gray-100 text-[clamp(1.125rem,1.6vw,1.5rem)]">AI 상담 챗봇</h3>
                         </div>
-                        <p className="mb-4 min-h-0 text-sm leading-6 text-gray-600 dark:text-gray-400 sm:mb-5 sm:min-h-[6.5rem] sm:text-base sm:leading-relaxed">
+                        <p className="mb-5 text-gray-600 dark:text-gray-400 text-[clamp(0.875rem,1vw,1rem)] leading-relaxed">
                           부동산 관련 궁금한 점을 AI 챗봇에게 물어보고 실시간 답변을 받으세요. RAG 기술로 정확하고 신뢰할 수 있는 정보를 제공합니다.
                         </p>
                         <div className="mt-auto flex min-h-[1.75rem] items-center text-indigo-600 dark:text-indigo-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
@@ -180,17 +180,17 @@ export function Home() {
                       onPointerDown={handlePointerDown}
                       onPointerMove={handlePointerMove}
                       onClick={handleCardClick("/community")}
-                      className="group flex h-auto min-h-[360px] cursor-pointer select-none flex-col overflow-hidden rounded-2xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-purple-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-purple-600 sm:h-[400px] sm:rounded-3xl"
+                      className="group flex h-[clamp(22rem,30vw,28rem)] cursor-pointer select-none flex-col overflow-hidden rounded-3xl border-2 border-transparent bg-white shadow-xl transition-all duration-300 hover:border-purple-400 hover:shadow-2xl dark:bg-gray-800 dark:hover:border-purple-600"
                     >
-                      <div className="relative flex h-36 items-center justify-center overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 sm:h-52">
+                      <div className="relative flex h-[clamp(9rem,14vw,14rem)] items-center justify-center overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600">
                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-                        <Users className="relative z-10 h-16 w-16 text-white transition-transform duration-300 group-hover:scale-110 sm:h-24 sm:w-24" />
+                        <Users className="relative z-10 size-[clamp(4rem,5.5vw,6rem)] text-white transition-transform duration-300 group-hover:scale-110" />
                       </div>
-                      <div className="flex flex-1 flex-col p-5 sm:p-8">
-                        <div className="sm:min-h-[4rem]">
-                          <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-gray-100 sm:mb-3 sm:text-2xl">커뮤니티</h3>
+                      <div className="flex flex-1 flex-col p-[clamp(1.25rem,2vw,2rem)]">
+                        <div className="min-h-[3.5rem]">
+                          <h3 className="mb-3 font-bold text-gray-900 dark:text-gray-100 text-[clamp(1.125rem,1.6vw,1.5rem)]">커뮤니티</h3>
                         </div>
-                        <p className="mb-4 min-h-0 text-sm leading-6 text-gray-600 dark:text-gray-400 sm:mb-5 sm:min-h-[6.5rem] sm:text-base sm:leading-relaxed">
+                        <p className="mb-5 text-gray-600 dark:text-gray-400 text-[clamp(0.875rem,1vw,1rem)] leading-relaxed">
                           같은 고민을 가진 사용자들과 경험을 공유하고 서로 도와주세요. 부동산 관련 팁과 주의사항을 나눌 수 있습니다.
                         </p>
                         <div className="mt-auto flex min-h-[1.75rem] items-center text-purple-600 dark:text-purple-400 font-semibold group-hover:translate-x-2 transition-transform duration-300">
@@ -224,9 +224,9 @@ export function Home() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-8 sm:py-12 lg:py-16">
+      <section className="section-py-sm">
         <div className="app-shell">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
+          <div className="grid grid-cols-2 gap-[clamp(0.75rem,1.5vw,1.5rem)] md:grid-cols-4">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -235,12 +235,12 @@ export function Home() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <Card className="text-center border-0 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 hover:shadow-xl transition-all duration-300 rounded-2xl">
-                  <CardContent className="py-8">
-                    <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 sm:mb-4 sm:h-14 sm:w-14">
-                      <stat.icon className="h-5 w-5 text-white sm:h-7 sm:w-7" />
+                  <CardContent className="py-[clamp(1.5rem,2.5vw,2.5rem)]">
+                    <div className="mx-auto mb-4 flex items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 size-[clamp(2.75rem,3.5vw,3.5rem)]">
+                      <stat.icon className="text-white size-[clamp(1.25rem,1.75vw,1.75rem)]" />
                     </div>
-                    <div className="mb-1 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:mb-2 sm:text-4xl">{stat.value}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{stat.label}</div>
+                    <div className="mb-2 font-bold text-gray-900 dark:text-gray-100 text-[clamp(1.5rem,2.5vw,2.25rem)]">{stat.value}</div>
+                    <div className="text-gray-600 dark:text-gray-400 font-medium text-[clamp(0.8125rem,1vw,1rem)]">{stat.label}</div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -250,16 +250,16 @@ export function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-10 sm:py-16 lg:py-24">
+      <section className="section-py">
         <div className="app-shell">
-          <div className="mb-8 text-center sm:mb-16">
-            <h2 className="mb-3 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-transparent dark:from-gray-100 dark:to-gray-300 sm:mb-6 sm:text-5xl">주요 기능</h2>
-            <p className="text-base text-gray-600 dark:text-gray-400 sm:text-xl">
+          <div className="text-center mb-[clamp(2rem,4vw,4rem)]">
+            <h2 className="mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text font-bold text-transparent dark:from-gray-100 dark:to-gray-300 text-[clamp(1.875rem,3.5vw,3rem)]">주요 기능</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-[clamp(1rem,1.4vw,1.25rem)]">
               AI 기술로 안전한 주거 환경을 만들어갑니다
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-[clamp(1.5rem,2vw,2rem)] md:grid-cols-2 xl:grid-cols-4">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -269,11 +269,11 @@ export function Home() {
               >
                 <Card className="h-full hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-3xl overflow-hidden group">
                   <CardHeader className="pb-4">
-                    <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.color} transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-16 sm:w-16`}>
-                      <feature.icon className="h-6 w-6 text-white sm:h-8 sm:w-8" />
+                    <div className={`mb-5 flex items-center justify-center rounded-2xl bg-gradient-to-br ${feature.color} transition-transform duration-300 group-hover:scale-110 size-[clamp(3rem,3.5vw,4rem)]`}>
+                      <feature.icon className="text-white size-[clamp(1.5rem,1.75vw,2rem)]" />
                     </div>
-                    <CardTitle className="text-xl sm:text-2xl">{feature.title}</CardTitle>
-                    <CardDescription className="text-base leading-relaxed">
+                    <CardTitle className="text-[clamp(1.25rem,1.6vw,1.5rem)]">{feature.title}</CardTitle>
+                    <CardDescription className="leading-relaxed text-[clamp(0.9375rem,1vw,1rem)]">
                       {feature.description}
                     </CardDescription>
                   </CardHeader>
@@ -294,16 +294,16 @@ export function Home() {
             className="mt-10"
           >
             <Card className="overflow-hidden rounded-3xl border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
-              <CardContent className="grid gap-5 px-5 py-6 sm:gap-6 sm:px-8 sm:py-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+              <CardContent className="grid p-[clamp(1.25rem,2vw,2rem)] gap-[clamp(1.25rem,1.5vw,1.5rem)] lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
                 <div>
-                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/70 px-4 py-2 text-sm font-medium text-blue-700 dark:border-indigo-900/60 dark:bg-indigo-950/30 dark:text-blue-300">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/70 px-4 py-2 font-medium text-blue-700 dark:border-indigo-900/60 dark:bg-indigo-950/30 dark:text-blue-300 text-[clamp(0.8125rem,1vw,0.9375rem)]">
                     <Landmark className="h-4 w-4" />
                     정책 · 공공정보 둘러보기
                   </div>
-                  <h3 className="mb-3 text-2xl font-bold leading-tight text-gray-900 dark:text-gray-100 sm:text-3xl">
+                  <h3 className="mb-3 font-bold leading-tight text-gray-900 dark:text-gray-100 text-[clamp(1.5rem,2.2vw,1.875rem)]">
                     보증, 지원 제도, 계약 체크리스트를 한 곳에서 확인하세요
                   </h3>
-                  <p className="max-w-2xl text-base leading-7 text-gray-600 dark:text-gray-400">
+                  <p className="max-w-2xl text-gray-600 dark:text-gray-400 text-[clamp(0.9375rem,1.1vw,1.0625rem)] leading-relaxed">
                     상황에 맞는 주거 지원 정보와 계약 전 체크 포인트를 모아두었습니다. 필요한 항목을 먼저 살펴본 뒤 AI 상담으로 이어가도 좋습니다.
                   </p>
                 </div>
@@ -350,17 +350,17 @@ export function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="relative overflow-hidden py-10 sm:py-16 lg:py-24">
+      <section className="relative overflow-hidden section-py">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 via-indigo-100/30 to-purple-100/50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 -z-10"></div>
         <div className="app-shell">
-          <div className="mb-8 text-center sm:mb-16">
-            <h2 className="mb-3 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-3xl font-bold text-transparent dark:from-gray-100 dark:to-gray-300 sm:mb-6 sm:text-5xl">사용 방법</h2>
-            <p className="text-base text-gray-600 dark:text-gray-400 sm:text-xl">
+          <div className="text-center mb-[clamp(2rem,4vw,4rem)]">
+            <h2 className="mb-4 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text font-bold text-transparent dark:from-gray-100 dark:to-gray-300 text-[clamp(1.875rem,3.5vw,3rem)]">사용 방법</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-[clamp(1rem,1.4vw,1.25rem)]">
               3단계로 간편하게 계약서를 분석하세요
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-[clamp(1.5rem,2vw,2rem)]">
             {[
               {
                 step: "01",
@@ -385,10 +385,10 @@ export function Home() {
                 transition={{ duration: 0.5, delay: index * 0.2 }}
                 className="relative"
               >
-                <div className="rounded-2xl border border-blue-100 bg-white/70 p-5 shadow-xl backdrop-blur-sm transition-all duration-300 hover:shadow-2xl dark:border-blue-900 dark:bg-gray-800/70 sm:rounded-3xl sm:p-8">
-                  <div className="mb-4 bg-gradient-to-br from-blue-200 to-indigo-200 bg-clip-text text-4xl font-bold text-transparent dark:from-blue-600 dark:to-indigo-600 sm:mb-6 sm:text-6xl">{step.step}</div>
-                  <h3 className="mb-3 text-xl font-bold dark:text-gray-100 sm:text-2xl">{step.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{step.description}</p>
+                <div className="rounded-3xl border border-blue-100 bg-white/70 shadow-xl backdrop-blur-sm transition-all duration-300 hover:shadow-2xl dark:border-blue-900 dark:bg-gray-800/70 p-[clamp(1.25rem,2vw,2rem)]">
+                  <div className="mb-5 bg-gradient-to-br from-blue-200 to-indigo-200 bg-clip-text font-bold text-transparent dark:from-blue-600 dark:to-indigo-600 text-[clamp(2.25rem,4vw,3.75rem)]">{step.step}</div>
+                  <h3 className="mb-3 font-bold dark:text-gray-100 text-[clamp(1.25rem,1.6vw,1.5rem)]">{step.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-[clamp(0.9375rem,1vw,1rem)]">{step.description}</p>
                 </div>
                 {index < 2 && (
                   <div className="hidden md:block absolute top-1/2 -right-6 w-12 h-1 bg-gradient-to-r from-blue-300 to-indigo-300 dark:from-blue-700 dark:to-indigo-700 rounded-full" />
@@ -400,7 +400,7 @@ export function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-10 sm:py-16 lg:py-24">
+      <section className="section-py">
         <div className="app-shell text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -409,17 +409,17 @@ export function Home() {
           >
             <Card className="bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 border-0 text-white rounded-3xl shadow-2xl shadow-blue-500/25 overflow-hidden relative">
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMDUiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
-              <CardContent className="relative px-5 py-10 sm:px-8 sm:py-16">
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/20 backdrop-blur-sm sm:mb-8 sm:h-20 sm:w-20">
-                  <Shield className="h-8 w-8 sm:h-10 sm:w-10" />
+              <CardContent className="relative px-[clamp(1.25rem,2vw,2rem)] py-[clamp(2.5rem,5vw,4rem)]">
+                <div className="mx-auto mb-8 flex items-center justify-center rounded-3xl bg-white/20 backdrop-blur-sm size-[clamp(4rem,5vw,5rem)]">
+                  <Shield className="size-[clamp(2rem,2.5vw,2.5rem)]" />
                 </div>
-                <h2 className="mb-4 text-2xl font-bold leading-tight sm:mb-6 sm:text-4xl">
+                <h2 className="mb-6 font-bold leading-tight text-[clamp(1.5rem,3vw,2.5rem)]">
                   지금 바로 계약서를 분석해보세요
                 </h2>
-                <p className="mx-auto mb-8 max-w-2xl text-base leading-7 text-blue-100 sm:mb-10 sm:text-xl sm:leading-relaxed">
+                <p className="mx-auto mb-10 max-w-2xl text-blue-100 text-[clamp(1rem,1.4vw,1.25rem)] leading-relaxed">
                   무료로 AI 기반 계약서 분석을 경험하고 전세 사기로부터 안전하게 보호받으세요
                 </p>
-                <Button asChild size="lg" variant="secondary" className="h-12 rounded-2xl px-8 text-base shadow-xl transition-all hover:scale-105 hover:shadow-2xl sm:h-14 sm:px-10 sm:text-lg">
+                <Button asChild size="lg" variant="secondary" className="rounded-2xl shadow-xl transition-all hover:scale-105 hover:shadow-2xl h-[clamp(3rem,3.5vw,3.5rem)] px-[clamp(2rem,2.5vw,2.5rem)] text-[clamp(1rem,1.2vw,1.125rem)]">
                   <Link to="/contract-analysis">
                     무료로 시작하기
                   </Link>
