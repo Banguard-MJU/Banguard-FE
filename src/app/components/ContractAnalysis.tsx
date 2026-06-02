@@ -158,7 +158,7 @@ export function ContractAnalysis() {
   const resultActionButtonClassName = "min-h-10 h-auto flex-1 whitespace-normal px-3 py-2 text-center leading-5";
 
   return (
-    <div className="min-h-screen py-12 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="min-h-dvh py-12 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <div className="app-shell">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

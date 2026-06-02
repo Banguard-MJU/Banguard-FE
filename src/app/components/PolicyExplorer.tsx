@@ -73,7 +73,7 @@ export function PolicyExplorer() {
   const responsiveButtonClassName = "h-auto min-h-10 min-w-0 whitespace-normal rounded-xl px-4 py-2 text-center leading-5";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 py-12 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="min-h-dvh bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 py-12 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <div className="app-shell space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -281,7 +281,7 @@ export function PolicyExplorer() {
 
       <Dialog open={Boolean(selectedPolicy)} onOpenChange={(open) => !open && setSelectedPolicyId(null)}>
         {selectedPolicy && (
-          <DialogContent className="max-h-[85vh] w-[calc(100vw-2rem)] max-w-3xl overflow-y-auto rounded-3xl border-0 bg-white/95 p-0 shadow-2xl dark:bg-gray-900/95">
+          <DialogContent className="max-h-[85vh] w-[calc(100%_-_2rem)] max-w-3xl overflow-y-auto rounded-3xl border-0 bg-white/95 p-0 shadow-2xl dark:bg-gray-900/95">
             <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-5 py-6 text-white sm:px-8 sm:py-8">
               <div className="mb-3 flex min-w-0 flex-wrap items-center gap-3">
                 <Badge className="rounded-full border border-white/20 bg-white/15 px-3 py-1 text-white">

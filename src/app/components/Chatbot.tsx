@@ -837,7 +837,7 @@ export function Chatbot() {
       <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
         <SheetContent
           side="left"
-          className="w-[320px] max-w-[calc(100vw-1rem)] border-r border-blue-100/70 bg-white/90 p-0 backdrop-blur-xl [&>button]:hidden dark:border-indigo-900/60 dark:bg-gray-900/95"
+          className="w-[320px] max-w-[calc(100%_-_1rem)] border-r border-blue-100/70 bg-white/90 p-0 backdrop-blur-xl [&>button]:hidden dark:border-indigo-900/60 dark:bg-gray-900/95"
         >
           <SidebarContent />
         </SheetContent>

@@ -488,7 +488,7 @@ export function Community() {
     COMMUNITY_REPORT_REASONS.find((reason) => reason.id === reasonId)?.label ?? "기타";
 
   return (
-    <div className="min-h-screen py-8 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="min-h-dvh py-8 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <div className="app-shell">
         <Card className="mb-8 rounded-2xl border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80 sm:rounded-3xl">
           <CardContent className="flex flex-col gap-4 px-6 py-6 lg:flex-row lg:items-center lg:justify-between">
@@ -539,7 +539,7 @@ export function Community() {
                   글쓰기
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-h-[90vh] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl sm:max-w-2xl sm:rounded-3xl">
+              <DialogContent className="max-h-[90vh] max-w-[calc(100%_-_2rem)] overflow-y-auto rounded-2xl sm:max-w-2xl sm:rounded-3xl">
                 <DialogHeader>
                   <DialogTitle className="text-2xl">새 게시글 작성</DialogTitle>
                   <DialogDescription>
@@ -815,7 +815,7 @@ export function Community() {
         </div>
 
         <Dialog open={isDetailDialogOpen} onOpenChange={handleDetailDialogChange}>
-          <DialogContent className="max-h-[85vh] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl dark:border-gray-700 dark:bg-gray-800/95 sm:max-w-2xl sm:rounded-3xl">
+          <DialogContent className="max-h-[85vh] max-w-[calc(100%_-_2rem)] overflow-y-auto rounded-2xl dark:border-gray-700 dark:bg-gray-800/95 sm:max-w-2xl sm:rounded-3xl">
             {selectedPost && (
               <>
                 <DialogHeader>

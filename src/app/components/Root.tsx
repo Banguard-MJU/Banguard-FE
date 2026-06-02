@@ -11,7 +11,7 @@ export function Root() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
+      <div className="min-h-dvh flex items-center justify-center text-sm text-gray-500">
         로딩 중...
       </div>
     );
@@ -32,7 +32,7 @@ export function Root() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="min-h-dvh bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <Navigation />
       <main className="app-bottom-safe">
         <Outlet />

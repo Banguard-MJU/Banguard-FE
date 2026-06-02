@@ -817,7 +817,7 @@ export function Settings() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/60 py-10 dark:from-gray-950 dark:via-gray-950 dark:to-indigo-950/30">
+    <div className="min-h-dvh bg-gradient-to-br from-slate-50 via-white to-blue-50/60 py-10 dark:from-gray-950 dark:via-gray-950 dark:to-indigo-950/30">
       <div className="app-shell">
         <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">

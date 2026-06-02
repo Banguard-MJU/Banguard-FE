@@ -95,7 +95,7 @@ export function Dashboard() {
   }, [authLoading, isAuthenticated]);
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-dvh py-12">
       <div className="app-shell">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

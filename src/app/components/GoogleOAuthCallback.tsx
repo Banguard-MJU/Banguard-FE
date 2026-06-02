@@ -68,7 +68,7 @@ export function GoogleOAuthCallback() {
   }, [completeGoogleLogin, navigate, params]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 px-4 py-8 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
+    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 px-4 py-8 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
       <Card className="w-full max-w-md rounded-2xl border-0 bg-white/85 shadow-2xl backdrop-blur-sm dark:bg-gray-800/85">
         <CardHeader className="text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/25">

@@ -10,7 +10,7 @@ export function Profile() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-dvh py-12">
       <div className="app-shell">
         <div className="mb-8">
           <h1 className="mb-2 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-3xl font-bold text-transparent dark:from-blue-400 dark:to-indigo-400">

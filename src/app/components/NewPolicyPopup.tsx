@@ -72,7 +72,7 @@ export function NewPolicyPopup() {
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && dismiss()}>
-      <DialogContent className="max-h-[85vh] w-[calc(100vw-2rem)] max-w-md overflow-y-auto rounded-3xl">
+      <DialogContent className="max-h-[85vh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-3xl">
         <DialogHeader>
           <div className="mb-2 inline-flex w-fit items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-950/40 dark:text-blue-200">
             <Sparkles className="h-4 w-4" />

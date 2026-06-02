@@ -26,7 +26,7 @@ function withSuspense(element: ReactNode) {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
+        <div className="min-h-dvh flex items-center justify-center text-sm text-gray-500">
           로딩 중...
         </div>
       }
@@ -53,7 +53,7 @@ function AdminRoute() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-sm text-gray-500">
+      <div className="min-h-dvh flex items-center justify-center text-sm text-gray-500">
         로딩 중...
       </div>
     );

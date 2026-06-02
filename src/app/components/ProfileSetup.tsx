@@ -65,7 +65,7 @@ export function ProfileSetup() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4 py-8 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30 sm:py-12">
+    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-4 py-8 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30 sm:py-12">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="mb-6 text-center sm:mb-8">
