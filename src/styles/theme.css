@@ -348,8 +348,8 @@
 
   .home-hero-card {
     display: grid;
-    min-height: 22rem;
-    grid-template-rows: 9rem minmax(13rem, 1fr);
+    min-height: 23rem;
+    grid-template-rows: 9rem minmax(14rem, 1fr);
     overflow: hidden;
     border: 2px solid transparent;
     border-radius: 1.5rem;
@@ -367,10 +367,11 @@
 
   .home-hero-card-body {
     display: grid;
-    min-height: 13rem;
+    min-height: 14rem;
     grid-template-rows: auto minmax(0, 1fr) auto;
     gap: 0.875rem;
     padding: 1.25rem;
+    transition: transform 220ms ease;
   }
 
   .home-hero-card-title {
@@ -400,6 +401,17 @@
     align-items: center;
     font-weight: 600;
     line-height: 1.75rem;
+  }
+
+  .home-hero-card:hover .home-hero-card-body,
+  .home-hero-card:focus-within .home-hero-card-body {
+    transform: translateY(-0.5rem);
+  }
+
+  .home-hero-card:hover .home-hero-card-description,
+  .home-hero-card:focus-within .home-hero-card-description {
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
   }
 
   .home-step-grid {
@@ -444,12 +456,12 @@
 
   @media (min-width: 768px) {
     .home-hero-card {
-      min-height: 24rem;
-      grid-template-rows: 11rem minmax(13rem, 1fr);
+      min-height: 25rem;
+      grid-template-rows: 11rem minmax(14rem, 1fr);
     }
 
     .home-hero-card-body {
-      min-height: 13rem;
+      min-height: 14rem;
       padding: 1.5rem;
     }
 
@@ -479,12 +491,12 @@
 
   @media (min-width: 1024px) {
     .home-hero-card {
-      min-height: 25rem;
-      grid-template-rows: 12rem minmax(13rem, 1fr);
+      min-height: 26rem;
+      grid-template-rows: 12rem minmax(14rem, 1fr);
     }
 
     .home-hero-card-body {
-      min-height: 13rem;
+      min-height: 14rem;
       padding: 1.75rem;
     }
 
