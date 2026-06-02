@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { useNavigate, useParams } from "react-router";
 import {
   MessageCircle,
@@ -47,6 +47,7 @@ import {
   bookmarkPost,
   createCommunityPost,
   createPostComment,
+  deleteCommunityPost,
   deletePostComment,
   getCommunityPost,
   getCommunityPosts,
@@ -79,7 +80,26 @@ type ReportFormState = {
   details: string;
 };
 
+type SortType = "latest" | "popular";
+
 const DEFAULT_REPORT_REASON: CommunityReportReasonId = "fraud";
+const SORT_LAYOUT_TRANSITION = {
+  layout: {
+    duration: 0.35,
+    ease: [0.22, 1, 0.36, 1],
+  },
+} as const;
+
+function sortCommentsByTime(commentList: Comment[]) {
+  return [...commentList].sort((a, b) => {
+    const timeDelta = a.timestamp.getTime() - b.timestamp.getTime();
+    if (timeDelta !== 0) {
+      return timeDelta;
+    }
+    const idDelta = Number(a.id) - Number(b.id);
+    return Number.isNaN(idDelta) ? a.id.localeCompare(b.id) : idDelta;
+  });
+}
 
 export function Community() {
   const navigate = useNavigate();
@@ -90,7 +110,7 @@ export function Community() {
   const [hasLoadedBackendPosts, setHasLoadedBackendPosts] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortBy, setSortBy] = useState<"latest" | "popular">("latest");
+  const [sortBy, setSortBy] = useState<SortType>("latest");
   const [isWriteDialogOpen, setIsWriteDialogOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
@@ -113,6 +133,8 @@ export function Community() {
   });
 
   const communityDisplayName = user?.nickname || user?.name || "나";
+  const canManagePost = (post: Post) =>
+    Boolean(isAuthenticated && (post.isAuthor === true || post.author === communityDisplayName));
 
   const selectedPost = selectedPostId ? posts.find((post) => post.id === selectedPostId) ?? null : null;
   const reportTargetPost = reportTargetPostId ? posts.find((post) => post.id === reportTargetPostId) ?? null : null;
@@ -157,7 +179,11 @@ export function Community() {
           if (sortBy === "latest") {
             return b.timestamp.getTime() - a.timestamp.getTime();
           }
-          return b.likes + b.comments - (a.likes + a.comments);
+          const scoreDelta = b.likes + b.comments - (a.likes + a.comments);
+          if (scoreDelta !== 0) {
+            return scoreDelta;
+          }
+          return b.timestamp.getTime() - a.timestamp.getTime();
         }),
     [posts, searchQuery, selectedCategory, sortBy]
   );
@@ -204,10 +230,12 @@ export function Community() {
 
     getPostCommentsFromBackend(postId)
       .then((backendComments) => {
-        setComments((currentComments) => [
-          ...currentComments.filter((comment) => comment.postId !== postId),
-          ...backendComments,
-        ]);
+        setComments((currentComments) =>
+          sortCommentsByTime([
+            ...currentComments.filter((comment) => comment.postId !== postId),
+            ...backendComments,
+          ])
+        );
       })
       .catch(() => undefined);
   }, [hasLoadedBackendPosts, navigate, postId, posts]);
@@ -323,7 +351,7 @@ export function Community() {
       return;
     }
 
-    setPosts((currentPosts) => [post, ...currentPosts]);
+    setPosts((currentPosts) => [{ ...post, isAuthor: true }, ...currentPosts]);
     setIsWriteDialogOpen(false);
     setNewPost({ title: "", content: "", category: "experience", tags: "" });
     toast.success("게시글이 작성되었습니다!");
@@ -359,7 +387,7 @@ export function Community() {
       return;
     }
 
-    setComments((currentComments) => [...currentComments, comment]);
+    setComments((currentComments) => sortCommentsByTime([...currentComments, comment]));
     setPosts((currentPosts) =>
       currentPosts.map((post) =>
         post.id === selectedPost.id ? { ...post, comments: post.comments + 1 } : post
@@ -367,6 +395,31 @@ export function Community() {
     );
     setNewCommentContent("");
     toast.success("댓글이 작성되었습니다!");
+  };
+
+  const handleDeletePost = async (post: Post) => {
+    if (!isAuthenticated) {
+      toast.error("게시글을 삭제하려면 로그인이 필요합니다");
+      return;
+    }
+
+    try {
+      await deleteCommunityPost(post.id);
+    } catch (error) {
+      toast.error(getDisplayErrorMessage(error, "게시글 삭제에 실패했습니다"));
+      return;
+    }
+
+    setPosts((currentPosts) => currentPosts.filter((currentPost) => currentPost.id !== post.id));
+    setComments((currentComments) => currentComments.filter((comment) => comment.postId !== post.id));
+
+    if (selectedPostId === post.id) {
+      setIsDetailDialogOpen(false);
+      setSelectedPostId(null);
+      navigate("/community", { replace: true });
+    }
+
+    toast.success("게시글이 삭제되었습니다");
   };
 
   const handleCommentLike = async (commentId: string) => {
@@ -481,7 +534,7 @@ export function Community() {
     return date.toLocaleDateString("ko-KR");
   };
 
-  const getPostComments = (postId: string) => comments.filter((comment) => comment.postId === postId);
+  const getPostComments = (postId: string) => sortCommentsByTime(comments.filter((comment) => comment.postId === postId));
   const getAuthorInitial = (author: string) => author.charAt(0).toUpperCase();
   const getReportRecord = (postId: string) => submittedReports[postId];
   const getReportReasonLabel = (reasonId: CommunityReportReasonId) =>
@@ -650,8 +703,14 @@ export function Community() {
             <Button
               variant={sortBy === "latest" ? "default" : "ghost"}
               size="sm"
+              type="button"
+              aria-pressed={sortBy === "latest"}
               onClick={() => setSortBy("latest")}
-              className="rounded-xl"
+              className={`rounded-xl px-4 transition-all duration-200 ${
+                sortBy === "latest"
+                  ? "shadow-md shadow-indigo-500/20"
+                  : "hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-indigo-950/50 dark:hover:text-indigo-300"
+              }`}
             >
               <Clock className="w-4 h-4 mr-1" />
               최신순
@@ -659,8 +718,14 @@ export function Community() {
             <Button
               variant={sortBy === "popular" ? "default" : "ghost"}
               size="sm"
+              type="button"
+              aria-pressed={sortBy === "popular"}
               onClick={() => setSortBy("popular")}
-              className="rounded-xl"
+              className={`rounded-xl px-4 transition-all duration-200 ${
+                sortBy === "popular"
+                  ? "shadow-md shadow-indigo-500/20"
+                  : "hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-indigo-950/50 dark:hover:text-indigo-300"
+              }`}
             >
               <TrendingUp className="w-4 h-4 mr-1" />
               인기순
@@ -668,31 +733,32 @@ export function Community() {
           </div>
         </motion.div>
 
-        <div className="grid gap-4">
-          <AnimatePresence mode="popLayout">
-            {filteredPosts.map((post, index) => {
-              const categoryConfig = CATEGORY_CONFIG[post.category];
-              const CategoryIcon = categoryConfig.icon;
-              const reportRecord = getReportRecord(post.id);
+        <LayoutGroup>
+          <motion.div layout className="grid gap-4" transition={SORT_LAYOUT_TRANSITION}>
+            <AnimatePresence mode="popLayout">
+              {filteredPosts.map((post) => {
+                const categoryConfig = CATEGORY_CONFIG[post.category];
+                const CategoryIcon = categoryConfig.icon;
+                const reportRecord = getReportRecord(post.id);
 
-              return (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                  layout
-                >
-                  <Card
-                    className="hover:shadow-xl transition-all cursor-pointer border-0 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm group"
-                    onClick={() => handlePostClick(post)}
+                return (
+                  <motion.div
+                    key={post.id}
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={SORT_LAYOUT_TRANSITION}
                   >
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex flex-col gap-4 sm:flex-row">
-                        <div className={`h-12 w-12 flex-shrink-0 rounded-xl bg-gradient-to-br ${categoryConfig.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-110`}>
-                          <CategoryIcon className="w-6 h-6 text-white" />
-                        </div>
+                    <Card
+                      className="hover:shadow-xl transition-all cursor-pointer border-0 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm group"
+                      onClick={() => handlePostClick(post)}
+                    >
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex flex-col gap-4 sm:flex-row">
+                          <div className={`h-12 w-12 flex-shrink-0 rounded-xl bg-gradient-to-br ${categoryConfig.color} flex items-center justify-center shadow-lg transition-transform group-hover:scale-110`}>
+                            <CategoryIcon className="w-6 h-6 text-white" />
+                          </div>
 
                         <div className="flex-1 min-w-0">
                           <div className="mb-2 flex min-w-0 items-start justify-between gap-2 sm:gap-4">
@@ -737,6 +803,18 @@ export function Community() {
                                   <Flag className="w-4 h-4 mr-2" />
                                   {reportRecord ? "신고 내용 보기" : "신고하기"}
                                 </DropdownMenuItem>
+                                {canManagePost(post) && (
+                                  <DropdownMenuItem
+                                    className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleDeletePost(post);
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    삭제하기
+                                  </DropdownMenuItem>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -798,21 +876,22 @@ export function Community() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
 
-          {filteredPosts.length === 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+            {filteredPosts.length === 0 && (
+              <motion.div layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="w-10 h-10 text-gray-400" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">검색 결과가 없습니다</h3>
               <p className="text-gray-600">다른 검색어나 카테고리를 시도해보세요</p>
-            </motion.div>
-          )}
-        </div>
+              </motion.div>
+            )}
+          </motion.div>
+        </LayoutGroup>
 
         <Dialog open={isDetailDialogOpen} onOpenChange={handleDetailDialogChange}>
           <DialogContent className="max-h-[85vh] max-w-[calc(100%_-_2rem)] overflow-y-auto rounded-2xl dark:border-gray-700 dark:bg-gray-800/95 sm:max-w-2xl sm:rounded-3xl">
@@ -885,6 +964,15 @@ export function Community() {
                             <Flag className="w-4 h-4 mr-2" />
                             {getReportRecord(selectedPost.id) ? "신고 내용 보기" : "신고하기"}
                           </DropdownMenuItem>
+                          {canManagePost(selectedPost) && (
+                            <DropdownMenuItem
+                              className="text-red-600 focus:text-red-600 dark:text-red-400 dark:focus:text-red-400"
+                              onClick={() => handleDeletePost(selectedPost)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              삭제하기
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

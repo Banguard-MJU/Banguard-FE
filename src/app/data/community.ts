@@ -20,6 +20,7 @@ export interface CommunityPost {
   timestamp: Date;
   isLiked?: boolean;
   isBookmarked?: boolean;
+  isAuthor?: boolean;
   tags?: string[];
 }
 

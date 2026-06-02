@@ -15,6 +15,7 @@ interface PostListItem {
   view_count: number;
   is_liked?: boolean;
   is_bookmarked?: boolean;
+  is_author?: boolean;
   created_at: string;
 }
 
@@ -39,6 +40,7 @@ interface PostWriteResponse {
   content: string;
   category: CommunityCategory;
   author: string;
+  is_author?: boolean;
   created_at: string;
 }
 
@@ -88,6 +90,7 @@ function mapPost(item: PostListItem | PostDetailResponse | PostWriteResponse): C
     timestamp: new Date(item.created_at),
     isLiked: "is_liked" in item ? item.is_liked : undefined,
     isBookmarked: "is_bookmarked" in item ? item.is_bookmarked : undefined,
+    isAuthor: "is_author" in item ? item.is_author : undefined,
     tags: [],
   };
 }
@@ -101,6 +104,15 @@ function mapComment(comment: CommentResponse): CommunityComment {
     timestamp: new Date(comment.created_at),
     likes: comment.like_count,
   };
+}
+
+function compareCommentsByTime(a: CommunityComment, b: CommunityComment) {
+  const timeDelta = a.timestamp.getTime() - b.timestamp.getTime();
+  if (timeDelta !== 0) {
+    return timeDelta;
+  }
+  const idDelta = Number(a.id) - Number(b.id);
+  return Number.isNaN(idDelta) ? a.id.localeCompare(b.id) : idDelta;
 }
 
 function formatMoney(value: number) {
@@ -208,9 +220,16 @@ export async function createCommunityPost(payload: {
   return mapPost(response);
 }
 
+export async function deleteCommunityPost(postId: string) {
+  await apiRequest<{ message: string }>(`/community/posts/${postId}`, {
+    method: "DELETE",
+    auth: true,
+  });
+}
+
 export async function getPostComments(postId: string) {
   const response = await apiRequest<CommentResponse[]>(`/community/posts/${postId}/comments`);
-  return response.map(mapComment);
+  return response.map(mapComment).sort(compareCommentsByTime);
 }
 
 export async function createPostComment(postId: string, content: string) {
