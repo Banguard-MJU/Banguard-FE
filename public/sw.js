@@ -1,5 +1,5 @@
-const CACHE_NAME = "banguard-shell-v1";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/icons/banguard-icon.svg"];
+const CACHE_NAME = "banguard-shell-v2";
+const APP_SHELL = ["/manifest.webmanifest", "/icons/banguard-icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -30,13 +30,31 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // Network-first for HTML navigations — avoids serving stale HTML that
+  // references hashed assets from a previous deploy.
+  if (event.request.mode === "navigate" || event.request.destination === "document") {
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        caches.match(event.request).then((cached) => cached || caches.match("/manifest.webmanifest")),
+      ),
+    );
+    return;
+  }
+
+  // Cache-first for static assets (hashed filenames are safe to cache).
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) {
         return cached;
       }
 
-      return fetch(event.request).catch(() => caches.match("/"));
+      return fetch(event.request).then((response) => {
+        if (response && response.status === 200 && response.type === "basic") {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+        }
+        return response;
+      });
     }),
   );
 });
