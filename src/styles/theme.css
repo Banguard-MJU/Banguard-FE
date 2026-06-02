@@ -247,21 +247,21 @@
 }
 
 @layer components {
-  /* Design tokens — fluid scaling without breakpoint jumps */
+  /* Design tokens - fixed breakpoint scale for consistent cross-device rhythm */
   .app-shell {
     width: 100%;
-    max-width: 1440px;
+    max-width: 1200px;
     margin-inline: auto;
-    padding-left: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-left, 0px));
-    padding-right: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-right, 0px));
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
   }
 
   .app-shell-wide {
     width: 100%;
-    max-width: 1560px;
+    max-width: 1280px;
     margin-inline: auto;
-    padding-left: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-left, 0px));
-    padding-right: max(clamp(1rem, 2.5vw, 3rem), env(safe-area-inset-right, 0px));
+    padding-left: max(1rem, env(safe-area-inset-left, 0px));
+    padding-right: max(1rem, env(safe-area-inset-right, 0px));
   }
 
   .app-container {
@@ -286,16 +286,209 @@
     }
   }
 
-  /* Fluid section vertical rhythm */
   .section-py {
-    padding-block: clamp(2.5rem, 6vw, 7rem);
+    padding-block: 3rem;
   }
+
   .section-py-sm {
-    padding-block: clamp(2rem, 4vw, 4.5rem);
+    padding-block: 2.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .app-shell,
+    .app-shell-wide {
+      padding-left: max(1.25rem, env(safe-area-inset-left, 0px));
+      padding-right: max(1.25rem, env(safe-area-inset-right, 0px));
+    }
+
+    .section-py {
+      padding-block: 4rem;
+    }
+
+    .section-py-sm {
+      padding-block: 3rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .app-shell,
+    .app-shell-wide {
+      padding-left: max(2rem, env(safe-area-inset-left, 0px));
+      padding-right: max(2rem, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .app-shell,
+    .app-shell-wide {
+      padding-left: max(2.5rem, env(safe-area-inset-left, 0px));
+      padding-right: max(2.5rem, env(safe-area-inset-right, 0px));
+    }
+
+    .section-py {
+      padding-block: 5rem;
+    }
+
+    .section-py-sm {
+      padding-block: 3.5rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .app-shell,
+    .app-shell-wide {
+      padding-left: max(3rem, env(safe-area-inset-left, 0px));
+      padding-right: max(3rem, env(safe-area-inset-right, 0px));
+    }
   }
 
   .app-bottom-safe {
     padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  .home-hero-card {
+    display: grid;
+    height: 22rem;
+    grid-template-rows: 9rem minmax(0, 1fr);
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 1.5rem;
+    background: #ffffff;
+  }
+
+  .home-hero-card-media {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .home-hero-card-body {
+    display: grid;
+    min-height: 0;
+    grid-template-rows: 3.5rem minmax(0, 1fr) 1.75rem;
+    padding: 1.25rem;
+  }
+
+  .home-hero-card-title {
+    align-self: start;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.75rem;
+  }
+
+  .home-hero-card-description {
+    min-height: 0;
+    margin: 0;
+    overflow: hidden;
+    text-align: left;
+    font-size: 0.875rem;
+    line-height: 1.625rem;
+  }
+
+  .home-hero-card-action {
+    align-self: end;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    line-height: 1.75rem;
+  }
+
+  .home-step-grid {
+    display: grid;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .home-step-item {
+    position: relative;
+    display: flex;
+    min-width: 0;
+  }
+
+  .home-step-card {
+    display: grid;
+    width: 100%;
+    min-height: 17.5rem;
+    grid-template-rows: 5rem 2.25rem minmax(0, 1fr);
+    border-radius: 1.5rem;
+    padding: 1.25rem;
+  }
+
+  .home-step-number,
+  .home-step-title,
+  .home-step-description {
+    margin: 0;
+  }
+
+  .home-step-title {
+    align-self: start;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 2rem;
+  }
+
+  .home-step-description {
+    align-self: start;
+    font-size: 0.875rem;
+    line-height: 1.625rem;
+  }
+
+  @media (min-width: 768px) {
+    .home-hero-card {
+      height: 24rem;
+      grid-template-rows: 11rem minmax(0, 1fr);
+    }
+
+    .home-hero-card-body {
+      padding: 1.5rem;
+    }
+
+    .home-hero-card-title {
+      font-size: 1.25rem;
+    }
+
+    .home-hero-card-description {
+      font-size: 1rem;
+      line-height: 1.75rem;
+    }
+
+    .home-step-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .home-step-card {
+      min-height: 18rem;
+      padding: 1.5rem;
+    }
+
+    .home-step-description {
+      font-size: 1rem;
+      line-height: 1.75rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .home-hero-card {
+      height: 25rem;
+      grid-template-rows: 12rem minmax(0, 1fr);
+    }
+
+    .home-hero-card-body {
+      padding: 1.75rem;
+    }
+
+    .home-step-grid {
+      gap: 2rem;
+    }
+
+    .home-step-card {
+      min-height: 18rem;
+      padding: 1.75rem;
+    }
   }
 
   @media (min-width: 768px) {
