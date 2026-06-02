@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { KeyboardEvent } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "motion/react";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -395,6 +396,15 @@ export function Community() {
     );
     setNewCommentContent("");
     toast.success("댓글이 작성되었습니다!");
+  };
+
+  const handleCommentKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || event.shiftKey) {
+      return;
+    }
+
+    event.preventDefault();
+    void handleSubmitComment();
   };
 
   const handleDeletePost = async (post: Post) => {
@@ -1066,6 +1076,7 @@ export function Community() {
                         <Textarea
                           value={newCommentContent}
                           onChange={(event) => setNewCommentContent(event.target.value)}
+                          onKeyDown={handleCommentKeyDown}
                           placeholder="댓글을 입력하세요..."
                           className="rounded-xl min-h-[80px] resize-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                         />
