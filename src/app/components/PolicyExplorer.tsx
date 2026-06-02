@@ -281,17 +281,17 @@ export function PolicyExplorer() {
 
       <Dialog open={Boolean(selectedPolicy)} onOpenChange={(open) => !open && setSelectedPolicyId(null)}>
         {selectedPolicy && (
-          <DialogContent className="max-h-[85vh] w-[calc(100%_-_2rem)] max-w-3xl overflow-y-auto rounded-3xl border-0 bg-white/95 p-0 shadow-2xl dark:bg-gray-900/95">
+          <DialogContent className="max-h-[85vh] w-[min(960px,calc(100vw-2rem))] max-w-none overflow-y-auto rounded-3xl border-0 bg-white/95 p-0 shadow-2xl dark:bg-gray-900/95">
             <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-5 py-6 text-white sm:px-8 sm:py-8">
               <div className="mb-3 flex min-w-0 flex-wrap items-center gap-3">
                 <Badge className="rounded-full border border-white/20 bg-white/15 px-3 py-1 text-white">
                   {getCategoryLabel(selectedPolicy.category)}
                 </Badge>
-                <span className="min-w-0 text-sm text-blue-100 [overflow-wrap:anywhere]">{selectedPolicy.provider}</span>
+                <span className="min-w-0 text-sm text-blue-100 [overflow-wrap:break-word]">{selectedPolicy.provider}</span>
               </div>
               <DialogHeader className="text-left">
-                <DialogTitle className="text-2xl font-bold leading-tight text-white [word-break:keep-all] sm:text-3xl">{selectedPolicy.title}</DialogTitle>
-                <DialogDescription className="text-base leading-7 text-blue-100 [overflow-wrap:anywhere] [word-break:keep-all]">
+                <DialogTitle className="text-2xl font-bold leading-tight text-white [overflow-wrap:break-word] [word-break:keep-all] sm:text-3xl">{selectedPolicy.title}</DialogTitle>
+                <DialogDescription className="text-base leading-7 text-blue-100 [overflow-wrap:break-word] [word-break:keep-all]">
                   {selectedPolicy.summary}
                 </DialogDescription>
               </DialogHeader>
@@ -326,18 +326,20 @@ export function PolicyExplorer() {
                 </div>
               </div>
 
-              <div className="grid gap-4 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-5 dark:border-indigo-900/60 dark:from-blue-950/20 dark:to-indigo-950/20 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-                <div className="min-w-0">
-                  <div className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">정책을 봤다면 바로 이어서 점검해보세요</div>
-                  <p className="text-sm leading-6 text-gray-600 dark:text-gray-300 [overflow-wrap:anywhere] [word-break:keep-all]">
+              <div className="rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-5 dark:border-indigo-900/60 dark:from-blue-950/20 dark:to-indigo-950/20">
+                <div className="block w-full min-w-0 [writing-mode:horizontal-tb]">
+                  <div className="mb-1 block w-full text-base font-semibold leading-6 text-gray-900 [overflow-wrap:normal] [word-break:keep-all] dark:text-gray-100">
+                    정책을 봤다면 바로 이어서 점검해보세요
+                  </div>
+                  <p className="block w-full text-sm leading-6 text-gray-600 dark:text-gray-300 [overflow-wrap:break-word] [word-break:keep-all]">
                     조건에 맞는 매물을 먼저 좁혀보거나, AI 상담에서 계약 상황을 한 번 더 확인할 수 있습니다.
                   </p>
                 </div>
-                <div className="grid min-w-0 gap-3 sm:grid-cols-2 md:w-max">
-                  <Button variant="outline" className={`w-full md:w-auto ${responsiveButtonClassName}`} onClick={handleExploreListings}>
+                <div className="mt-5 grid w-full min-w-0 gap-3 sm:grid-cols-2">
+                  <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleExploreListings}>
                     매물 탐색
                   </Button>
-                  <Button className={`w-full md:w-auto ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
+                  <Button className={`w-full ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
                     AI 상담으로 이어가기
                   </Button>
                 </div>
