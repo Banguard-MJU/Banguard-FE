@@ -1,5 +1,13 @@
-const CACHE_NAME = "banguard-shell-v2";
-const APP_SHELL = ["/manifest.webmanifest", "/icons/banguard-icon.svg"];
+const CACHE_NAME = "banguard-shell-v3";
+const APP_SHELL = [
+  "/manifest.webmanifest",
+  "/favicon.ico",
+  "/favicon.svg",
+  "/apple-touch-icon.png",
+  "/icons/banguard-icon.svg",
+  "/icons/banguard-icon-192.png",
+  "/icons/banguard-icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
