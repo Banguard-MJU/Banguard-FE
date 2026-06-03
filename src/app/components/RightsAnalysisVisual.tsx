@@ -97,6 +97,22 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
     return value.toLocaleString();
   };
 
+  const renderPieLabel = ({
+    name,
+    percent,
+    value
+  }: {
+    name?: string;
+    percent?: number;
+    value?: number;
+  }) => {
+    if (!value || !percent || percent < 0.04) {
+      return null;
+    }
+
+    return `${name} ${(percent * 100).toFixed(0)}%`;
+  };
+
   return (
     <div className="space-y-6">
       {/* 신호등 종합 평가 */}
@@ -182,7 +198,7 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={renderPieLabel}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"

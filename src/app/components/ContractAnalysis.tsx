@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, Info, MessageSquare, Landmark, ChevronRight } from "lucide-react";
+import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, Info, MessageSquare, Landmark, ChevronRight, Camera } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
@@ -9,14 +9,10 @@ import { toast } from "sonner";
 import { motion } from "motion/react";
 import { BanggadiLoading } from "./BanggadiLoading";
 import { RightsAnalysisVisual } from "./RightsAnalysisVisual";
-import { SampleSelector } from "./SampleSelector";
 import { useAuth } from "../contexts/AuthContext";
 import { useAnalysisHistory } from "../contexts/AnalysisHistoryContext";
 import { useNavigate } from "react-router";
-import {
-  type AnalysisResult,
-  getSampleAnalysisResult,
-} from "../data/contractAnalysis";
+import { type AnalysisResult } from "../data/contractAnalysis";
 import { analyzeContractFile } from "../lib/analysis-api";
 import { getDisplayErrorMessage } from "../lib/error-message";
 import { generateId } from "../lib/uuid";
@@ -28,12 +24,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "./ui/dialog";
-
-const SAMPLE_HISTORY_NAMES: Record<string, string> = {
-  safe: "안전한 계약 (신림동 원룸)",
-  moderate: "주의 필요 계약 (봉천동 투룸)",
-  risky: "위험한 계약 (상도동 빌라)",
-};
 
 function formatCurrency(value: number) {
   if (value >= 100000000) {
@@ -54,40 +44,12 @@ export function ContractAnalysis() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
   const { user } = useAuth();
   const { addAnalysis } = useAnalysisHistory();
   const navigate = useNavigate();
 
-  const handleSampleSelect = async (sampleId: string) => {
-    setAnalyzing(true);
-    setProgress(0);
-    setFile(null);
-
-    // Simulate analysis
-    await new Promise(resolve => setTimeout(resolve, 400));
-    setProgress(33);
-    await new Promise(resolve => setTimeout(resolve, 400));
-    setProgress(66);
-    await new Promise(resolve => setTimeout(resolve, 400));
-    setProgress(100);
-
-    const sampleResult = getSampleAnalysisResult(sampleId);
-    setResult(sampleResult);
-    addAnalysis({
-      id: generateId(),
-      fileName: `[샘플] ${SAMPLE_HISTORY_NAMES[sampleId] ?? sampleId}`,
-      date: new Date(),
-      riskLevel: sampleResult.riskLevel,
-      riskScore: sampleResult.riskScore,
-      address: sampleResult.contractInfo.address,
-      contractType: sampleResult.contractInfo.type,
-    });
-    setAnalyzing(false);
-    toast.success("샘플 계약서 분석이 완료되었습니다");
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
+  const handleSelectedFile = (selectedFile?: File) => {
     if (selectedFile) {
       const fileType = selectedFile.type;
       if (
@@ -101,6 +63,28 @@ export function ContractAnalysis() {
         toast.error("PDF 또는 이미지 파일만 업로드 가능합니다");
       }
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleSelectedFile(e.target.files?.[0]);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDraggingFile(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      setIsDraggingFile(false);
+    }
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setIsDraggingFile(false);
+    handleSelectedFile(event.dataTransfer.files[0]);
   };
 
   const analyzeContract = async () => {
@@ -207,58 +191,89 @@ export function ContractAnalysis() {
         </motion.div>
 
         {/* Upload Section */}
-        <Card className="mb-8 border-0 shadow-2xl rounded-3xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl">계약서 업로드</CardTitle>
-            <CardDescription className="text-base">
-              PDF 파일 또는 이미지 파일(JPG, PNG)을 업로드해주세요
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex min-w-0 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/30 p-6 transition-all hover:border-blue-400 hover:bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30 dark:hover:border-blue-600 dark:hover:bg-blue-950/40 sm:p-12">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6">
-                <Upload className="w-8 h-8 text-white" />
+        {!analyzing && (
+          <Card className="mb-8 border-0 shadow-2xl rounded-3xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-2xl">계약서 업로드</CardTitle>
+              <CardDescription className="text-base">
+                PDF 파일이나 이미지 파일을 업로드하거나, 모바일에서 계약서를 직접 촬영해주세요
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div
+                className={`flex min-w-0 flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 transition-all sm:p-12 ${
+                  isDraggingFile
+                    ? "border-blue-500 bg-blue-100/70 shadow-inner shadow-blue-200/70 dark:border-blue-400 dark:bg-blue-950/60 dark:shadow-none"
+                    : "border-blue-200 bg-blue-50/30 hover:border-blue-400 hover:bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30 dark:hover:border-blue-600 dark:hover:bg-blue-950/40"
+                }`}
+                onDragEnter={handleDragOver}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6">
+                  <Upload className="w-8 h-8 text-white" />
+                </div>
+                <p className="mb-4 hidden text-center text-sm font-medium text-blue-700 dark:text-blue-300 sm:block">
+                  파일을 이 영역에 끌어다 놓아도 업로드됩니다
+                </p>
+                <div className="flex w-full max-w-md flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    <Button asChild size="lg" className="h-12 w-full rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:shadow-xl hover:shadow-blue-500/30 sm:w-auto">
+                      <span>
+                        <FileText className="mr-2 h-5 w-5" />
+                        파일 선택
+                      </span>
+                    </Button>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".pdf,image/*"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  <label htmlFor="camera-upload" className="cursor-pointer">
+                    <Button asChild size="lg" variant="outline" className="h-12 w-full rounded-xl border-blue-200 bg-white/80 text-blue-700 transition-all hover:border-blue-400 hover:bg-blue-50 dark:border-blue-800 dark:bg-gray-900/70 dark:text-blue-300 dark:hover:bg-blue-950/50 sm:w-auto">
+                      <span>
+                        <Camera className="mr-2 h-5 w-5" />
+                        카메라로 촬영
+                      </span>
+                    </Button>
+                    <input
+                      id="camera-upload"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                </div>
+                {file && (
+                  <div className="mt-6 flex max-w-full min-w-0 items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                    <FileText className="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+                    <span className="min-w-0 truncate font-medium">{file.name}</span>
+                  </div>
+                )}
               </div>
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Button asChild size="lg" className="rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all">
-                  <span>파일 선택</span>
-                </Button>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept=".pdf,image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-              </label>
-              {file && (
-                <div className="mt-6 flex max-w-full min-w-0 items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                  <FileText className="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
-                  <span className="min-w-0 truncate font-medium">{file.name}</span>
+
+              {file && !result && (
+                <div className="mt-6 text-center">
+                  <Button onClick={analyzeContract} size="lg" className="w-full sm:w-auto rounded-xl h-12 px-8 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all">
+                    <FileText className="w-5 h-5 mr-2" />
+                    분석 시작하기
+                  </Button>
                 </div>
               )}
-            </div>
+            </CardContent>
+          </Card>
+        )}
 
-            {file && !analyzing && !result && (
-              <div className="mt-6 text-center">
-                <Button onClick={analyzeContract} size="lg" className="w-full sm:w-auto rounded-xl h-12 px-8 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all">
-                  <FileText className="w-5 h-5 mr-2" />
-                  분석 시작하기
-                </Button>
-              </div>
-            )}
-
-            {analyzing && (
-              <div className="mt-8 min-w-0 overflow-hidden rounded-2xl border border-blue-100 bg-white/70 px-4 py-8 shadow-inner shadow-blue-100/50 dark:border-blue-900/50 dark:bg-gray-900/40 dark:shadow-none">
-                <BanggadiLoading progress={progress} text={getAnalysisProgressText()} />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Sample Selector */}
-        {!file && !analyzing && !result && (
-          <SampleSelector onSelect={handleSampleSelect} />
+        {analyzing && (
+          <div className="mb-8 min-w-0 overflow-hidden rounded-3xl border border-blue-100 bg-white/80 px-4 py-10 shadow-2xl shadow-blue-100/50 backdrop-blur-sm dark:border-blue-900/50 dark:bg-gray-900/70 dark:shadow-none sm:px-8">
+            <BanggadiLoading progress={progress} text={getAnalysisProgressText()} />
+          </div>
         )}
 
         {/* Analysis Result */}
