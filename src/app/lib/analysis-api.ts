@@ -35,6 +35,15 @@ interface ContractAnalysisResponse {
     safe_items: string[];
     checklist: string[];
     summary: string;
+    market_price?: {
+      address: string;
+      estimated_market_price?: number | null;
+      sample_count: number;
+      period?: string | null;
+      status: string;
+      message: string;
+    } | null;
+    deposit_ratio?: number | null;
   };
 }
 
@@ -71,6 +80,8 @@ export function mapContractAnalysisResponse(response: ContractAnalysisResponse):
   const conditions = response.parsed.conditions;
   const property = response.parsed.property_info;
   const deposit = conditions.deposit_amount ?? 0;
+  const marketPrice = response.fraud_analysis.market_price;
+  const estimatedMarketPrice = marketPrice?.estimated_market_price ?? 0;
 
   return {
     riskLevel: mapRiskLevel(response.fraud_analysis.overall_risk),
@@ -90,12 +101,21 @@ export function mapContractAnalysisResponse(response: ContractAnalysisResponse):
           : "미확인",
       address: property.address || "주소 미확인",
     },
+    marketPriceInfo: marketPrice
+      ? {
+          estimatedMarketPrice,
+          sampleCount: marketPrice.sample_count,
+          period: marketPrice.period ?? undefined,
+          status: marketPrice.status,
+          message: marketPrice.message,
+        }
+      : undefined,
     recommendations: [
       ...response.fraud_analysis.checklist,
       ...response.fraud_analysis.safe_items.map((item) => `확인됨: ${item}`),
     ],
     rightsData: {
-      propertyValue: 0,
+      propertyValue: estimatedMarketPrice,
       deposit,
       mortgages: [],
       previousDeposits: 0,

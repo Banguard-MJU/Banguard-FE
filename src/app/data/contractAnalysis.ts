@@ -13,6 +13,13 @@ export interface AnalysisResult {
     period: string;
     address: string;
   };
+  marketPriceInfo?: {
+    estimatedMarketPrice: number;
+    sampleCount: number;
+    period?: string;
+    status: string;
+    message: string;
+  };
   recommendations: string[];
   rightsData: {
     propertyValue: number;

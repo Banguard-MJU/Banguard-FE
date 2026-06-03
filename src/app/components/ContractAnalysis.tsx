@@ -35,6 +35,19 @@ const SAMPLE_HISTORY_NAMES: Record<string, string> = {
   risky: "위험한 계약 (상도동 빌라)",
 };
 
+function formatCurrency(value: number) {
+  if (value >= 100000000) {
+    const units = value / 100000000;
+    return `${Number.isInteger(units) ? units : units.toFixed(1)}억원`;
+  }
+
+  if (value >= 10000) {
+    return `${Math.round(value / 10000).toLocaleString("ko-KR")}만원`;
+  }
+
+  return `${value.toLocaleString("ko-KR")}원`;
+}
+
 export function ContractAnalysis() {
   const [file, setFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -338,6 +351,37 @@ export function ContractAnalysis() {
                         <div className="text-sm text-gray-600 mb-1">주소</div>
                         <div className={resultValueClassName}>{result.contractInfo.address}</div>
                       </div>
+                      {result.marketPriceInfo && (
+                        <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 dark:border-blue-900/60 dark:bg-blue-950/20">
+                          <div className="mb-3 flex min-w-0 items-center gap-2">
+                            <Landmark className="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-300" />
+                            <div className={`min-w-0 font-semibold text-gray-900 dark:text-gray-100 ${resultTextClassName}`}>
+                              국토부 실거래가 기반 추정 시세
+                            </div>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            <div className="min-w-0">
+                              <div className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">추정 매매가</div>
+                              <div className={resultValueClassName}>
+                                {result.marketPriceInfo.estimatedMarketPrice > 0
+                                  ? formatCurrency(result.marketPriceInfo.estimatedMarketPrice)
+                                  : "확인 불가"}
+                              </div>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">거래 표본</div>
+                              <div className={resultValueClassName}>{result.marketPriceInfo.sampleCount.toLocaleString("ko-KR")}건</div>
+                            </div>
+                            <div className="min-w-0">
+                              <div className="mb-1 text-xs font-medium text-gray-500 dark:text-gray-400">조회 기간</div>
+                              <div className={resultValueClassName}>{result.marketPriceInfo.period || "미확인"}</div>
+                            </div>
+                          </div>
+                          <p className={`mt-3 text-sm text-gray-600 dark:text-gray-300 ${resultTextClassName}`}>
+                            {result.marketPriceInfo.message}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
