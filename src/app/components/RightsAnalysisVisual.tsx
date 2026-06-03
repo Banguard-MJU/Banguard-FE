@@ -27,9 +27,12 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
   // 계산
   const totalMortgage = data.mortgages.reduce((sum, m) => sum + m.amount, 0);
   const totalBurden = totalMortgage + data.previousDeposits + data.deposit;
-  const burdenRatio = hasPropertyValue ? (totalBurden / data.propertyValue) * 100 : 0;
-  const mortgageRatio = hasPropertyValue ? (totalMortgage / data.propertyValue) * 100 : 0;
-  const depositRatio = hasPropertyValue ? (data.deposit / data.propertyValue) * 100 : 0;
+  const getPropertyRatio = (value: number) => hasPropertyValue ? (value / data.propertyValue) * 100 : 0;
+  const clampProgressValue = (value: number) => Math.max(0, Math.min(value, 100));
+  const burdenRatio = getPropertyRatio(totalBurden);
+  const mortgageRatio = getPropertyRatio(totalMortgage);
+  const previousDepositRatio = getPropertyRatio(data.previousDeposits);
+  const depositRatio = getPropertyRatio(data.deposit);
 
   // 시세 정보 없을 때 안내 UI
   if (!hasPropertyValue) {
@@ -99,18 +102,22 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
 
   const renderPieLabel = ({
     name,
-    percent,
     value
   }: {
     name?: string;
-    percent?: number;
     value?: number;
   }) => {
-    if (!value || !percent || percent < 0.04) {
+    if (!value) {
       return null;
     }
 
-    return `${name} ${(percent * 100).toFixed(0)}%`;
+    const ratio = getPropertyRatio(value);
+
+    if (ratio < 4) {
+      return null;
+    }
+
+    return `${name} ${ratio.toFixed(0)}%`;
   };
 
   return (
@@ -216,10 +223,17 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
                     <span>{item.name}</span>
                   </div>
-                  <span className="font-semibold">{formatCurrency(item.value)}</span>
+                  <span className="font-semibold">
+                    {formatCurrency(item.value)} ({getPropertyRatio(item.value).toFixed(1)}%)
+                  </span>
                 </div>
               ))}
             </div>
+            {totalBurden > data.propertyValue && (
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                총 부담액이 시세를 초과해 원형그래프 조각은 부담 구성 참고용이며, 표시된 백분율은 모두 부동산 시세 대비 비율입니다.
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -295,7 +309,7 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
               <span className="text-sm font-semibold">{formatCurrency(totalMortgage)}</span>
             </div>
             <Progress 
-              value={mortgageRatio} 
+              value={clampProgressValue(mortgageRatio)}
               className="h-4"
               indicatorClassName={
                 mortgageRatio >= 60 ? "bg-red-500" :
@@ -332,13 +346,13 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
                     </Tooltip>
                   </TooltipProvider>
                   <Badge variant="default">
-                    {((data.previousDeposits / data.propertyValue) * 100).toFixed(1)}%
+                    {previousDepositRatio.toFixed(1)}%
                   </Badge>
                 </div>
                 <span className="text-sm font-semibold">{formatCurrency(data.previousDeposits)}</span>
               </div>
               <Progress 
-                value={(data.previousDeposits / data.propertyValue) * 100} 
+                value={clampProgressValue(previousDepositRatio)}
                 className="h-4"
                 indicatorClassName="bg-orange-500"
               />
@@ -367,7 +381,7 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
               <span className="text-sm font-semibold">{formatCurrency(data.deposit)}</span>
             </div>
             <Progress 
-              value={depositRatio} 
+              value={clampProgressValue(depositRatio)}
               className="h-4"
               indicatorClassName="bg-blue-500"
             />
@@ -380,7 +394,7 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
               <span className="text-lg font-bold">{formatCurrency(totalBurden)}</span>
             </div>
             <Progress 
-              value={burdenRatio} 
+              value={clampProgressValue(burdenRatio)}
               className="h-6"
               indicatorClassName={
                 burdenRatio >= 80 ? "bg-red-500" :
