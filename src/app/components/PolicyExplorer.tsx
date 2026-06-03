@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { motion } from "motion/react";
-import { BookOpen, Building2, ChevronRight, FileCheck, Landmark, Search, Shield, Sparkles } from "lucide-react";
+import { BookOpen, ChevronRight, FileCheck, Landmark, Search, Shield, Sparkles } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
@@ -64,10 +64,6 @@ export function PolicyExplorer() {
 
   const handleAskChatbot = () => {
     navigate("/chatbot");
-  };
-
-  const handleExploreListings = () => {
-    navigate("/listings");
   };
 
   const responsiveButtonClassName = "h-auto min-h-10 min-w-0 whitespace-normal rounded-xl px-4 py-2 text-center leading-5";
@@ -139,11 +135,6 @@ export function PolicyExplorer() {
                         자세히 보기
                         <ChevronRight className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleExploreListings}>
-                        매물 탐색으로 이어가기
-                      </Button>
-                    </div>
-                    <div className="grid gap-3">
                       <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
                         AI 상담으로 이어가기
                       </Button>
@@ -174,9 +165,6 @@ export function PolicyExplorer() {
                 />
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:flex">
-                <Button variant="outline" className="h-auto min-h-12 whitespace-normal rounded-2xl px-5 py-2 leading-5" onClick={handleExploreListings}>
-                  매물 탐색
-                </Button>
                 <Button variant="outline" className="h-auto min-h-12 whitespace-normal rounded-2xl px-5 py-2 leading-5" onClick={handleAskChatbot}>
                   AI 상담 열기
                 </Button>
@@ -220,7 +208,7 @@ export function PolicyExplorer() {
                               </Badge>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                              <Building2 className="h-4 w-4" />
+                              <Landmark className="h-4 w-4" />
                               {policy.provider}
                             </div>
                           </div>
@@ -249,11 +237,6 @@ export function PolicyExplorer() {
                         <Button className={`w-full ${responsiveButtonClassName}`} onClick={() => handleOpenPolicy(policy)}>
                           상세 보기
                         </Button>
-                        <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleExploreListings}>
-                          매물 탐색
-                        </Button>
-                      </div>
-                      <div className="grid gap-3">
                         <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
                           상담으로 이어가기
                         </Button>
@@ -332,12 +315,12 @@ export function PolicyExplorer() {
                     정책을 봤다면 바로 이어서 점검해보세요
                   </div>
                   <p className="block w-full text-sm leading-6 text-gray-600 dark:text-gray-300 [overflow-wrap:break-word] [word-break:keep-all]">
-                    조건에 맞는 매물을 먼저 좁혀보거나, AI 상담에서 계약 상황을 한 번 더 확인할 수 있습니다.
+                    AI 상담에서 계약 상황을 한 번 더 확인하거나, 계약서 분석으로 위험 요소를 점검할 수 있습니다.
                   </p>
                 </div>
                 <div className="mt-5 grid w-full min-w-0 gap-3 sm:grid-cols-2">
-                  <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={handleExploreListings}>
-                    매물 탐색
+                  <Button variant="outline" className={`w-full ${responsiveButtonClassName}`} onClick={() => navigate("/contract-analysis")}>
+                    계약서 분석
                   </Button>
                   <Button className={`w-full ${responsiveButtonClassName}`} onClick={handleAskChatbot}>
                     AI 상담으로 이어가기

@@ -1,6 +1,5 @@
 import { apiRequest } from "./api";
 import type { CommunityComment, CommunityPost } from "../data/community";
-import type { Listing } from "../data/listings";
 import type { ResidenceReview } from "../data/reviews";
 
 type CommunityCategory = CommunityPost["category"];
@@ -58,17 +57,6 @@ interface LikeResponse {
   like_count: number;
 }
 
-interface PropertyResponse {
-  property_id: number;
-  address: string;
-  type: "전세" | "월세" | string;
-  deposit_amount: number;
-  monthly_rent: number;
-  area?: number | null;
-  description?: string | null;
-  images: Array<{ image_url: string; order_index: number }>;
-}
-
 interface ReviewResponse {
   review_id: number;
   building_address: string;
@@ -113,48 +101,6 @@ function compareCommentsByTime(a: CommunityComment, b: CommunityComment) {
   }
   const idDelta = Number(a.id) - Number(b.id);
   return Number.isNaN(idDelta) ? a.id.localeCompare(b.id) : idDelta;
-}
-
-function formatMoney(value: number) {
-  if (value >= 100000000) {
-    const units = value / 100000000;
-    return `${Number.isInteger(units) ? units : units.toFixed(1)}억`;
-  }
-  return `${Math.round(value / 10000).toLocaleString("ko-KR")}만`;
-}
-
-function inferListingType(type: string): Listing["type"] {
-  if (type === "전세") return "jeonse";
-  if (type === "월세") return "monthly";
-  return "office-tel";
-}
-
-export function mapPropertyToListing(property: PropertyResponse): Listing {
-  const listingType = inferListingType(property.type);
-  return {
-    id: `property-${property.property_id}`,
-    title: property.description?.split("\n")[0] || `${property.address} ${property.type} 매물`,
-    region: "seoul",
-    district: "",
-    neighborhood: property.address.split(" ").slice(0, 2).join(" ") || property.address,
-    address: property.address,
-    type: listingType,
-    depositText: `${property.type === "전세" ? "전세" : "보증금"} ${formatMoney(property.deposit_amount)}`,
-    monthlyRentText: property.monthly_rent ? `월세 ${formatMoney(property.monthly_rent)}` : "월세 없음",
-    priceValue: property.deposit_amount,
-    areaText: property.area ? `전용 ${property.area}m²` : "면적 미확인",
-    floorText: "층수 미확인",
-    commuteText: "교통 정보 미확인",
-    landlordType: "등록 임대인",
-    riskLevel: "caution",
-    riskSummary: property.description || "백엔드 등록 매물입니다. 계약 전 권리관계와 보증보험 가능 여부를 확인하세요.",
-    highlights: property.images.length > 0 ? ["사진 등록", "백엔드 매물"] : ["백엔드 매물"],
-    cautionPoints: ["계약 직전 등기부등본 확인", "보증보험 가능 여부 확인"],
-    recommendedActions: ["계약서 분석", "AI 상담", "거주 후기 확인"],
-    recommendedPolicyCategory: listingType === "monthly" ? "support" : "guarantee",
-    nearbyUniversities: [],
-    tags: [property.type, "등록매물"],
-  };
 }
 
 export function mapReviewToResidenceReview(review: ReviewResponse): ResidenceReview {
@@ -288,12 +234,6 @@ export async function unlikeComment(commentId: string) {
     method: "DELETE",
     auth: true,
   });
-}
-
-export async function getProperties(type?: string) {
-  const query = type ? `?type=${encodeURIComponent(type)}` : "";
-  const response = await apiRequest<PropertyResponse[]>(`/community/properties${query}`);
-  return response.map(mapPropertyToListing);
 }
 
 export async function getResidenceReviews(buildingAddress?: string) {

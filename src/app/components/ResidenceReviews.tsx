@@ -190,8 +190,8 @@ export function ResidenceReviews() {
                 <Button variant="outline" className="rounded-xl" onClick={() => navigate("/settings")}>
                   추천 기준 수정
                 </Button>
-                <Button className="rounded-xl" onClick={() => navigate("/listings")}>
-                  매물 탐색으로 이동
+                <Button className="rounded-xl" onClick={() => navigate("/community")}>
+                  커뮤니티로 이동
                 </Button>
               </div>
             </CardContent>
@@ -255,15 +255,9 @@ export function ResidenceReviews() {
                     <Button
                       variant="outline"
                       className="flex-1 rounded-xl"
-                      onClick={() =>
-                        navigate(
-                          `/listings?region=${review.region}&district=${review.district}${
-                            review.nearbyUniversity ? `&university=${review.nearbyUniversity}` : ""
-                          }`
-                        )
-                      }
+                      onClick={() => navigate("/contract-analysis")}
                     >
-                      이 지역 매물 보기
+                      계약 분석하기
                     </Button>
                   </div>
                 </CardContent>
@@ -461,15 +455,9 @@ export function ResidenceReviews() {
                       <Button
                         variant="outline"
                         className="rounded-xl"
-                        onClick={() =>
-                          navigate(
-                            `/listings?region=${review.region}&district=${review.district}${
-                              review.nearbyUniversity ? `&university=${review.nearbyUniversity}` : ""
-                            }`
-                          )
-                        }
+                        onClick={() => navigate("/contract-analysis")}
                       >
-                        이 지역 매물 보기
+                        계약 분석하기
                       </Button>
                     </div>
                   </CardContent>
@@ -597,16 +585,10 @@ export function ResidenceReviews() {
               <div className="grid gap-3 md:grid-cols-3">
                 <Button
                   className="rounded-xl"
-                  onClick={() =>
-                    navigate(
-                      `/listings?region=${selectedReview.region}&district=${selectedReview.district}${
-                        selectedReview.nearbyUniversity ? `&university=${selectedReview.nearbyUniversity}` : ""
-                      }`
-                    )
-                  }
+                  onClick={() => navigate("/chatbot")}
                 >
-                  <Building2 className="mr-2 h-4 w-4" />
-                  매물 탐색
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  AI 상담
                 </Button>
                 <Button variant="outline" className="rounded-xl" onClick={() => navigate("/community")}>
                   <Users className="mr-2 h-4 w-4" />

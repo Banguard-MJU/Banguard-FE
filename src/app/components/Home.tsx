@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { Shield, FileText, MessageSquare, TrendingUp, AlertTriangle, CheckCircle, Users, Award, ChevronRight, Landmark, FileCheck, Building2 } from "lucide-react";
+import { Shield, FileText, MessageSquare, TrendingUp, AlertTriangle, CheckCircle, Users, Award, ChevronRight, Landmark, FileCheck } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Carousel, CarouselContent, CarouselItem } from "./ui/carousel";
@@ -52,13 +52,6 @@ export function Home() {
       description: "과거 분석 내역을 한눈에 확인하고 비교 분석할 수 있습니다.",
       link: "/dashboard",
       color: "from-purple-500 to-purple-600"
-    },
-    {
-      icon: Building2,
-      title: "매물 탐색",
-      description: "지역, 예산, 유형에 맞는 매물을 살펴보고 위험 신호와 다음 행동을 함께 확인합니다.",
-      link: "/listings",
-      color: "from-emerald-500 to-teal-600"
     }
   ];
 
@@ -242,7 +235,7 @@ export function Home() {
             </p>
           </div>
 
-          <div className="grid gap-6 lg:gap-8 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-6 lg:gap-8 md:grid-cols-3">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -320,8 +313,8 @@ export function Home() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="rounded-2xl px-6">
-                    <Link to="/listings">
-                      안전 매물 탐색하기
+                    <Link to="/chatbot">
+                      AI 상담으로 이어가기
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>

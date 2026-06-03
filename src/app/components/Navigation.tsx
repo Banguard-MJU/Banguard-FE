@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { Shield, FileText, MessageSquare, BarChart3, LogOut, UserCircle, Users, Moon, Sun, Menu, Settings, BookOpen, Building2, Star } from "lucide-react";
+import { Shield, FileText, MessageSquare, BarChart3, LogOut, UserCircle, Users, Moon, Sun, Menu, Settings, BookOpen, Star } from "lucide-react";
 import { Button } from "./ui/button";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
@@ -26,7 +26,6 @@ const mobileNavItems = [
   { path: "/", label: "홈", icon: Shield },
   { path: "/contract-analysis", label: "분석", icon: FileText },
   { path: "/chatbot", label: "상담", icon: MessageSquare },
-  { path: "/listings", label: "매물", icon: Building2 },
   { path: "/community", label: "커뮤니티", icon: Users },
 ];
 
@@ -54,7 +53,7 @@ export function Navigation() {
       aria-label="모바일 주요 메뉴"
       className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/70 bg-white/92 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-gray-800/70 dark:bg-gray-950/92 md:hidden"
     >
-      <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+      <div className="mx-auto grid max-w-md grid-cols-4 gap-1">
         {mobileNavItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -145,15 +144,6 @@ export function Navigation() {
                   >
                     <MessageSquare className="w-5 h-5" />
                     <span>AI 상담</span>
-                  </Button>
-
-                  <Button
-                    onClick={() => handleMenuItemClick("/listings")}
-                    variant={isActive("/listings") ? "default" : "ghost"}
-                    className="w-full justify-start gap-3 rounded-xl h-12"
-                  >
-                    <Building2 className="w-5 h-5" />
-                    <span>매물 탐색</span>
                   </Button>
 
                   <Button
@@ -263,10 +253,6 @@ export function Navigation() {
                     <DropdownMenuItem onClick={() => navigate("/policy")} className="rounded-lg cursor-pointer">
                       <BookOpen className="w-4 h-4 mr-2" />
                       정책 정보
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/listings")} className="rounded-lg cursor-pointer">
-                      <Building2 className="w-4 h-4 mr-2" />
-                      매물 탐색
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/reviews")} className="rounded-lg cursor-pointer">
                       <Star className="w-4 h-4 mr-2" />

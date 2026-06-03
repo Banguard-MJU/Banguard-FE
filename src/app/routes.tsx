@@ -11,7 +11,6 @@ const ContractAnalysis = lazy(() => import("./components/ContractAnalysis").then
 const Chatbot = lazy(() => import("./components/Chatbot").then((module) => ({ default: module.Chatbot })));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const PolicyExplorer = lazy(() => import("./components/PolicyExplorer").then((module) => ({ default: module.PolicyExplorer })));
-const ListingsExplorer = lazy(() => import("./components/ListingsExplorer").then((module) => ({ default: module.ListingsExplorer })));
 const ResidenceReviews = lazy(() => import("./components/ResidenceReviews").then((module) => ({ default: module.ResidenceReviews })));
 const Community = lazy(() => import("./components/Community").then((module) => ({ default: module.Community })));
 const Login = lazy(() => import("./components/Login").then((module) => ({ default: module.Login })));
@@ -87,7 +86,6 @@ export const router = createBrowserRouter([
           { path: "chatbot", element: withSuspense(<Chatbot />) },
           { path: "dashboard", element: withSuspense(<Dashboard />) },
           { path: "policy", element: withSuspense(<PolicyExplorer />) },
-          { path: "listings", element: withSuspense(<ListingsExplorer />) },
           { path: "reviews", element: withSuspense(<ResidenceReviews />) },
           { path: "community", element: withSuspense(<Community />) },
           { path: "community/:postId", element: withSuspense(<Community />) },
