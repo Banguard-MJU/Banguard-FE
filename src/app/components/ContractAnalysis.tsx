@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, Info, MessageSquare, Landmark, ChevronRight, Camera } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
@@ -45,9 +45,37 @@ export function ContractAnalysis() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { user } = useAuth();
   const { addAnalysis } = useAnalysisHistory();
   const navigate = useNavigate();
+
+  const stopMediaStream = (stream: MediaStream | null) => {
+    stream?.getTracks().forEach((track) => track.stop());
+  };
+
+  useEffect(() => {
+    return () => {
+      stopMediaStream(cameraStream);
+    };
+  }, [cameraStream]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video || !cameraStream) {
+      return;
+    }
+
+    video.srcObject = cameraStream;
+    video.play().catch(() => {
+      setCameraError("카메라 미리보기를 시작하지 못했습니다. 권한과 브라우저 설정을 확인해주세요.");
+    });
+  }, [cameraStream]);
 
   const handleSelectedFile = (selectedFile?: File) => {
     if (selectedFile) {
@@ -85,6 +113,71 @@ export function ContractAnalysis() {
     event.preventDefault();
     setIsDraggingFile(false);
     handleSelectedFile(event.dataTransfer.files[0]);
+  };
+
+  const closeCamera = () => {
+    stopMediaStream(cameraStream);
+    setCameraStream(null);
+    setCameraError(null);
+    setIsCameraOpen(false);
+  };
+
+  const openCamera = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      toast.error("현재 브라우저에서는 카메라 촬영을 지원하지 않습니다");
+      return;
+    }
+
+    setCameraError(null);
+    setIsCameraOpen(true);
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1600 },
+          height: { ideal: 1200 }
+        },
+        audio: false
+      });
+
+      setCameraStream(stream);
+    } catch {
+      setCameraError("카메라 권한이 거부되었거나 사용할 수 없습니다. 브라우저 권한을 확인해주세요.");
+    }
+  };
+
+  const captureCameraImage = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas || video.videoWidth === 0 || video.videoHeight === 0) {
+      toast.error("카메라 화면을 아직 불러오지 못했습니다");
+      return;
+    }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      toast.error("촬영 이미지를 생성하지 못했습니다");
+      return;
+    }
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        toast.error("촬영 이미지를 저장하지 못했습니다");
+        return;
+      }
+
+      const capturedFile = new File([blob], `contract-camera-${Date.now()}.jpg`, {
+        type: "image/jpeg"
+      });
+      handleSelectedFile(capturedFile);
+      closeCamera();
+    }, "image/jpeg", 0.92);
   };
 
   const analyzeContract = async () => {
@@ -168,6 +261,7 @@ export function ContractAnalysis() {
   const resultTextClassName = "whitespace-normal leading-6 [line-break:loose] [overflow-wrap:anywhere] [word-break:keep-all]";
   const resultValueClassName = "min-w-0 font-semibold leading-6 [line-break:loose] [overflow-wrap:anywhere] [word-break:keep-all]";
   const resultActionButtonClassName = "min-h-10 h-auto flex-1 whitespace-normal px-3 py-2 text-center leading-5";
+  const uploadActionButtonClassName = "h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-700 hover:to-indigo-700 hover:text-white hover:shadow-xl hover:shadow-blue-500/30 sm:w-auto";
 
   return (
     <div className="min-h-dvh py-12 bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-indigo-950/30">
@@ -219,7 +313,7 @@ export function ContractAnalysis() {
                 </p>
                 <div className="flex w-full max-w-md flex-col items-stretch gap-3 sm:flex-row sm:justify-center">
                   <label htmlFor="file-upload" className="cursor-pointer">
-                    <Button asChild size="lg" className="h-12 w-full rounded-xl shadow-lg shadow-blue-500/25 transition-all hover:shadow-xl hover:shadow-blue-500/30 sm:w-auto">
+                    <Button asChild size="lg" className={uploadActionButtonClassName}>
                       <span>
                         <FileText className="mr-2 h-5 w-5" />
                         파일 선택
@@ -233,22 +327,15 @@ export function ContractAnalysis() {
                       onChange={handleFileChange}
                     />
                   </label>
-                  <label htmlFor="camera-upload" className="cursor-pointer">
-                    <Button asChild size="lg" variant="outline" className="h-12 w-full rounded-xl border-blue-200 bg-white/80 text-blue-700 transition-all hover:border-blue-400 hover:bg-blue-50 dark:border-blue-800 dark:bg-gray-900/70 dark:text-blue-300 dark:hover:bg-blue-950/50 sm:w-auto">
-                      <span>
-                        <Camera className="mr-2 h-5 w-5" />
-                        카메라로 촬영
-                      </span>
-                    </Button>
-                    <input
-                      id="camera-upload"
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
+                  <Button
+                    type="button"
+                    size="lg"
+                    className={uploadActionButtonClassName}
+                    onClick={openCamera}
+                  >
+                    <Camera className="mr-2 h-5 w-5" />
+                    카메라로 촬영
+                  </Button>
                 </div>
                 {file && (
                   <div className="mt-6 flex max-w-full min-w-0 items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
@@ -496,6 +583,60 @@ export function ContractAnalysis() {
           </motion.div>
         )}
       </div>
+
+      <Dialog
+        open={isCameraOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeCamera();
+          }
+        }}
+      >
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>계약서 촬영</DialogTitle>
+            <DialogDescription>
+              계약서가 화면 안에 모두 들어오도록 맞춘 뒤 촬영해주세요.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="overflow-hidden rounded-2xl border border-blue-100 bg-gray-950">
+              {cameraStream ? (
+                <video
+                  ref={videoRef}
+                  className="aspect-[3/4] w-full bg-gray-950 object-contain sm:aspect-video"
+                  muted
+                  playsInline
+                  autoPlay
+                />
+              ) : (
+                <div className="flex aspect-[3/4] w-full items-center justify-center px-6 text-center text-sm text-gray-200 sm:aspect-video">
+                  {cameraError ?? "카메라 권한을 요청하는 중입니다..."}
+                </div>
+              )}
+            </div>
+
+            {cameraError && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
+                {cameraError}
+              </div>
+            )}
+
+            <canvas ref={canvasRef} className="hidden" />
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button type="button" variant="outline" onClick={closeCamera}>
+              취소
+            </Button>
+            <Button type="button" onClick={captureCameraImage} disabled={!cameraStream}>
+              <Camera className="mr-2 h-4 w-4" />
+              촬영해서 업로드
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Save Analysis Result Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
