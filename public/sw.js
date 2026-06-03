@@ -1,12 +1,12 @@
-const CACHE_NAME = "banguard-shell-v4";
+const CACHE_NAME = "banguard-shell-v5";
 const APP_SHELL = [
-  "/manifest.webmanifest?v=banggadi-original-20260603",
-  "/favicon.ico?v=banggadi-original-20260603",
-  "/favicon.svg?v=banggadi-original-20260603",
-  "/apple-touch-icon.png?v=banggadi-original-20260603",
-  "/icons/banguard-icon.svg?v=banggadi-original-20260603",
-  "/icons/banguard-icon-192.png?v=banggadi-original-20260603",
-  "/icons/banguard-icon-512.png?v=banggadi-original-20260603",
+  "/manifest.webmanifest?v=banggadi-refresh-20260603-2",
+  "/favicon.ico?v=banggadi-refresh-20260603-2",
+  "/favicon.svg?v=banggadi-refresh-20260603-2",
+  "/apple-touch-icon.png?v=banggadi-refresh-20260603-2",
+  "/icons/banguard-icon.svg?v=banggadi-refresh-20260603-2",
+  "/icons/banguard-icon-192.png?v=banggadi-refresh-20260603-2",
+  "/icons/banguard-icon-512.png?v=banggadi-refresh-20260603-2",
 ];
 
 const FRESH_ASSET_PATHS = new Set([
