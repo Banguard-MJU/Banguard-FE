@@ -80,6 +80,7 @@ function formatWon(value?: number | null) {
 function mapRiskLevel(level: BackendRiskLevel): AnalysisResult["riskLevel"] {
   if (level === "LOW") return "low";
   if (level === "MEDIUM") return "medium";
+  if (level === "CRITICAL") return "critical";
   return "high";
 }
 
@@ -89,14 +90,28 @@ function mapIssueType(level: BackendRiskLevel): AnalysisResult["issues"][number]
   return "critical";
 }
 
+function isPreviousDepositRight(right: {
+  right_type: string;
+  amount?: number | null;
+  description?: string | null;
+}) {
+  if (typeof right.amount !== "number" || right.amount <= 0) {
+    return false;
+  }
+
+  const searchableText = `${right.right_type} ${right.description ?? ""}`;
+  return /전세권|임차권|선순위\s*전세|임대차/.test(searchableText);
+}
+
 export function mapContractAnalysisResponse(response: ContractAnalysisResponse): AnalysisResult {
   const conditions = response.parsed.conditions;
   const property = response.parsed.property_info;
   const deposit = conditions.deposit_amount ?? 0;
   const marketPrice = response.fraud_analysis.market_price;
   const estimatedMarketPrice = marketPrice?.estimated_market_price ?? 0;
+  const seniorRights = response.fraud_analysis.registry_info?.senior_rights ?? [];
   const mortgages = (() => {
-    const fromRegistry = (response.fraud_analysis.registry_info?.senior_rights ?? [])
+    const fromRegistry = seniorRights
       .filter((right) => right.right_type === "근저당권" && typeof right.amount === "number" && right.amount > 0)
       .map((right) => ({
         amount: right.amount ?? 0,
@@ -116,6 +131,9 @@ export function mapContractAnalysisResponse(response: ContractAnalysisResponse):
         date: mortgage.date ?? "",
       }));
   })();
+  const previousDeposits = seniorRights
+    .filter(isPreviousDepositRight)
+    .reduce((sum, right) => sum + (right.amount ?? 0), 0);
 
   return {
     riskLevel: mapRiskLevel(response.fraud_analysis.overall_risk),
@@ -152,7 +170,7 @@ export function mapContractAnalysisResponse(response: ContractAnalysisResponse):
       propertyValue: estimatedMarketPrice,
       deposit,
       mortgages,
-      previousDeposits: 0,
+      previousDeposits,
     },
   };
 }

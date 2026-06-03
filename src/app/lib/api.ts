@@ -1,18 +1,6 @@
 import { normalizeErrorMessage } from "./error-message";
 
-const AZURE_API_BASE_URL = "https://banguard-api.azurewebsites.net/api";
-
-function getDefaultApiBaseUrl() {
-  if (typeof window === "undefined") {
-    return "/api";
-  }
-
-  const hostname = window.location.hostname;
-  const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
-  return isLocalHost ? "/api" : AZURE_API_BASE_URL;
-}
-
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || getDefaultApiBaseUrl()).replace(/\/+$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/+$/, "");
 
 const ACCESS_TOKEN_STORAGE_KEY = "banguard_access_token";
 const REFRESH_TOKEN_STORAGE_KEY = "banguard_refresh_token";
@@ -59,18 +47,22 @@ function getErrorMessage(data: unknown) {
 }
 
 export function getAccessToken() {
-  return localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  return sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
 }
 
 export function setAuthTokens(tokens: AuthTokens) {
-  localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, tokens.access_token);
+  sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, tokens.access_token);
+  localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
 
   if (tokens.refresh_token) {
-    localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, tokens.refresh_token);
+    sessionStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, tokens.refresh_token);
+    localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
   }
 }
 
 export function clearAuthTokens() {
+  sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  sessionStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
   localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
   localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
 }

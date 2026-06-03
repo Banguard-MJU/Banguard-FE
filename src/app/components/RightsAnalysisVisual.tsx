@@ -76,6 +76,7 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
     { name: "내 보증금", value: data.deposit, color: "#3b82f6" },
     { name: "여유자금", value: Math.max(0, data.propertyValue - totalBurden), color: "#10b981" }
   ];
+  const visiblePieData = pieData.filter((item) => item.value > 0);
 
   // 바 차트 데이터
   const barData = [
@@ -201,7 +202,7 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
-                  data={pieData}
+                  data={visiblePieData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -210,15 +211,15 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`pie-cell-${entry.name}-${index}`} fill={entry.color} />
+                  {visiblePieData.map((entry) => (
+                    <Cell key={`pie-cell-${entry.name}`} fill={entry.color} />
                   ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
             <div className="mt-4 space-y-2">
-              {pieData.map((item, index) => (
-                <div key={`legend-${item.name}-${index}`} className="flex items-center justify-between text-sm">
+              {pieData.map((item) => (
+                <div key={`legend-${item.name}`} className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
                     <span>{item.name}</span>
@@ -262,8 +263,8 @@ export function RightsAnalysisVisual({ data }: RightsAnalysisVisualProps) {
                 <XAxis type="number" tickFormatter={(value) => formatCurrency(value)} />
                 <YAxis dataKey="name" type="category" width={100} />
                 <Bar dataKey="value" radius={[0, 8, 8, 0]} fill="#8884d8">
-                  {barData.map((entry, index) => (
-                    <Cell key={`bar-cell-${entry.name}-${index}`} fill={entry.fill} />
+                  {barData.map((entry) => (
+                    <Cell key={`bar-cell-${entry.name}`} fill={entry.fill} />
                   ))}
                 </Bar>
               </BarChart>

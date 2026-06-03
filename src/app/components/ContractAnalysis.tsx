@@ -48,6 +48,7 @@ export function ContractAnalysis() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { user } = useAuth();
@@ -77,24 +78,29 @@ export function ContractAnalysis() {
     });
   }, [cameraStream]);
 
+  const isSupportedContractFile = (selectedFile: File) => {
+    const fileType = selectedFile.type;
+    const extension = selectedFile.name.split(".").pop()?.toLowerCase();
+    const supportedExtensions = new Set(["pdf", "jpg", "jpeg", "png", "tif", "tiff", "heic", "heif"]);
+
+    return fileType === "application/pdf" || fileType.startsWith("image/") || Boolean(extension && supportedExtensions.has(extension));
+  };
+
   const handleSelectedFile = (selectedFile?: File) => {
     if (selectedFile) {
-      const fileType = selectedFile.type;
-      if (
-        fileType === "application/pdf" ||
-        fileType.startsWith("image/")
-      ) {
+      if (isSupportedContractFile(selectedFile)) {
         setFile(selectedFile);
         setResult(null);
         toast.success("파일이 업로드되었습니다");
       } else {
-        toast.error("PDF 또는 이미지 파일만 업로드 가능합니다");
+        toast.error("PDF, JPG, PNG, TIFF, HEIC 파일만 업로드 가능합니다");
       }
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleSelectedFile(e.target.files?.[0]);
+    e.target.value = "";
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -124,7 +130,8 @@ export function ContractAnalysis() {
 
   const openCamera = async () => {
     if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error("현재 브라우저에서는 카메라 촬영을 지원하지 않습니다");
+      setCameraError("현재 브라우저에서는 카메라 촬영을 지원하지 않습니다. 파일 선택으로 이미지를 업로드해주세요.");
+      setIsCameraOpen(true);
       return;
     }
 
@@ -226,6 +233,7 @@ export function ContractAnalysis() {
       case "low": return "text-green-600 bg-green-50 border-green-200";
       case "medium": return "text-yellow-600 bg-yellow-50 border-yellow-200";
       case "high": return "text-red-600 bg-red-50 border-red-200";
+      case "critical": return "text-rose-700 bg-rose-50 border-rose-300";
       default: return "";
     }
   };
@@ -235,6 +243,7 @@ export function ContractAnalysis() {
       case "low": return "낮은 위험";
       case "medium": return "중간 위험";
       case "high": return "높은 위험";
+      case "critical": return "매우 높은 위험";
       default: return "";
     }
   };
@@ -320,9 +329,10 @@ export function ContractAnalysis() {
                       </span>
                     </Button>
                     <input
+                      ref={fileInputRef}
                       id="file-upload"
                       type="file"
-                      accept=".pdf,image/*"
+                      accept=".pdf,.jpg,.jpeg,.png,.tif,.tiff,.heic,.heif,image/*"
                       className="hidden"
                       onChange={handleFileChange}
                     />
@@ -402,9 +412,9 @@ export function ContractAnalysis() {
               </TabsContent>
 
               <TabsContent value="issues" className="space-y-4">
-                {result.issues.map((issue, index) => (
+                {result.issues.map((issue) => (
                   <div
-                    key={index}
+                    key={`${issue.type}-${issue.title}-${issue.description}`}
                     role="alert"
                     className={`w-full rounded-lg border px-4 py-3 text-sm ${
                       issue.type === "critical" ? "border-red-200 bg-red-50" :
@@ -493,8 +503,8 @@ export function ContractAnalysis() {
                 <Card>
                   <CardContent className="pt-6">
                     <div className="space-y-3">
-                      {result.recommendations.map((rec, index) => (
-                        <div key={index} className="flex min-w-0 items-start gap-3">
+                      {result.recommendations.map((rec) => (
+                        <div key={rec} className="flex min-w-0 items-start gap-3">
                           <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
                           <p className={`min-w-0 text-gray-700 ${resultTextClassName}`}>
                             {rec}
@@ -553,7 +563,7 @@ export function ContractAnalysis() {
                 onClick={() => setIsDialogOpen(true)}
                 className={resultActionButtonClassName}
               >
-                분석 결과 저장
+                분석 이력 확인
               </Button>
               <Button 
                 variant="outline" 
@@ -596,7 +606,7 @@ export function ContractAnalysis() {
           <DialogHeader>
             <DialogTitle>계약서 촬영</DialogTitle>
             <DialogDescription>
-              계약서가 화면 안에 모두 들어오도록 맞춘 뒤 촬영해주세요.
+              계약서가 화면 안에 모두 들어오도록 맞춘 뒤 촬영해주세요. 카메라를 사용할 수 없으면 파일 선택으로 이미지를 업로드할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
 
@@ -630,6 +640,19 @@ export function ContractAnalysis() {
             <Button type="button" variant="outline" onClick={closeCamera}>
               취소
             </Button>
+            {cameraError && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  closeCamera();
+                  fileInputRef.current?.click();
+                }}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                파일 선택으로 업로드
+              </Button>
+            )}
             <Button type="button" onClick={captureCameraImage} disabled={!cameraStream}>
               <Camera className="mr-2 h-4 w-4" />
               촬영해서 업로드
@@ -642,9 +665,9 @@ export function ContractAnalysis() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>분석 결과 저장</DialogTitle>
+            <DialogTitle>분석 이력 확인</DialogTitle>
             <DialogDescription>
-              분석 결과를 저장하시겠습니까? 저장된 결과는 나중에 확인할 수 있습니다.
+              분석이 완료되면 현재 접속 세션의 대시보드 이력에 자동으로 추가됩니다. 서버 영구 저장은 아직 지원하지 않습니다.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -653,23 +676,16 @@ export function ContractAnalysis() {
               variant="outline"
               onClick={() => setIsDialogOpen(false)}
             >
-              취소
+              닫기
             </Button>
             <Button
               type="button"
               onClick={() => {
-                if (!user) {
-                  toast.error("로그인 후 저장할 수 있습니다");
-                  navigate("/login");
-                } else {
-                  // Save analysis result to server
-                  // This is a placeholder for actual save logic
-                  toast.success("분석 결과가 저장되었습니다");
-                }
                 setIsDialogOpen(false);
+                navigate("/dashboard");
               }}
             >
-              저장
+              대시보드에서 보기
             </Button>
           </DialogFooter>
         </DialogContent>

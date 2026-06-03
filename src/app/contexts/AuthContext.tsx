@@ -15,6 +15,7 @@ import type { UserProfile } from "../data/profile";
 
 const USER_STORAGE_KEY = "banguard_user";
 const USERS_STORAGE_KEY = "banguard_users";
+const LOCAL_AUTH_ENABLED = import.meta.env.DEV || import.meta.env.VITE_ENABLE_LOCAL_AUTH === "true";
 
 interface User {
   id: string;
@@ -104,37 +105,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const users = readUsers();
-    let didSeedUsers = false;
+    if (LOCAL_AUTH_ENABLED) {
+      const users = readUsers();
+      let didSeedUsers = false;
 
-    if (!users["demo@banguard.com"]) {
-      users["demo@banguard.com"] = {
-        id: "demo-user-001",
-        email: "demo@banguard.com",
-        password: "demo123",
-        name: "데모 사용자",
-        nickname: "방가드데모",
-        isAdmin: false,
-        createdAt: new Date().toISOString()
-      };
-      didSeedUsers = true;
-    }
+      if (!users["demo@banguard.com"]) {
+        users["demo@banguard.com"] = {
+          id: "demo-user-001",
+          email: "demo@banguard.com",
+          password: "demo123",
+          name: "데모 사용자",
+          nickname: "방가드데모",
+          isAdmin: false,
+          createdAt: new Date().toISOString()
+        };
+        didSeedUsers = true;
+      }
 
-    if (!users["admin@banguard.com"]) {
-      users["admin@banguard.com"] = {
-        id: "admin-user-001",
-        email: "admin@banguard.com",
-        password: "admin123",
-        name: "운영 관리자",
-        nickname: "방가드운영",
-        isAdmin: true,
-        createdAt: new Date().toISOString()
-      };
-      didSeedUsers = true;
-    }
+      if (!users["admin@banguard.com"]) {
+        users["admin@banguard.com"] = {
+          id: "admin-user-001",
+          email: "admin@banguard.com",
+          password: "admin123",
+          name: "운영 관리자",
+          nickname: "방가드운영",
+          isAdmin: true,
+          createdAt: new Date().toISOString()
+        };
+        didSeedUsers = true;
+      }
 
-    if (didSeedUsers) {
-      writeUsers(users);
+      if (didSeedUsers) {
+        writeUsers(users);
+      }
     }
 
     let isMounted = true;
@@ -166,7 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      if (savedUser) {
+      if (savedUser && LOCAL_AUTH_ENABLED) {
         try {
           const userData = JSON.parse(savedUser);
           if (isMounted) {
@@ -175,6 +178,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           localStorage.removeItem(USER_STORAGE_KEY);
         }
+      } else if (savedUser) {
+        persistSession(null);
       }
     };
 
@@ -201,10 +206,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       const backendError = getDisplayErrorMessage(error, "로그인에 실패했습니다");
 
-      // Keep locally seeded demo/admin accounts usable until backend seed data or OAuth exists.
-      const localResult = loginWithLocalUser(email, password);
-      if (localResult.success) {
-        return localResult;
+      if (LOCAL_AUTH_ENABLED) {
+        const localResult = loginWithLocalUser(email, password);
+        if (localResult.success) {
+          return localResult;
+        }
       }
 
       return { success: false, error: backendError };
@@ -305,9 +311,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createdAt: result.user?.createdAt || new Date().toISOString(),
       };
 
-      const users = readUsers();
-      users[newUser.email] = newUser;
-      writeUsers(users);
+      if (LOCAL_AUTH_ENABLED) {
+        const users = readUsers();
+        users[newUser.email] = newUser;
+        writeUsers(users);
+      }
 
       const userData = toUserSession(newUser);
       setUser(userData);
@@ -378,16 +386,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     };
 
-    // Update localStorage users data
-    const users = readUsers();
-    
-    if (users[user.email]) {
-      users[user.email] = {
-        ...users[user.email],
-        nickname: nextNickname,
-        profile: updatedUser.profile,
-      };
-      writeUsers(users);
+    if (LOCAL_AUTH_ENABLED) {
+      const users = readUsers();
+
+      if (users[user.email]) {
+        users[user.email] = {
+          ...users[user.email],
+          nickname: nextNickname,
+          profile: updatedUser.profile,
+        };
+        writeUsers(users);
+      }
     }
 
     // Update current session

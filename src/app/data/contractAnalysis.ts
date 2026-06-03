@@ -1,5 +1,5 @@
 export interface AnalysisResult {
-  riskLevel: "low" | "medium" | "high";
+  riskLevel: "low" | "medium" | "high" | "critical";
   riskScore: number;
   issues: {
     type: "critical" | "warning" | "info";

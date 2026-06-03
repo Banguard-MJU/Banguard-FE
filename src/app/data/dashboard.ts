@@ -1,4 +1,4 @@
-export type DashboardRiskLevel = "low" | "medium" | "high";
+export type DashboardRiskLevel = "low" | "medium" | "high" | "critical";
 export type DashboardRiskLevelInput = DashboardRiskLevel | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | string;
 export type DashboardDateInput = Date | string | number;
 
@@ -42,8 +42,9 @@ export function normalizeRiskLevel(level: DashboardRiskLevelInput): DashboardRis
     case "medium":
       return "medium";
     case "high":
-    case "critical":
       return "high";
+    case "critical":
+      return "critical";
     default:
       return "medium";
   }
@@ -70,6 +71,8 @@ export function getRiskBadgeClass(level: DashboardRiskLevelInput) {
       return "bg-yellow-100 text-yellow-700 border-yellow-200";
     case "high":
       return "bg-red-100 text-red-700 border-red-200";
+    case "critical":
+      return "bg-rose-100 text-rose-800 border-rose-300";
     default:
       return "";
   }
@@ -83,6 +86,8 @@ export function getRiskLabel(level: DashboardRiskLevelInput) {
       return "중간";
     case "high":
       return "높음";
+    case "critical":
+      return "매우 높음";
     default:
       return "";
   }
@@ -112,7 +117,7 @@ export function buildDashboardStats(history: AnalysisHistory[]) {
     },
     {
       label: "고위험 계약",
-      value: history.filter((item) => normalizeRiskLevel(item.riskLevel) === "high").length,
+      value: history.filter((item) => ["high", "critical"].includes(normalizeRiskLevel(item.riskLevel))).length,
       color: "text-red-600",
       bgColor: "bg-red-50"
     },
@@ -136,7 +141,7 @@ export function formatTimeAgo(date: DashboardDateInput) {
 }
 
 export function buildRecommendedActions(history: AnalysisHistory[]): RecommendedAction[] {
-  const latestHighRisk = history.find((item) => normalizeRiskLevel(item.riskLevel) === "high");
+  const latestHighRisk = history.find((item) => ["high", "critical"].includes(normalizeRiskLevel(item.riskLevel)));
 
   const actions: RecommendedAction[] = [
     {

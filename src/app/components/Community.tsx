@@ -921,8 +921,8 @@ export function Community() {
                 <div className="space-y-4 py-4">
                   {selectedPost.tags && selectedPost.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {selectedPost.tags.map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="rounded-lg text-xs dark:bg-gray-700 dark:text-gray-300">
+                      {selectedPost.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary" className="rounded-lg text-xs dark:bg-gray-700 dark:text-gray-300">
                           #{tag}
                         </Badge>
                       ))}
