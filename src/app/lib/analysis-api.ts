@@ -22,6 +22,11 @@ interface ContractAnalysisResponse {
       contract_end?: string | null;
       special_terms: string[];
     };
+    mortgages?: Array<{
+      amount?: number | null;
+      creditor?: string | null;
+      date?: string | null;
+    }> | null;
   };
   fraud_analysis: {
     overall_risk: BackendRiskLevel;
@@ -35,6 +40,14 @@ interface ContractAnalysisResponse {
     safe_items: string[];
     checklist: string[];
     summary: string;
+    registry_info?: {
+      senior_rights?: Array<{
+        right_type: string;
+        holder?: string | null;
+        amount?: number | null;
+        description?: string | null;
+      }> | null;
+    } | null;
     market_price?: {
       address: string;
       estimated_market_price?: number | null;
@@ -82,6 +95,27 @@ export function mapContractAnalysisResponse(response: ContractAnalysisResponse):
   const deposit = conditions.deposit_amount ?? 0;
   const marketPrice = response.fraud_analysis.market_price;
   const estimatedMarketPrice = marketPrice?.estimated_market_price ?? 0;
+  const mortgages = (() => {
+    const fromRegistry = (response.fraud_analysis.registry_info?.senior_rights ?? [])
+      .filter((right) => right.right_type === "근저당권" && typeof right.amount === "number" && right.amount > 0)
+      .map((right) => ({
+        amount: right.amount ?? 0,
+        creditor: right.holder ?? "미확인",
+        date: "",
+      }));
+
+    if (fromRegistry.length > 0) {
+      return fromRegistry;
+    }
+
+    return (response.parsed.mortgages ?? [])
+      .filter((mortgage) => typeof mortgage.amount === "number" && mortgage.amount > 0)
+      .map((mortgage) => ({
+        amount: mortgage.amount ?? 0,
+        creditor: mortgage.creditor ?? "미확인",
+        date: mortgage.date ?? "",
+      }));
+  })();
 
   return {
     riskLevel: mapRiskLevel(response.fraud_analysis.overall_risk),
@@ -117,7 +151,7 @@ export function mapContractAnalysisResponse(response: ContractAnalysisResponse):
     rightsData: {
       propertyValue: estimatedMarketPrice,
       deposit,
-      mortgages: [],
+      mortgages,
       previousDeposits: 0,
     },
   };
