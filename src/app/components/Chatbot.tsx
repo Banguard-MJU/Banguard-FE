@@ -908,7 +908,7 @@ export function Chatbot() {
         </div>
 
         {/* Messages Area */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
           {isEmpty ? (
             // Empty State
             <div className="flex min-h-full flex-col items-center justify-center px-4 py-10">
@@ -1112,7 +1112,7 @@ export function Chatbot() {
         </div>
 
         {!isEmpty && (
-          <div className="border-t border-blue-100/70 bg-white/80 px-4 py-4 backdrop-blur-xl dark:border-indigo-900/60 dark:bg-gray-900/80">
+          <div className="border-t border-blue-100/70 bg-white/80 px-4 pb-[calc(5rem+env(safe-area-inset-bottom))] pt-4 backdrop-blur-xl md:pb-4 dark:border-indigo-900/60 dark:bg-gray-900/80">
             <div className="mx-auto w-full max-w-4xl">
               {renderChatComposer()}
               <div className="mt-3 text-center text-xs text-gray-400 dark:text-gray-500">

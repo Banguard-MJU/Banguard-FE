@@ -22,6 +22,14 @@ import {
 } from "./ui/sheet";
 import { toast } from "sonner";
 
+const mobileNavItems = [
+  { path: "/", label: "홈", icon: Shield },
+  { path: "/contract-analysis", label: "분석", icon: FileText },
+  { path: "/chatbot", label: "상담", icon: MessageSquare },
+  { path: "/listings", label: "매물", icon: Building2 },
+  { path: "/community", label: "커뮤니티", icon: Users },
+];
+
 export function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,28 +49,53 @@ export function Navigation() {
     navigate("/");
   };
 
-  // Don't show navigation on auth pages or the dedicated chatbot surface
+  const MobileBottomNavigation = () => (
+    <nav
+      aria-label="모바일 주요 메뉴"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/70 bg-white/92 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-gray-800/70 dark:bg-gray-950/92 md:hidden"
+    >
+      <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+        {mobileNavItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.path);
+
+          return (
+            <button
+              key={item.path}
+              type="button"
+              onClick={() => navigate(item.path)}
+              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition ${
+                active
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                  : "text-gray-500 hover:bg-blue-50 hover:text-blue-700 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-blue-300"
+              }`}
+            >
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="max-w-full truncate">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+
+  // Don't show navigation on auth pages
   if (
     location.pathname === "/login" ||
     location.pathname === "/signup" ||
-    location.pathname === "/profile-setup" ||
-    location.pathname.startsWith("/chatbot")
+    location.pathname === "/profile-setup"
   ) {
     return null;
+  }
+
+  if (location.pathname.startsWith("/chatbot")) {
+    return <MobileBottomNavigation />;
   }
 
   const handleMenuItemClick = (path: string) => {
     navigate(path);
     setIsOpen(false);
   };
-
-  const mobileNavItems = [
-    { path: "/", label: "홈", icon: Shield },
-    { path: "/contract-analysis", label: "분석", icon: FileText },
-    { path: "/chatbot", label: "상담", icon: MessageSquare },
-    { path: "/listings", label: "매물", icon: Building2 },
-    { path: "/community", label: "커뮤니티", icon: Users },
-  ];
 
   return (
     <>
@@ -272,33 +305,7 @@ export function Navigation() {
         </div>
       </nav>
 
-      <nav
-        aria-label="모바일 주요 메뉴"
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200/70 bg-white/92 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-gray-800/70 dark:bg-gray-950/92 md:hidden"
-      >
-        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
-          {mobileNavItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
-
-            return (
-              <button
-                key={item.path}
-                type="button"
-                onClick={() => navigate(item.path)}
-                className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-semibold transition ${
-                  active
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
-                    : "text-gray-500 hover:bg-blue-50 hover:text-blue-700 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-blue-300"
-                }`}
-              >
-                <Icon className="h-5 w-5 shrink-0" />
-                <span className="max-w-full truncate">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+      <MobileBottomNavigation />
     </>
   );
 }

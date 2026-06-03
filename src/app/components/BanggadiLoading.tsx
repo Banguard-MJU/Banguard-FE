@@ -7,6 +7,7 @@ type BanggadiLoadingProps = {
 
 type BanggadiLoadingStyle = CSSProperties & {
   "--banggadi-progress": number;
+  "--banggadi-progress-position": string;
 };
 
 const DEFAULT_LOADING_TEXT = "계약서를 안전하게 분석하는 중...";
@@ -20,6 +21,7 @@ export function BanggadiLoading({ progress, text = DEFAULT_LOADING_TEXT }: Bangg
   const safeProgress = hasProgress ? clampProgress(progress) : 60;
   const style: BanggadiLoadingStyle = {
     "--banggadi-progress": safeProgress,
+    "--banggadi-progress-position": `${safeProgress}%`,
   };
 
   return (
@@ -152,4 +154,3 @@ export function BanggadiLoading({ progress, text = DEFAULT_LOADING_TEXT }: Bangg
     </div>
   );
 }
-

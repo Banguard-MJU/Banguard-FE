@@ -3,8 +3,12 @@
   --banggadi-yellow: #f59e0b;
   --banggadi-sky: #38bdf8;
   --banggadi-progress: 60;
+  --banggadi-progress-position: 60%;
+  --banggadi-runner-size: 72px;
+  --banggadi-runner-half: 36px;
 
-  width: min(420px, 90vw);
+  width: min(420px, 100%);
+  max-width: 100%;
   margin: 0 auto;
   color: var(--banggadi-navy);
   text-align: center;
@@ -19,9 +23,9 @@
 .banggadi-runner {
   position: absolute;
   top: 0;
-  left: calc(var(--banggadi-progress) * 1%);
-  width: 72px;
-  height: 72px;
+  left: clamp(var(--banggadi-runner-half), var(--banggadi-progress-position), calc(100% - var(--banggadi-runner-half)));
+  width: var(--banggadi-runner-size);
+  height: var(--banggadi-runner-size);
   transform: translateX(-50%);
   z-index: 2;
   pointer-events: none;
@@ -30,8 +34,8 @@
 
 .banggadi-runner-svg {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: var(--banggadi-runner-size);
+  height: var(--banggadi-runner-size);
   overflow: visible;
 }
 
@@ -61,6 +65,8 @@
   font-size: 0.95rem;
   font-weight: 700;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
 
 .banggadi-loading.is-indeterminate .banggadi-runner {
@@ -118,11 +124,31 @@
 @keyframes banggadi-run-across {
   0%,
   100% {
-    left: 0%;
+    left: var(--banggadi-runner-half);
   }
 
   50% {
-    left: 100%;
+    left: calc(100% - var(--banggadi-runner-half));
+  }
+}
+
+@media (max-width: 480px) {
+  .banggadi-loading {
+    --banggadi-runner-size: 60px;
+    --banggadi-runner-half: 30px;
+  }
+
+  .banggadi-loading-stage {
+    min-height: 76px;
+    padding-top: 40px;
+  }
+
+  .banggadi-loading-track {
+    height: 16px;
+  }
+
+  .banggadi-loading-text {
+    font-size: 0.9rem;
   }
 }
 

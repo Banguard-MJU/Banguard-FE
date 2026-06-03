@@ -202,7 +202,7 @@ export function ContractAnalysis() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col items-center justify-center border-2 border-dashed border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-950/30 rounded-2xl p-12 hover:border-blue-400 dark:hover:border-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 transition-all">
+            <div className="flex min-w-0 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-blue-200 bg-blue-50/30 p-6 transition-all hover:border-blue-400 hover:bg-blue-50/50 dark:border-blue-800 dark:bg-blue-950/30 dark:hover:border-blue-600 dark:hover:bg-blue-950/40 sm:p-12">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6">
                 <Upload className="w-8 h-8 text-white" />
               </div>
@@ -219,9 +219,9 @@ export function ContractAnalysis() {
                 />
               </label>
               {file && (
-                <div className="mt-6 flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700">
-                  <FileText className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  <span className="font-medium">{file.name}</span>
+                <div className="mt-6 flex max-w-full min-w-0 items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                  <FileText className="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400" />
+                  <span className="min-w-0 truncate font-medium">{file.name}</span>
                 </div>
               )}
             </div>
@@ -236,7 +236,7 @@ export function ContractAnalysis() {
             )}
 
             {analyzing && (
-              <div className="mt-8 rounded-2xl border border-blue-100 bg-white/70 px-4 py-8 shadow-inner shadow-blue-100/50 dark:border-blue-900/50 dark:bg-gray-900/40 dark:shadow-none">
+              <div className="mt-8 min-w-0 overflow-hidden rounded-2xl border border-blue-100 bg-white/70 px-4 py-8 shadow-inner shadow-blue-100/50 dark:border-blue-900/50 dark:bg-gray-900/40 dark:shadow-none">
                 <BanggadiLoading progress={progress} text={getAnalysisProgressText()} />
               </div>
             )}
