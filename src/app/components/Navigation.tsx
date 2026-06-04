@@ -200,8 +200,8 @@ export function Navigation() {
               </SheetContent>
             </Sheet>
 
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-2 rounded-xl group-hover:shadow-lg group-hover:shadow-blue-500/25 transition-all">
+            <Link to="/" className="flex items-center gap-2">
+              <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-2 rounded-xl">
                 <Shield className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <span className="font-bold text-lg sm:text-xl bg-gradient-to-r from-blue-700 to-indigo-700 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">

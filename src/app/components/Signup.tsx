@@ -428,7 +428,7 @@ export function Signup() {
                     disabled={isLoading}
                   />
                   <Label htmlFor="privacy" className="cursor-pointer text-sm flex-1">
-                    <span className="text-red-500">*</span> 개인정보 수집 및 이용동의 (필수)
+                    <span className="text-red-500">*</span> 개인정보 처리방침 및 수집·이용 동의 (필수)
                   </Label>
                   <button
                     type="button"
@@ -624,22 +624,24 @@ export function Signup() {
         <Dialog open={privacyDialogOpen} onOpenChange={setPrivacyDialogOpen}>
           <DialogContent className="max-w-2xl max-h-[80vh] rounded-3xl dark:bg-gray-800/95">
             <DialogHeader>
-              <DialogTitle className="text-2xl">개인정보 수집 및 이용동의</DialogTitle>
+              <DialogTitle className="text-2xl">개인정보 처리방침 및 수집·이용 동의</DialogTitle>
               <DialogDescription>
-                방가드의 개인정보 수집 및 이용에 대한 안내입니다
+                방가드 개인정보처리방침 기준으로 개인정보 처리 내용을 안내합니다
               </DialogDescription>
             </DialogHeader>
             <ScrollArea className="h-[60vh] pr-4">
               <div className="space-y-4 text-sm leading-relaxed pb-6">
                 <section>
-                  <h3 className="font-bold text-base mb-2">1. 개인정보의 수집 및 이용 목적</h3>
+                  <h3 className="font-bold text-base mb-2">1. 개인정보 처리 목적과 원칙</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    회사는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.
+                    방가드는 개인정보보호법, 정보통신망 이용촉진 및 정보보호 등에 관한 법률 등 관련 법령을 준수하며, 서비스 제공과 이용자 보호에 필요한 범위에서 개인정보를 처리합니다.
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
-                    <li>회원 가입 및 관리: 회원 자격 유지·관리, 서비스 부정이용 방지, 각종 고지·통지</li>
-                    <li>서비스 제공: 계약서 분석, AI 챗봇 상담, 커뮤니티 서비스 제공</li>
-                    <li>마케팅 및 광고 활용: 신규 서비스 개발 및 맞춤 서비스 제공, 이벤트 및 광고성 정보 제공</li>
+                    <li>회사 운영에 필요한 공지사항 전달</li>
+                    <li>이용문의 회신, 불만 처리 등 서비스 개선</li>
+                    <li>계약서 분석, AI 상담, 커뮤니티 등 회사 서비스 제공</li>
+                    <li>약관·법령 위반 및 부정 이용 방지와 제재</li>
+                    <li>이벤트 및 행사 안내 등 마케팅 활용</li>
                   </ul>
                 </section>
 
@@ -647,97 +649,140 @@ export function Signup() {
                   <h3 className="font-bold text-base mb-2">2. 수집하는 개인정보 항목</h3>
                   <div className="space-y-3">
                     <div>
-                      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">필수 항목:</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">회원가입 필수 항목:</p>
                       <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
-                        <li>이름, 이메일 주소, 비밀번호</li>
-                        <li>서비스 이용 기록, IP 주소, 쿠키, 접속 로그</li>
+                        <li>이메일 주소, 비밀번호, 이름, 닉네임, 휴대폰 번호</li>
                       </ul>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">선택 항목:</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">회원가입 선택 항목:</p>
                       <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
-                        <li>나이, 거주 지역, 관심사</li>
-                        <li>업로드한 계약서 파일 (OCR 분석용)</li>
+                        <li>대학교명</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-1">본인인증 및 이용 확인 항목:</p>
+                      <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
+                        <li>본인인증: 휴대폰 번호, 이메일 주소, 이름, 생년월일</li>
+                        <li>서비스 이용 및 부정 이용 확인: 서비스 이용기록, 쿠키</li>
                       </ul>
                     </div>
                   </div>
                 </section>
 
                 <section>
-                  <h3 className="font-bold text-base mb-2">3. 개인정보의 보유 및 이용기간</h3>
+                  <h3 className="font-bold text-base mb-2">3. 개인정보 수집 방법</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.
+                    회사는 다음 방식으로 개인정보를 수집합니다.
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
-                    <li>회원 탈퇴 시까지 (단, 관계 법령에 따라 보존 필요 시 해당 기간까지 보관)</li>
-                    <li>계약서 분석 데이터: 분석 완료 후 30일</li>
-                    <li>부정 이용 방지를 위한 기록: 6개월</li>
+                    <li>이용자가 홈페이지 또는 앱 등 회사 서비스에 직접 입력하는 방식</li>
+                    <li>회사가 발송한 이메일을 통해 이용자가 입력하는 방식</li>
+                    <li>고객센터 상담, 게시판 활동 등 서비스 이용 과정에서 입력하는 방식</li>
                   </ul>
                 </section>
 
                 <section>
                   <h3 className="font-bold text-base mb-2">4. 개인정보의 제3자 제공</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    회사는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 아래의 경우에는 예외로 합니다:
+                    회사는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 이용자가 사전에 공개하거나 제3자 제공에 동의한 경우 관련 법령 내에서 최소한으로 제공할 수 있으며, 법령에 의해 적법하게 강제되는 경우에는 동의 없이 제공될 수 있습니다.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="font-bold text-base mb-2">5. 개인정보의 보유 및 이용기간</h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-2">
+                    회사는 개인정보 수집·이용 목적 달성을 위한 기간 동안 개인정보를 보유 및 이용합니다. 내부 방침에 따라 서비스 부정이용기록은 부정 가입 및 이용 방지를 위해 회원 탈퇴 시점으로부터 최대 1년간 보관할 수 있습니다.
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
-                    <li>이용자가 사전에 동의한 경우</li>
-                    <li>법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우</li>
+                    <li>계약 또는 청약철회 등에 관한 기록: 5년</li>
+                    <li>대금결제 및 재화 등의 공급에 관한 기록: 5년</li>
+                    <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년</li>
+                    <li>표시·광고에 관한 기록: 6개월</li>
+                    <li>웹사이트 로그 기록 자료: 3개월</li>
+                    <li>전자금융거래에 관한 기록: 5년</li>
+                    <li>개인위치정보에 관한 기록: 6개월</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h3 className="font-bold text-base mb-2">5. 개인정보 처리의 위탁</h3>
+                  <h3 className="font-bold text-base mb-2">6. 개인정보의 파기</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    회사는 원활한 서비스 제공을 위해 다음과 같이 개인정보 처리업무를 위탁하고 있습니다:
+                    개인정보 처리 목적 달성, 보유·이용기간 경과 등 개인정보가 필요하지 않게 된 경우 지체 없이 파기합니다. 전자적 파일은 재생할 수 없는 기술적 방법으로 삭제하고, 종이 문서는 분쇄 또는 소각합니다.
                   </p>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
-                    <p className="text-gray-700 dark:text-gray-300">
-                      수탁업체: AWS (Amazon Web Services)<br />
-                      위탁업무: 클라우드 서버 호스팅, 데이터 저장
-                    </p>
-                  </div>
                 </section>
 
                 <section>
-                  <h3 className="font-bold text-base mb-2">6. 정보주체의 권리·의무 및 행사방법</h3>
+                  <h3 className="font-bold text-base mb-2">7. 정보주체의 권리와 동의 철회</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    정보주체는 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다:
+                    이용자 및 법정대리인은 언제든지 자신의 개인정보를 조회·수정하거나 개인정보 수집 동의 철회를 요청할 수 있습니다. 개인정보보호책임자 또는 담당자에게 서면, 전화, 전자우편으로 연락하면 회사는 지체 없이 조치합니다.
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
                     <li>개인정보 열람 요구</li>
-                    <li>오류 등이 있을 경우 정정 요구</li>
+                    <li>오류 등이 있을 경우 정정 요구 및 정정 완료 전 이용·제공 중지</li>
                     <li>삭제 요구</li>
                     <li>처리정지 요구</li>
+                    <li>개인정보 수집 동의 철회</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h3 className="font-bold text-base mb-2">7. 개인정보의 안전성 확보조치</h3>
+                  <h3 className="font-bold text-base mb-2">8. 광고성 정보 전송</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다:
+                    회사는 영리목적의 광고성 정보를 전송하는 경우 이용자의 명시적인 사전 동의를 받습니다. 수신자가 수신거부 또는 동의 철회 의사를 표시한 경우 광고성 정보를 전송하지 않으며 처리 결과를 알립니다.
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
-                    <li>관리적 조치: 내부관리계획 수립·시행, 정기적 직원 교육</li>
-                    <li>기술적 조치: 개인정보처리시스템 접근권한 관리, 접속기록 보관, 암호화, 보안프로그램 설치</li>
-                    <li>물리적 조치: 전산실, 자료보관실 등의 접근통제</li>
+                    <li>광고성 정보에는 회사명, 연락처, 수신 거부 또는 동의 철회 방법을 표시합니다.</li>
+                    <li>오후 9시부터 다음 날 오전 8시 사이 광고성 정보를 전송하는 경우 별도 사전 동의를 받습니다.</li>
+                    <li>수신거부 회피·방해, 연락처 자동 생성·등록, 전송자 신원 은폐 등은 하지 않습니다.</li>
                   </ul>
                 </section>
 
                 <section>
-                  <h3 className="font-bold text-base mb-2">8. 개인정보 보호책임자</h3>
+                  <h3 className="font-bold text-base mb-2">9. 아동의 개인정보 보호</h3>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    회사는 만 14세 이상의 이용자에 한하여 회원가입을 허용합니다. 만 14세 미만 아동의 개인정보 수집·이용·제공이 필요한 경우 법정대리인의 동의를 받습니다.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="font-bold text-base mb-2">10. 쿠키의 설치·운영 및 거부</h3>
+                  <p className="text-gray-700 dark:text-gray-300 mb-2">
+                    회사는 맞춤서비스 제공을 위해 쿠키를 사용할 수 있습니다. 이용자는 브라우저 설정을 통해 쿠키 허용, 확인, 차단을 선택할 수 있으며, 쿠키 저장을 거부할 경우 로그인이 필요한 일부 서비스 이용에 어려움이 있을 수 있습니다.
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
+                    <li>Edge: 설정 &gt; 쿠키 및 사이트 권한 &gt; 쿠키 및 사이트 데이터 관리 및 삭제</li>
+                    <li>Chrome: 설정 &gt; 개인정보 및 보안 &gt; 쿠키 및 기타 사이트 데이터</li>
+                    <li>Whale: 설정 &gt; 개인정보 보호 &gt; 쿠키 및 기타 사이트 데이터</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="font-bold text-base mb-2">11. 개인정보 보호책임자</h3>
                   <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
                     <p className="text-gray-700 dark:text-gray-300">
-                      성명: 방가드 개인정보보호팀<br />
-                      이메일: privacy@banguard.com<br />
-                      전화: 02-1234-5678
+                      성명: 홍길동<br />
+                      직책: CTO<br />
+                      전화번호: 000-0000-0000<br />
+                      이메일: hello@banguard.com
                     </p>
                   </div>
+                </section>
+
+                <section>
+                  <h3 className="font-bold text-base mb-2">12. 권익침해 구제방법</h3>
+                  <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
+                    <li>개인정보분쟁조정위원회: 1833-6972, www.kopico.go.kr</li>
+                    <li>개인정보침해신고센터: 118, privacy.kisa.or.kr</li>
+                    <li>대검찰청: 1301, www.spo.go.kr</li>
+                    <li>경찰청: 182, ecrm.cyber.go.kr</li>
+                    <li>중앙행정심판위원회: 110, www.simpan.go.kr</li>
+                  </ul>
                 </section>
 
                 <section className="pt-4 border-t dark:border-gray-700">
                   <p className="text-gray-500 dark:text-gray-400 text-xs">
-                    시행일: 2024년 1월 1일
+                    시행일: 2026년 3월 16일
                   </p>
                 </section>
               </div>
@@ -757,9 +802,9 @@ export function Signup() {
             <ScrollArea className="h-[60vh] pr-4">
               <div className="space-y-4 text-sm leading-relaxed pb-6">
                 <section>
-                  <h3 className="font-bold text-base mb-2">1. 마케팅 정보 수신 목적</h3>
+                  <h3 className="font-bold text-base mb-2">1. 광고성 정보 전송 동의</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    회사는 고객에게 더 나은 서비스와 혜택을 제공하기 위해 다음과 같은 마케팅 정보를 전송합니다:
+                    회사는 전자적 전송매체를 이용하여 영리목적의 광고성 정보를 전송하는 경우 이용자의 명시적인 사전 동의를 받습니다. 동의한 경우 다음과 같은 정보를 받을 수 있습니다:
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
                     <li>신규 서비스 및 기능 출시 안내</li>
@@ -773,7 +818,7 @@ export function Signup() {
                 <section>
                   <h3 className="font-bold text-base mb-2">2. 수신 방법</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    마케팅 정보는 다음의 방법으로 제공됩니다:
+                    마케팅 정보는 다음의 방법으로 제공될 수 있으며, 광고성 정보에는 회사명, 연락처, 수신 거부 또는 수신 동의 철회 방법을 표시합니다:
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
                     <li>이메일 (가입 시 등록한 이메일 주소)</li>
@@ -785,7 +830,7 @@ export function Signup() {
                 <section>
                   <h3 className="font-bold text-base mb-2">3. 수신 동의 철회</h3>
                   <p className="text-gray-700 dark:text-gray-300 mb-2">
-                    마케팅 정보 수신에 동의하신 후에도 언제든지 다음의 방법으로 수신을 거부하실 수 있습니다:
+                    마케팅 정보 수신에 동의한 후에도 언제든지 수신을 거부하거나 동의를 철회할 수 있습니다. 회사는 수신거부 또는 동의 철회 의사가 표시된 경우 영리목적의 광고성 정보를 전송하지 않으며 처리 결과를 알립니다.
                   </p>
                   <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
                     <li>마이페이지 &gt; 알림 설정에서 수신 거부</li>
@@ -798,7 +843,14 @@ export function Signup() {
                 </section>
 
                 <section>
-                  <h3 className="font-bold text-base mb-2">4. 개인정보 이용</h3>
+                  <h3 className="font-bold text-base mb-2">4. 야간 광고성 정보 전송</h3>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    오후 9시부터 그다음 날 오전 8시까지의 시간에 전자적 전송매체로 영리목적의 광고성 정보를 전송하는 경우 별도의 사전 동의를 받습니다.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="font-bold text-base mb-2">5. 개인정보 이용</h3>
                   <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg space-y-2">
                     <p className="text-gray-700 dark:text-gray-300">
                       <span className="font-semibold">수집 항목:</span> 이메일 주소, 이름, 서비스 이용 기록
@@ -813,7 +865,17 @@ export function Signup() {
                 </section>
 
                 <section>
-                  <h3 className="font-bold text-base mb-2">5. 동의하지 않을 권리</h3>
+                  <h3 className="font-bold text-base mb-2">6. 금지되는 전송 조치</h3>
+                  <ul className="list-disc list-inside space-y-1 text-gray-700 dark:text-gray-300 ml-4">
+                    <li>수신거부 또는 수신동의 철회를 회피·방해하는 조치</li>
+                    <li>수신자의 연락처를 자동 생성하거나 자동 등록하는 조치</li>
+                    <li>광고 전송자의 신원이나 광고 전송 출처를 감추는 조치</li>
+                    <li>수신자를 기망하여 회신을 유도하는 조치</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="font-bold text-base mb-2">7. 동의하지 않을 권리</h3>
                   <p className="text-gray-700 dark:text-gray-300">
                     마케팅 정보 수신은 선택사항입니다. 동의하지 않으셔도 서비스 이용에는 제한이 없으며, 다만 각종 이벤트 및 혜택 정보를 받으실 수 없습니다.
                   </p>
@@ -831,7 +893,7 @@ export function Signup() {
 
                 <section className="pt-4 border-t dark:border-gray-700">
                   <p className="text-gray-500 dark:text-gray-400 text-xs">
-                    시행일: 2024년 1월 1일
+                    개인정보처리방침 시행일: 2026년 3월 16일
                   </p>
                 </section>
               </div>

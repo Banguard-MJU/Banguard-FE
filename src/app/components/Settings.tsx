@@ -37,6 +37,15 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
 import { getDisplayErrorMessage } from "../lib/error-message";
+import {
+  DEFAULT_NOTIFICATION_PREFERENCES,
+  getBrowserNotificationPermission,
+  readNotificationPreferences,
+  requestBrowserNotificationPermission,
+  showLocalNotification,
+  type NotificationPreferences,
+  writeNotificationPreferences,
+} from "../lib/notification-settings";
 import { MIN_PASSWORD_LENGTH, getPasswordMinLengthMessage } from "../lib/password-policy";
 import {
   CATEGORY_CONFIG,
@@ -57,24 +66,6 @@ import {
 
 type SettingsSection = "profile" | "activity" | "notifications" | "saved";
 
-type NotificationPreferences = {
-  push: boolean;
-  comment: boolean;
-  reply: boolean;
-  like: boolean;
-  marketing: boolean;
-};
-
-const NOTIFICATION_SETTINGS_STORAGE_KEY = "banguard_notification_settings";
-
-const DEFAULT_NOTIFICATION_PREFERENCES: NotificationPreferences = {
-  push: true,
-  comment: true,
-  reply: true,
-  like: true,
-  marketing: false,
-};
-
 const SECTION_CONFIG: Array<{
   id: SettingsSection;
   title: string;
@@ -86,32 +77,6 @@ const SECTION_CONFIG: Array<{
   { id: "notifications", title: "알림", description: "커뮤니티와 서비스 알림 제어", icon: Bell },
   { id: "saved", title: "저장됨", description: "북마크한 게시글 모아보기", icon: Bookmark },
 ];
-
-function readNotificationSettingsMap(): Record<string, NotificationPreferences> {
-  if (typeof window === "undefined") {
-    return {};
-  }
-
-  const rawValue = window.localStorage.getItem(NOTIFICATION_SETTINGS_STORAGE_KEY);
-  if (!rawValue) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(rawValue) as Record<string, NotificationPreferences>;
-  } catch {
-    window.localStorage.removeItem(NOTIFICATION_SETTINGS_STORAGE_KEY);
-    return {};
-  }
-}
-
-function writeNotificationSettingsMap(settingsMap: Record<string, NotificationPreferences>) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(NOTIFICATION_SETTINGS_STORAGE_KEY, JSON.stringify(settingsMap));
-}
 
 function formatRecordedDate(value: string) {
   return new Date(value).toLocaleString("ko-KR", {
@@ -228,6 +193,9 @@ export function Settings() {
   const [notificationSettings, setNotificationSettings] = useState<NotificationPreferences>(
     DEFAULT_NOTIFICATION_PREFERENCES
   );
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | "unsupported">(
+    getBrowserNotificationPermission()
+  );
 
   useEffect(() => {
     setNickname(user?.nickname || "");
@@ -253,8 +221,19 @@ export function Settings() {
       return;
     }
 
-    const settingsMap = readNotificationSettingsMap();
-    setNotificationSettings(settingsMap[user.id] ?? DEFAULT_NOTIFICATION_PREFERENCES);
+    const browserPermission = getBrowserNotificationPermission();
+    const savedPreferences = readNotificationPreferences(user.id);
+    const normalizedPreferences =
+      savedPreferences.push && browserPermission !== "granted"
+        ? { ...savedPreferences, push: false }
+        : savedPreferences;
+
+    setNotificationPermission(browserPermission);
+    setNotificationSettings(normalizedPreferences);
+
+    if (savedPreferences.push !== normalizedPreferences.push) {
+      writeNotificationPreferences(user.id, normalizedPreferences);
+    }
   }, [user?.id]);
 
   const communityActivity = useMemo(() => getCommunityActivityStore(user?.id), [user?.id]);
@@ -288,19 +267,19 @@ export function Settings() {
     [bookmarkedPosts.length, likedPosts.length]
   );
 
-  const handleNotificationChange = (type: keyof NotificationPreferences, value: boolean) => {
+  const saveNotificationSettings = (nextSettings: NotificationPreferences) => {
+    setNotificationSettings(nextSettings);
+
+    if (user?.id) {
+      writeNotificationPreferences(user.id, nextSettings);
+    }
+  };
+
+  const handleNotificationChange = async (type: keyof NotificationPreferences, value: boolean) => {
     const nextSettings = {
       ...notificationSettings,
       [type]: value,
     };
-
-    setNotificationSettings(nextSettings);
-
-    if (user?.id) {
-      const settingsMap = readNotificationSettingsMap();
-      settingsMap[user.id] = nextSettings;
-      writeNotificationSettingsMap(settingsMap);
-    }
 
     const labels: Record<keyof NotificationPreferences, string> = {
       push: "푸시 알림",
@@ -309,7 +288,74 @@ export function Settings() {
       like: "좋아요 알림",
       marketing: "마케팅/이벤트 알림",
     };
+
+    if (type === "push" && value) {
+      const permission = await requestBrowserNotificationPermission();
+      setNotificationPermission(permission);
+
+      if (permission === "unsupported") {
+        saveNotificationSettings({ ...nextSettings, push: false });
+        toast.error("현재 브라우저에서는 알림을 지원하지 않습니다");
+        return;
+      }
+
+      if (permission !== "granted") {
+        saveNotificationSettings({ ...nextSettings, push: false });
+        toast.error("브라우저 알림 권한이 허용되지 않았습니다. 브라우저 설정에서 권한을 허용해주세요.");
+        return;
+      }
+
+      saveNotificationSettings(nextSettings);
+      showLocalNotification("방가드 알림이 켜졌습니다", {
+        body: "이제 허용한 항목에 대해 알림을 받을 수 있습니다.",
+      });
+      toast.success("푸시 알림이 활성화되었습니다");
+      return;
+    }
+
+    if (type === "push" && !value) {
+      saveNotificationSettings(nextSettings);
+      toast.success("푸시 알림이 비활성화되었습니다");
+      return;
+    }
+
+    if (!notificationSettings.push && value) {
+      toast.error("먼저 푸시 알림을 켜주세요");
+      return;
+    }
+
+    saveNotificationSettings(nextSettings);
     toast.success(value ? `${labels[type]}이 활성화되었습니다` : `${labels[type]}이 비활성화되었습니다`);
+  };
+
+  const handleTestNotification = async () => {
+    const permission = await requestBrowserNotificationPermission();
+    setNotificationPermission(permission);
+
+    if (permission === "unsupported") {
+      toast.error("현재 브라우저에서는 알림을 지원하지 않습니다");
+      return;
+    }
+
+    if (permission !== "granted") {
+      toast.error("브라우저 알림 권한을 허용해야 테스트 알림을 보낼 수 있습니다");
+      return;
+    }
+
+    if (!notificationSettings.push) {
+      const nextSettings = { ...notificationSettings, push: true };
+      saveNotificationSettings(nextSettings);
+    }
+
+    const didShowNotification = showLocalNotification("방가드 테스트 알림", {
+      body: "알림 설정이 정상적으로 작동합니다.",
+    });
+
+    if (didShowNotification) {
+      toast.success("테스트 알림을 보냈습니다");
+    } else {
+      toast.error("테스트 알림을 표시하지 못했습니다");
+    }
   };
 
   const handleProfileUpdate = async (event: React.FormEvent) => {
@@ -736,15 +782,50 @@ export function Settings() {
     </div>
   );
 
+  const notificationPermissionLabel = (() => {
+    switch (notificationPermission) {
+      case "granted":
+        return "브라우저 권한 허용됨";
+      case "denied":
+        return "브라우저 권한 차단됨";
+      case "default":
+        return "브라우저 권한 미설정";
+      case "unsupported":
+        return "브라우저 미지원";
+      default:
+        return "확인 필요";
+    }
+  })();
+
+  const notificationPermissionBadgeClassName = (() => {
+    switch (notificationPermission) {
+      case "granted":
+        return "border-green-200 bg-green-50 text-green-700";
+      case "denied":
+        return "border-red-200 bg-red-50 text-red-700";
+      case "unsupported":
+        return "border-slate-200 bg-slate-100 text-slate-600";
+      default:
+        return "border-yellow-200 bg-yellow-50 text-yellow-700";
+    }
+  })();
+
   const renderNotificationsSection = () => (
     <div className="space-y-6">
       <Card className="rounded-[28px] border-0 bg-white/85 shadow-sm shadow-slate-200/50 ring-1 ring-slate-200/70 dark:bg-gray-900/75 dark:ring-gray-800">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Bell className="w-5 h-5 text-indigo-500" />
-            알림 기본 설정
-          </CardTitle>
-          <CardDescription>받고 싶은 알림만 남기고 방해되는 알림은 줄여보세요.</CardDescription>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <Bell className="w-5 h-5 text-indigo-500" />
+                알림 기본 설정
+              </CardTitle>
+              <CardDescription className="mt-1">받고 싶은 알림만 남기고 방해되는 알림은 줄여보세요.</CardDescription>
+            </div>
+            <Badge variant="outline" className={`w-fit rounded-full ${notificationPermissionBadgeClassName}`}>
+              {notificationPermissionLabel}
+            </Badge>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {[
@@ -773,21 +854,42 @@ export function Settings() {
               title: "마케팅 및 이벤트",
               description: "새 정책, 이벤트, 캠페인 안내를 받습니다.",
             },
-          ].map((item) => (
-            <div
-              key={item.key}
-              className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-slate-50/80 px-5 py-4 dark:border-gray-800 dark:bg-gray-900/50"
-            >
-              <div>
-                <p className="font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
+          ].map((item) => {
+            const isDependentNotification = item.key !== "push";
+            const isDisabled = isDependentNotification && !notificationSettings.push;
+
+            return (
+              <div
+                key={item.key}
+                className={`flex items-center justify-between gap-4 rounded-3xl border border-slate-200 bg-slate-50/80 px-5 py-4 transition-opacity dark:border-gray-800 dark:bg-gray-900/50 ${
+                  isDisabled ? "opacity-55" : ""
+                }`}
+              >
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{item.title}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
+                </div>
+                <Switch
+                  checked={notificationSettings[item.key]}
+                  disabled={isDisabled}
+                  onCheckedChange={(checked) => handleNotificationChange(item.key, checked)}
+                />
               </div>
-              <Switch
-                checked={notificationSettings[item.key]}
-                onCheckedChange={(checked) => handleNotificationChange(item.key, checked)}
-              />
+            );
+          })}
+          <div className="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 dark:border-indigo-900/60 dark:bg-indigo-950/20">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium text-gray-900 dark:text-gray-100">알림 테스트</p>
+                <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                  브라우저 권한과 푸시 설정이 정상인지 바로 확인할 수 있습니다.
+                </p>
+              </div>
+              <Button type="button" variant="outline" className="rounded-full" onClick={handleTestNotification}>
+                테스트 알림 보내기
+              </Button>
             </div>
-          ))}
+          </div>
         </CardContent>
       </Card>
     </div>
