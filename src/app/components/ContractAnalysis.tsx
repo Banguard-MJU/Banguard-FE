@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, Info, MessageSquare, Landmark, ChevronRight, Camera, ScanText, Loader2 } from "lucide-react";
+import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, Info, MessageSquare, Landmark, ChevronRight, Camera } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Progress } from "./ui/progress";
@@ -48,10 +48,6 @@ export function ContractAnalysis() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [scanPreviewUrl, setScanPreviewUrl] = useState<string | null>(null);
-  const [recognizedText, setRecognizedText] = useState("");
-  const [ocrProgress, setOcrProgress] = useState(0);
-  const [ocrStatus, setOcrStatus] = useState<"idle" | "processing" | "done" | "failed">("idle");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -66,11 +62,8 @@ export function ContractAnalysis() {
   useEffect(() => {
     return () => {
       stopMediaStream(cameraStream);
-      if (scanPreviewUrl) {
-        URL.revokeObjectURL(scanPreviewUrl);
-      }
     };
-  }, [cameraStream, scanPreviewUrl]);
+  }, [cameraStream]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -132,13 +125,6 @@ export function ContractAnalysis() {
     stopMediaStream(cameraStream);
     setCameraStream(null);
     setCameraError(null);
-    setOcrProgress(0);
-    setOcrStatus("idle");
-    setRecognizedText("");
-    if (scanPreviewUrl) {
-      URL.revokeObjectURL(scanPreviewUrl);
-      setScanPreviewUrl(null);
-    }
     setIsCameraOpen(false);
   };
 
@@ -150,13 +136,6 @@ export function ContractAnalysis() {
     }
 
     setCameraError(null);
-    setOcrProgress(0);
-    setOcrStatus("idle");
-    setRecognizedText("");
-    if (scanPreviewUrl) {
-      URL.revokeObjectURL(scanPreviewUrl);
-      setScanPreviewUrl(null);
-    }
     setIsCameraOpen(true);
 
     try {
@@ -175,74 +154,7 @@ export function ContractAnalysis() {
     }
   };
 
-  const createScannedDocumentBlob = async (video: HTMLVideoElement, canvas: HTMLCanvasElement) => {
-    const sourceWidth = video.videoWidth;
-    const sourceHeight = video.videoHeight;
-    const cropWidth = Math.floor(sourceWidth * 0.88);
-    const cropHeight = Math.floor(sourceHeight * 0.78);
-    const cropX = Math.floor((sourceWidth - cropWidth) / 2);
-    const cropY = Math.floor((sourceHeight - cropHeight) / 2);
-    const targetWidth = Math.min(1800, cropWidth);
-    const targetHeight = Math.round(targetWidth * (cropHeight / cropWidth));
-
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
-
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    if (!context) {
-      throw new Error("스캔 이미지를 생성하지 못했습니다");
-    }
-
-    context.drawImage(video, cropX, cropY, cropWidth, cropHeight, 0, 0, targetWidth, targetHeight);
-
-    const imageData = context.getImageData(0, 0, targetWidth, targetHeight);
-    const data = imageData.data;
-
-    for (let index = 0; index < data.length; index += 4) {
-      const gray = data[index] * 0.299 + data[index + 1] * 0.587 + data[index + 2] * 0.114;
-      const contrasted = Math.max(0, Math.min(255, (gray - 128) * 1.32 + 142));
-      data[index] = contrasted;
-      data[index + 1] = contrasted;
-      data[index + 2] = contrasted;
-    }
-
-    context.putImageData(imageData, 0, 0);
-
-    return new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error("스캔 이미지를 저장하지 못했습니다"));
-          return;
-        }
-
-        resolve(blob);
-      }, "image/jpeg", 0.94);
-    });
-  };
-
-  const runOcrPreview = async (blob: Blob) => {
-    setOcrStatus("processing");
-    setOcrProgress(0);
-    setRecognizedText("");
-
-    try {
-      const { recognize } = await import("tesseract.js");
-      const result = await recognize(blob, "kor+eng", {
-        logger: (message) => {
-          if (message.status === "recognizing text") {
-            setOcrProgress(Math.round((message.progress ?? 0) * 100));
-          }
-        },
-      });
-      setRecognizedText(result.data.text.trim());
-      setOcrStatus("done");
-    } catch {
-      setOcrStatus("failed");
-      toast.error("텍스트 인식 미리보기에 실패했습니다. 스캔 이미지는 그대로 업로드할 수 있습니다.");
-    }
-  };
-
-  const captureCameraImage = async () => {
+  const captureCameraImage = () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
 
@@ -251,23 +163,28 @@ export function ContractAnalysis() {
       return;
     }
 
-    try {
-      const blob = await createScannedDocumentBlob(video, canvas);
-      const capturedFile = new File([blob], `contract-scan-${Date.now()}.jpg`, {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      toast.error("촬영 이미지를 생성하지 못했습니다");
+      return;
+    }
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        toast.error("촬영 이미지를 저장하지 못했습니다");
+        return;
+      }
+
+      const capturedFile = new File([blob], `contract-camera-${Date.now()}.jpg`, {
         type: "image/jpeg"
       });
-      if (scanPreviewUrl) {
-        URL.revokeObjectURL(scanPreviewUrl);
-      }
-      setScanPreviewUrl(URL.createObjectURL(blob));
       handleSelectedFile(capturedFile);
-      stopMediaStream(cameraStream);
-      setCameraStream(null);
-      toast.success("문서 스캔 이미지가 준비되었습니다");
-      void runOcrPreview(blob);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "문서 스캔에 실패했습니다");
-    }
+      closeCamera();
+    }, "image/jpeg", 0.92);
   };
 
   const analyzeContract = async () => {
@@ -382,7 +299,7 @@ export function ContractAnalysis() {
             <CardHeader>
               <CardTitle className="text-2xl">계약서 업로드</CardTitle>
               <CardDescription className="text-base">
-                PDF/이미지를 업로드하거나, 카메라로 계약서를 문서 스캔해 텍스트 인식까지 확인할 수 있습니다
+                PDF 파일이나 이미지 파일을 업로드하거나, 모바일에서 계약서를 직접 촬영해주세요
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -426,8 +343,8 @@ export function ContractAnalysis() {
                     className={uploadActionButtonClassName}
                     onClick={openCamera}
                   >
-                    <ScanText className="mr-2 h-5 w-5" />
-                    문서 스캔
+                    <Camera className="mr-2 h-5 w-5" />
+                    카메라로 촬영
                   </Button>
                 </div>
                 {file && (
@@ -687,76 +604,28 @@ export function ContractAnalysis() {
       >
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>계약서 문서 스캔</DialogTitle>
+            <DialogTitle>계약서 촬영</DialogTitle>
             <DialogDescription>
-              계약서 가장자리를 가이드 프레임 안에 맞추면 문서를 보정하고 텍스트 인식 미리보기를 생성합니다.
+              계약서가 화면 안에 모두 들어오도록 맞춘 뒤 촬영해주세요. 카메라를 사용할 수 없으면 파일 선택으로 이미지를 업로드할 수 있습니다.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="overflow-hidden rounded-2xl border border-blue-100 bg-gray-950">
               {cameraStream ? (
-                <div className="relative">
-                  <video
-                    ref={videoRef}
-                    className="aspect-[3/4] w-full bg-gray-950 object-contain sm:aspect-video"
-                    muted
-                    playsInline
-                    autoPlay
-                  />
-                  <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
-                    <div className="relative h-[78%] w-[88%] rounded-2xl border-2 border-white/90 shadow-[0_0_0_999px_rgba(15,23,42,0.35)]">
-                      <div className="absolute left-3 top-3 h-8 w-8 rounded-tl-xl border-l-4 border-t-4 border-blue-300" />
-                      <div className="absolute right-3 top-3 h-8 w-8 rounded-tr-xl border-r-4 border-t-4 border-blue-300" />
-                      <div className="absolute bottom-3 left-3 h-8 w-8 rounded-bl-xl border-b-4 border-l-4 border-blue-300" />
-                      <div className="absolute bottom-3 right-3 h-8 w-8 rounded-br-xl border-b-4 border-r-4 border-blue-300" />
-                    </div>
-                  </div>
-                  <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-slate-950/75 px-4 py-3 text-center text-xs font-medium leading-5 text-white backdrop-blur-sm sm:text-sm">
-                    문서 전체가 프레임 안에 들어오게 맞춘 뒤 스캔해주세요.
-                  </div>
-                </div>
+                <video
+                  ref={videoRef}
+                  className="aspect-[3/4] w-full bg-gray-950 object-contain sm:aspect-video"
+                  muted
+                  playsInline
+                  autoPlay
+                />
               ) : (
                 <div className="flex aspect-[3/4] w-full items-center justify-center px-6 text-center text-sm text-gray-200 sm:aspect-video">
                   {cameraError ?? "카메라 권한을 요청하는 중입니다..."}
                 </div>
               )}
             </div>
-
-            {scanPreviewUrl && (
-              <div className="grid gap-4 sm:grid-cols-[0.85fr_1.15fr]">
-                <div className="overflow-hidden rounded-2xl border border-blue-100 bg-slate-50 dark:border-gray-800 dark:bg-gray-900">
-                  <img src={scanPreviewUrl} alt="스캔된 계약서 미리보기" className="max-h-80 w-full object-contain" />
-                </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      <ScanText className="h-4 w-4 text-blue-600" />
-                      텍스트 인식 미리보기
-                    </div>
-                    {ocrStatus === "processing" && (
-                      <Badge variant="outline" className="rounded-full">
-                        {ocrProgress}%
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="max-h-64 overflow-y-auto whitespace-pre-wrap rounded-xl bg-slate-50 p-3 text-sm leading-6 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                    {ocrStatus === "processing" && (
-                      <div className="flex items-center gap-2 text-gray-500">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        문서 텍스트를 인식하는 중입니다...
-                      </div>
-                    )}
-                    {ocrStatus === "done" && (recognizedText || "인식된 텍스트가 적습니다. 이미지가 흐리면 다시 스캔해주세요.")}
-                    {ocrStatus === "failed" && "텍스트 인식 미리보기에 실패했습니다. 스캔 이미지는 그대로 분석할 수 있습니다."}
-                    {ocrStatus === "idle" && "스캔 후 텍스트 미리보기가 여기에 표시됩니다."}
-                  </div>
-                  <p className="mt-3 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                    미리보기는 확인용입니다. 최종 위험 분석은 스캔 이미지를 서버 OCR로 다시 분석합니다.
-                  </p>
-                </div>
-              </div>
-            )}
 
             {cameraError && (
               <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
@@ -784,18 +653,9 @@ export function ContractAnalysis() {
                 파일 선택으로 업로드
               </Button>
             )}
-            {scanPreviewUrl && (
-              <Button type="button" variant="outline" onClick={closeCamera}>
-                스캔 완료
-              </Button>
-            )}
-            <Button type="button" onClick={captureCameraImage} disabled={!cameraStream || ocrStatus === "processing"}>
-              {ocrStatus === "processing" ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <ScanText className="mr-2 h-4 w-4" />
-              )}
-              문서 스캔하기
+            <Button type="button" onClick={captureCameraImage} disabled={!cameraStream}>
+              <Camera className="mr-2 h-4 w-4" />
+              촬영해서 업로드
             </Button>
           </DialogFooter>
         </DialogContent>
